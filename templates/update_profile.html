@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Update Profile</title>
+</head>
+<body>
+<h1>Update Profile</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <p style="color: {{ 'red' if category == 'danger' else 'green' }}">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" enctype="multipart/form-data">
+    <label for="username">New Username:</label>
+    <input type="text" id="username" name="username" value="{{ current_user.username }}">
+    <br>
+    <label for="password">New Password:</label>
+    <input type="password" id="password" name="password">
+    <br>
+    <label for="avatar">Upload Avatar:</label>
+    <input type="file" id="avatar" name="avatar">
+    <br>
+    <button type="submit">Update Profile</button>
+</form>
+
+<br>
+<a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+{% if current_user.role == 'admin' %}
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-warning">Go to Admin Panel</a>
+{% endif %}
+
+
+<h3>Current Avatar:</h3>
+<img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar" width="150">
+</body>
+</html>

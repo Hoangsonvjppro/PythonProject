@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <h1>Welcome, {{ current_user.username if current_user.is_authenticated else "Guest" }}!</h1>
+
+        {% if current_user.is_authenticated %}
+            <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar" class="rounded-circle mt-3" width="150">
+            <div class="mt-3">
+                <a class="nav-link" href="{{ url_for('speech.speech_to_text') }}">Test Speech</a>
+                <a href="{{ url_for('update_profile') }}" class="btn btn-primary">Update Profile</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+            </div>
+        {% else %}
+            <div class="mt-3">
+                <a href="{{ url_for('login') }}" class="btn btn-success">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-warning">Register</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
