@@ -6,11 +6,13 @@ from werkzeug.utils import secure_filename
 from functools import wraps
 from speech import speech_bp
 from translate import translate_bp
+from flask_cors import CORS
 import os
 
 
 # init Flask
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
