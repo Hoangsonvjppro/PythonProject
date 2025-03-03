@@ -8,7 +8,7 @@ from speech import speech_bp
 import os
 
 
-# Khởi tạo Flask
+# init Flask
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -16,15 +16,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
 app.register_blueprint(speech_bp)
-# Khởi tạo database
+# init database
 db = SQLAlchemy(app)
 
-# Cấu hình Flask-Login
+#Flask-Login configuration
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
 
-# Định nghĩa model User
+#model User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
