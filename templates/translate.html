@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %} Text Translating {% endblock %}
+
+{% block content %}
+	<div class="container">
+        <h2 class="text-center">Translate Text</h2>
+        <form id="translate-form" class="mt-3">
+            <div class="mb-3">
+                <label for="text" class="form-label">Enter text:</label>
+                <textarea name="text" id="text" rows="3" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="target_lang" class="form-control"></label>
+                <select id="target_lang" class="form-select" name="target_lang">
+                    <option value="en">English</option>
+                    <option value="vi">Vietnamese</option>
+                    <option value="cn">Chinese</option>
+                    <option value="ja">Japanese</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">translate</button>
+        </form>
+        <h3 class="mt-3" id="translatedText"></h3>
+    </div>
+
+    <script>
+        document.getElementById("translate-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let text = document.getElementById("text").value;
+            let target_lang = document.getElementById("target_lang").value;
+
+            fetch("/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text: text, target_lang: target_lang })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("translatedText").innerText = "Kết quả: " + data.translated_text;
+                    } else {
+                        document.getElementById("translatedText").innerText = "Lỗi: " + data.error;
+                    }
+                })
+                .catch(error => console.error("Lỗi:", error));
+        });
+
+    </script>
+{% endblock %}

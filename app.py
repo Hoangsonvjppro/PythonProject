@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, abort
+from flask import Flask, render_template, redirect, url_for, request, flash, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
 from speech import speech_bp
+from translate import translate_bp
 import os
 
 
@@ -16,6 +17,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
 app.register_blueprint(speech_bp)
+app.register_blueprint(translate_bp)
+@app.errorhandler(500)
+def handle_internal_error(error):
+    return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
 # init database
 db = SQLAlchemy(app)
 
