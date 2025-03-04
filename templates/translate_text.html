@@ -25,27 +25,35 @@
     </div>
 
     <script>
-        document.getElementById("translate-form").addEventListener("submit", function(event) {
+        document.getElementById("translate-form").addEventListener("submit", async function(event) {
             event.preventDefault();
+
             let text = document.getElementById("text").value;
             let target_lang = document.getElementById("target_lang").value;
 
-            fetch("/translate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ text: text, target_lang: target_lang })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById("translatedText").innerText = "Kết quả: " + data.translated_text;
-                    } else {
-                        document.getElementById("translatedText").innerText = "Lỗi: " + data.error;
-                    }
-                })
-                .catch(error => console.error("Lỗi:", error));
+            console.log("Sending request:", { text: text, target_lang: target_lang });
+
+            try {
+                let response = await fetch("/translate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ text: text, target_lang: target_lang })
+                });
+
+                let data = await response.json();
+                console.log("Received response:", data);
+
+                if (data.success) {
+                    document.getElementById("translatedText").innerText = "Kết quả: " + data.translated_text;
+                } else {
+                    document.getElementById("translatedText").innerText = "Lỗi: " + data.error;
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById("translatedText").innerText = "Lỗi khi gửi request!";
+            }
         });
 
     </script>
