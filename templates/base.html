@@ -24,7 +24,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin</a></li>
                     {% endif %}
                     <li><a class="nav-link" href="{{ url_for('speech.speech_to_text') }}">Test Speech</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('translate.translate') }}">Translate</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('translate.translate_text') }}">Translate</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('update_profile') }}">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
                 {% else %}
