@@ -4,15 +4,18 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
-from Modules.speech import speech_bp
-from Modules.translate import translate_bp
 from flask_cors import CORS
+from flask_socketio import SocketIO
+from modules.speech import speech_bp
+from modules.translate import translate_bp
+from modules.chat import chatting, register_socketio_events
 import os
 
 
 # init Flask
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -20,6 +23,10 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 
 app.register_blueprint(speech_bp)
 app.register_blueprint(translate_bp)
+app.register_blueprint(chatting)
+register_socketio_events(socketio)
+
+
 @app.errorhandler(500)
 def handle_internal_error(error):
     return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
@@ -153,4 +160,4 @@ if __name__ == '__main__':
     app.debug = True
     with app.app_context():
         db.create_all()
-    app.run()
+    socketio.run(app, debug=True)

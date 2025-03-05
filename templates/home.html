@@ -7,7 +7,8 @@
         <h1>Welcome, {{ current_user.username if current_user.is_authenticated else "Guest" }}!</h1>
 
         {% if current_user.is_authenticated %}
-            <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar" class="rounded-circle mt-3" width="150">
+            <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar"
+                 class="rounded-circle mt-3" width="150">
             <div class="mt-3">
                 <a href="{{ url_for('update_profile') }}" class="btn btn-primary">Update Profile</a>
                 <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
