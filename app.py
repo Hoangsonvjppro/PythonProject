@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send
 from modules.speech import speech_bp
 from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
