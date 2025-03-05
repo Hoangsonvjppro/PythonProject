@@ -1,26 +1,27 @@
-<a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">Back to Home</a>
+{% extends "base.html" %}
 
-<table class="table table-bordered">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Role</th>
-        {#        <th>Action</th>#}
-    </tr>
-    </thead>
-    <tbody>
-    {% for user in users %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">Back to Home</a>
+    <table class="table table-bordered">
+        <thead>
         <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
-            {#            <td>#}
-            {#                <a href="{{ url_for('update_user', user_id=user.id) }}" class="btn btn-sm btn-primary">Edit</a>#}
-            {#            </td>#}
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

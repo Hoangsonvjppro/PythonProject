@@ -21,7 +21,7 @@ def register_socketio_events(socketio):
 
     @socketio.on('send_message')
     def handle_send_message(data):
-        username = data.get({'username': None})
+        username = data.get('username', None)
         message = data.get('message', '')
         emit('new_message', {'username': username, 'message': message}, broadcast=True)
 

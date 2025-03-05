@@ -11,41 +11,31 @@ from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
 import os
 
-
-# init Flask
+# Khởi tạo Flask
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app)
+
+# Cấu hình cơ sở dữ liệu và khóa bí mật
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your_secret_key'  # Thay bằng khóa an toàn hơn
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-app.config['SECRET_KEY'] = 'your_secret_key'
-
-app.register_blueprint(speech_bp)
-app.register_blueprint(translate_bp)
-app.register_blueprint(chatting)
-register_socketio_events(socketio)
-
-
-@app.errorhandler(500)
-def handle_internal_error(error):
-    return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
-
-# init database
+# Khởi tạo cơ sở dữ liệu
 db = SQLAlchemy(app)
 
-#Flask-Login configuration
+# Cấu hình Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-
-#model User
+# Model User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
-    avatar = db.Column(db.String(200), nullable=True, default="default.jpg")  # Thêm ảnh đại diện
+    avatar = db.Column(db.String(200), nullable=True, default="default.jpg")
     role = db.Column(db.String(50), nullable=False, default="user")
 
     def set_password(self, password):
@@ -54,11 +44,12 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# Decorator yêu cầu quyền admin
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.role == "admin":
-            abort(403) #return 403 error Forbidden if !=admin
+        if not current_user.is_authenticated or current_user.role != "admin":
+            abort(403)  # Trả về lỗi 403 nếu không phải admin
         return f(*args, **kwargs)
     return decorated_function
 
@@ -67,36 +58,38 @@ def admin_required(f):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Route trang chủ
 @app.route('/')
 def home():
     return render_template('home.html', current_user=current_user)
 
-
+# Route đăng ký
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        email = request.form['email']  # Thêm email
+        email = request.form['email']
         password = request.form['password']
-        role = request.form['role']
+        role = request.form['role']  # Cần sửa để mặc định là "user"
 
         if User.query.filter_by(username=username).first():
-            flash("Username already exists!", "danger")
+            flash("Tên người dùng đã tồn tại!", "danger")
             return redirect(url_for('register'))
 
-        if User.query.filter_by(email=email).first():  # Kiểm tra email trùng
-            flash("Email already registered!", "danger")
+        if User.query.filter_by(email=email).first():
+            flash("Email đã được đăng ký!", "danger")
             return redirect(url_for('register'))
 
-        new_user = User(username=username, email=email, role=role)  # Lưu email
+        new_user = User(username=username, email=email, role=role)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
-        flash("Registration successful! You can now login.", "success")
+        flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
         return redirect(url_for('login'))
 
     return render_template('register.html')
 
+# Route đăng nhập
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -106,17 +99,15 @@ def login():
 
         if user and user.check_password(password):
             login_user(user)
-            flash("Login successful!", "success")
+            flash("Đăng nhập thành công!", "success")
             return redirect(url_for('home'))
         else:
-            flash("Invalid username or password!", "danger")
+            flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
             return redirect(url_for('login'))
 
     return render_template('login.html')
 
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+# Route cập nhật hồ sơ
 @app.route('/update-profile', methods=['GET', 'POST'])
 @login_required
 def update_profile():
@@ -137,11 +128,12 @@ def update_profile():
             current_user.avatar = filename
 
         db.session.commit()
-        flash('Profile updated successfully!', 'success')
+        flash('Cập nhật hồ sơ thành công!', 'success')
         return redirect(url_for('update_profile'))
 
     return render_template('update_profile.html')
 
+# Route bảng điều khiển admin
 @app.route('/admin')
 @login_required
 @admin_required
@@ -149,12 +141,24 @@ def admin_dashboard():
     users = User.query.all()
     return render_template('admin.html', users=users)
 
+# Route đăng xuất
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out.", "info")
+    flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('home'))
+
+# Xử lý lỗi 500
+@app.errorhandler(500)
+def handle_internal_error(error):
+    return jsonify({'success': False, 'error': 'Lỗi máy chủ nội bộ'}), 500
+
+# Đăng ký blueprints
+app.register_blueprint(speech_bp)
+app.register_blueprint(translate_bp)
+app.register_blueprint(chatting)
+register_socketio_events(socketio)
 
 if __name__ == '__main__':
     app.debug = True
