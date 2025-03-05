@@ -4,8 +4,8 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
-from speech import speech_bp
-from translate import translate_bp
+from Modules.speech import speech_bp
+from Modules.translate import translate_bp
 from flask_cors import CORS
 import os
 
