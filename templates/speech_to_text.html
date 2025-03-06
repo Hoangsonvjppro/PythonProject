@@ -3,24 +3,67 @@
 {% block title %}Speech to Text{% endblock %}
 
 {% block content %}
-    <div class="container text-center">
-        <h2>Chuyển giọng nói thành văn bản</h2>
-        <button id="recordBtn" class="btn btn-primary mt-3">🎤 Bấm để nói</button>
-        <p id="resultText" class="mt-3"></p>
+    <div class="container">
+        <h2 class="text-center">Practice Your Pronunciation</h2>
+        <p class="text-center text-muted">Click "Record" next to a sentence, then read it aloud. The system will evaluate your pronunciation.</p>
+
+        <!-- Danh sách câu mẫu -->
+        <div class="row mt-4">
+            {% for sentence in sample_sentences %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">{{ sentence }}</p>
+                            <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}">🎤 Record</button>
+                            <span class="status-text ms-2" id="status-{{ loop.index0 }}"></span>
+                            <p class="result-text mt-2" id="result-{{ loop.index0 }}"></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
     <script>
-        document.getElementById("recordBtn").addEventListener("click", function() {
-            fetch("/speech_to_text", { method: "POST" })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById("resultText").innerText = "Bạn nói: " + data.text;
-                    } else {
-                        document.getElementById("resultText").innerText = "Lỗi: " + data.error;
-                    }
+        document.querySelectorAll('.record-btn').forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const sentence = this.getAttribute('data-sentence');
+                const statusText = document.getElementById(`status-${index}`);
+                const resultText = document.getElementById(`result-${index}`);
+
+                // Cập nhật trạng thái ghi âm
+                statusText.textContent = "Recording...";
+                this.disabled = true;
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-secondary');
+
+                fetch('/speech_to_text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sample_sentence: sentence })
                 })
-                .catch(error => console.error("Lỗi:", error));
+                    .then(response => response.json())
+                    .then(data => {
+                        statusText.textContent = "";
+                        this.disabled = false;
+                        this.classList.remove('btn-secondary');
+                        this.classList.add('btn-primary');
+
+                        if (data.success) {
+                            resultText.innerHTML = `You said: "${data.text}"<br>Accuracy: ${data.accuracy}%<br>Feedback: ${data.feedback}`;
+                        } else {
+                            resultText.textContent = `Error: ${data.error}`;
+                        }
+                    })
+                    .catch(error => {
+                        statusText.textContent = "";
+                        this.disabled = false;
+                        this.classList.remove('btn-secondary');
+                        this.classList.add('btn-primary');
+                        resultText.textContent = "Error: Could not connect to the server.";
+                        console.error("Error:", error);
+                    });
+            });
         });
     </script>
 {% endblock %}
