@@ -149,6 +149,10 @@ def logout():
     flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('home'))
 
+# @app.route('/settings', methods=['GET', 'POST'])
+# @login_required
+# def settings():
+#     return render_template()
 # Xử lý lỗi 500
 @app.errorhandler(500)
 def handle_internal_error(error):
