@@ -161,7 +161,7 @@ app.register_blueprint(chatting)
 register_socketio_events(socketio)
 
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = False
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=False)

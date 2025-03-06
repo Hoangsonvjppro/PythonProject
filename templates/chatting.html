@@ -8,13 +8,13 @@
     <div class="chat-container">
         <div class="chat-header">Chat Cộng Đồng</div>
         <div class="username-container">
-            <span id="current-username">Your username: Guest</span>
-            <input type="text" id="username-input" placeholder="Enter new username" />
+            <span id="current-username">Your username: {{ current_user.username if current_user.is_authenticated else 'Guest' }}</span>
+            <label for="username-input"></label><input type="text" id="username-input" placeholder="Enter new username" />
             <button id="update-username-button">Update</button>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input">
-            <input type="text" id="message-input" placeholder="Type your message..." />
+            <label for="message-input"></label><input type="text" id="message-input" placeholder="Type your message..." />
             <button id="send-button">Send</button>
         </div>
     </div>
@@ -28,7 +28,7 @@
         const usernameInput = document.getElementById("username-input");
         const updateUsernameButton = document.getElementById("update-username-button");
 
-        let currentUsername = "Guest";
+        let currentUsername = "{{ current_user.username if current_user.is_authenticated else 'Guest' }}";
 
         socket.on("set_username", (data) => {
             currentUsername = data.username;
@@ -86,10 +86,12 @@
                 const isSentMessage = username === currentUsername;
                 if (isSentMessage) {
                     messageElement.classList.add("sent");
+                } else {
+                    messageElement.classList.add("received");
                 }
 
                 const avatarImg = document.createElement("img");
-                avatarImg.src = avatar || "{{ url_for('static', filename='default-avatar.png') }}";
+                avatarImg.src = `/static/uploads/${avatar || 'default.jpg'}`;
                 avatarImg.className = "avatar";
                 messageElement.appendChild(avatarImg);
 

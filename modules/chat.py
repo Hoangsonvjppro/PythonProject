@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
 from flask_socketio import emit, join_room, leave_room
+from flask_login import current_user  # Thêm import này
 
 # Tạo Blueprint cho chat
 chatting = Blueprint('chatting', __name__)
@@ -21,9 +22,14 @@ def register_socketio_events(socketio):
 
     @socketio.on('send_message')
     def handle_send_message(data):
-        username = data.get('username', None)
+        if current_user.is_authenticated:
+            username = current_user.username
+            avatar = current_user.avatar
+        else:
+            username = 'Guest'
+            avatar = 'static/img/male.svg'  # Đảm bảo có file default.jpg trong thư mục static/uploads
         message = data.get('message', '')
-        emit('new_message', {'username': username, 'message': message}, broadcast=True)
+        emit('new_message', {'username': username, 'message': message, 'avatar': avatar}, broadcast=True)
 
     @socketio.on('join_room')
     def handle_join_room(data):
