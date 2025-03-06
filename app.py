@@ -16,10 +16,10 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app)
 
-# Cấu hình cơ sở dữ liệu và khóa bí mật
+# Cấu hình
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'  # Thay bằng khóa an toàn hơn
+app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # Khởi tạo cơ sở dữ liệu
@@ -49,7 +49,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != "admin":
-            abort(403)  # Trả về lỗi 403 nếu không phải admin
+            abort(403)
         return f(*args, **kwargs)
     return decorated_function
 
@@ -63,6 +63,11 @@ def load_user(user_id):
 def home():
     return render_template('home.html', current_user=current_user)
 
+# Route Settings (mới)
+@app.route('/settings')
+def settings():
+    return render_template('settings.html', current_user=current_user)
+
 # Route đăng ký
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -70,24 +75,22 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        role = request.form['role']  # Cần sửa để mặc định là "user"
+        role = request.form.get('role', 'user')  # Mặc định là user
 
         if User.query.filter_by(username=username).first():
             flash("Tên người dùng đã tồn tại!", "danger")
-            return redirect(url_for('register'))
-
+            return redirect(url_for('settings'))
         if User.query.filter_by(email=email).first():
             flash("Email đã được đăng ký!", "danger")
-            return redirect(url_for('register'))
+            return redirect(url_for('settings'))
 
         new_user = User(username=username, email=email, role=role)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
         flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
-        return redirect(url_for('login'))
-
-    return render_template('register.html')
+        return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
 # Route đăng nhập
 @app.route('/login', methods=['GET', 'POST'])
@@ -103,9 +106,8 @@ def login():
             return redirect(url_for('home'))
         else:
             flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
-            return redirect(url_for('login'))
-
-    return render_template('login.html')
+            return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
 # Route cập nhật hồ sơ
 @app.route('/update-profile', methods=['GET', 'POST'])
@@ -118,10 +120,8 @@ def update_profile():
 
         if new_username:
             current_user.username = new_username
-
         if new_password:
             current_user.set_password(new_password)
-
         if avatar:
             filename = secure_filename(avatar.filename)
             avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -129,9 +129,8 @@ def update_profile():
 
         db.session.commit()
         flash('Cập nhật hồ sơ thành công!', 'success')
-        return redirect(url_for('update_profile'))
-
-    return render_template('update_profile.html')
+        return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
 # Route bảng điều khiển admin
 @app.route('/admin')
@@ -149,10 +148,6 @@ def logout():
     flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('home'))
 
-# @app.route('/settings', methods=['GET', 'POST'])
-# @login_required
-# def settings():
-#     return render_template()
 # Xử lý lỗi 500
 @app.errorhandler(500)
 def handle_internal_error(error):
@@ -165,7 +160,7 @@ app.register_blueprint(chatting)
 register_socketio_events(socketio)
 
 if __name__ == '__main__':
-    app.debug = False
+    app.debug = True
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=False)
+    socketio.run(app, debug=True)
