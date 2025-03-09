@@ -14,7 +14,7 @@ import os
 # Khởi tạo Flask
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet')
 
 # Cấu hình cơ sở dữ liệu và khóa bí mật
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -164,4 +164,4 @@ if __name__ == '__main__':
     app.debug = True
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
