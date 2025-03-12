@@ -93,7 +93,7 @@ def register():
     return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
 # Route đăng nhập
-@app.route('/login', s=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -164,4 +164,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     socketio.run(app, debug=True)
-    #iiiiiiiiiii
+
