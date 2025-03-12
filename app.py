@@ -74,24 +74,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
-        password = request.form['password']
-        role = request.form.get('role', 'user')  # Mặc định là user
-
-        if User.query.filter_by(username=username).first():
-            flash("Tên người dùng đã tồn tại!", "danger")
-            return redirect(url_for('settings'))
-        if User.query.filter_by(email=email).first():
-            flash("Email đã được đăng ký!", "danger")
-            return redirect(url_for('settings'))
-
-        new_user = User(username=username, email=email, role=role)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
-        return redirect(url_for('settings'))
-    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
-
+        password = request.form['password'] role = request.form.get('role', 'user')  # Mặc định là user if User.query.filter_by(ullllllllllllllllllllsername=username).first(): flash("Tên người dùng đã tồn tại!", "danger") return redirect(url_for('settings')) if User.query.filter_by(email=email).first(): flash("Email đã được đăng ký!", "danger") return redirect(url_for('settings')) new_user = User(username=username, email=email, role=role) new_user.set_password(password) db.session.add(new_user) db.session.commit() flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success") return redirect(url_for('settings')) return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 # Route đăng nhập
 @app.route('/login', methods=['GET', 'POST'])
 def login():
