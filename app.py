@@ -5,10 +5,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO
 from modules.speech import speech_bp
 from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
+from datetime import datetime
 import os
 
 # Khởi tạo Flask
@@ -16,13 +17,17 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app)
 
-# Cấu hình
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# Cấu hình database
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # Lấy đường dẫn thư mục hiện tại
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'users.db')}"
+app.config['SQLALCHEMY_BINDS'] = {
+    'chats': f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'chats.db')}"
+}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Khởi tạo cơ sở dữ liệu
+# Khởi tạo SQLAlchemy
 db = SQLAlchemy(app)
 
 # Cấu hình Flask-Login
@@ -44,6 +49,18 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# Model Chat
+class ChatMessage(db.Model):
+    __bind_key__ = 'chats'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    avatar = db.Column(db.String(200), nullable=True, default="default.jpg")
+    message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ChatMessage {self.username}: {self.message}>"
+
 # Decorator yêu cầu quyền admin
 def admin_required(f):
     @wraps(f)
@@ -63,74 +80,69 @@ def load_user(user_id):
 def home():
     return render_template('home.html', current_user=current_user)
 
-# Route Settings (mới)
+# Route Settings
 @app.route('/settings')
 def settings():
     return render_template('settings.html', current_user=current_user)
 
 # Route đăng ký
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        role = request.form.get('role', 'user')  # Mặc định là user
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    role = request.form.get('role', 'user')
 
-        if User.query.filter_by(username=username).first():
-            flash("Tên người dùng đã tồn tại!", "danger")
-            return redirect(url_for('settings'))
-        if User.query.filter_by(email=email).first():
-            flash("Email đã được đăng ký!", "danger")
-            return redirect(url_for('settings'))
-
-        new_user = User(username=username, email=email, role=role)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
+    if User.query.filter_by(username=username).first():
+        flash("Tên người dùng đã tồn tại!", "danger")
         return redirect(url_for('settings'))
-    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
+    if User.query.filter_by(email=email).first():
+        flash("Email đã được đăng ký!", "danger")
+        return redirect(url_for('settings'))
+
+    new_user = User(username=username, email=email, role=role)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+    flash("Đăng ký thành công!", "success")
+    return redirect(url_for('settings'))
 
 # Route đăng nhập
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+    username = request.form['username']
+    password = request.form['password']
+    user = User.query.filter_by(username=username).first()
 
-        if user and user.check_password(password):
-            login_user(user)
-            flash("Đăng nhập thành công!", "success")
-            return redirect(url_for('home'))
-        else:
-            flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
-            return redirect(url_for('settings'))
-    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
+    if user and user.check_password(password):
+        login_user(user)
+        flash("Đăng nhập thành công!", "success")
+        return redirect(url_for('home'))
+    else:
+        flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
+        return redirect(url_for('settings'))
 
 # Route cập nhật hồ sơ
-@app.route('/update-profile', methods=['GET', 'POST'])
+@app.route('/update-profile', methods=['POST'])
 @login_required
 def update_profile():
-    if request.method == 'POST':
-        new_username = request.form['username']
-        new_password = request.form['password']
-        avatar = request.files['avatar']
+    new_username = request.form.get('username')
+    new_password = request.form.get('password')
+    avatar = request.files.get('avatar')
 
-        if new_username:
-            current_user.username = new_username
-        if new_password:
-            current_user.set_password(new_password)
-        if avatar:
-            filename = secure_filename(avatar.filename)
-            avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            current_user.avatar = filename
+    if new_username:
+        current_user.username = new_username
+    if new_password:
+        current_user.set_password(new_password)
+    if avatar:
+        filename = secure_filename(avatar.filename)
+        avatar_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        avatar.save(avatar_path)
+        current_user.avatar = filename
 
-        db.session.commit()
-        flash('Cập nhật hồ sơ thành công!', 'success')
-        return redirect(url_for('settings'))
-    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
+    db.session.commit()
+    flash('Cập nhật hồ sơ thành công!', 'success')
+    return redirect(url_for('settings'))
 
 # Route bảng điều khiển admin
 @app.route('/admin')
@@ -151,14 +163,18 @@ def logout():
 # Xử lý lỗi 500
 @app.errorhandler(500)
 def handle_internal_error(error):
+    print(f"❌ Lỗi máy chủ: {error}")  # Debug lỗi
     return jsonify({'success': False, 'error': 'Lỗi máy chủ nội bộ'}), 500
 
 # Đăng ký blueprints
 app.register_blueprint(speech_bp)
 app.register_blueprint(translate_bp)
 app.register_blueprint(chatting)
+
+# Đăng ký sự kiện SocketIO
 register_socketio_events(socketio)
 
+# Chạy ứng dụng
 if __name__ == '__main__':
     app.debug = True
     with app.app_context():
