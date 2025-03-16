@@ -1,12 +1,10 @@
-
 from flask import Flask, render_template, redirect, url_for, request, flash, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
 from flask_socketio import SocketIO, send
+from models.models import db, User, Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, SpeechTest
 from modules.speech import speech_bp
 from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
@@ -18,35 +16,17 @@ CORS(app)
 socketio = SocketIO(app, async_mode='eventlet')
 
 # Cấu hình
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learning_app.db'  # Đổi tên DB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # Khởi tạo cơ sở dữ liệu
-db = SQLAlchemy(app)
+db.init_app(app)
 
 # Cấu hình Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
-
-
-
-# Model User
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    avatar = db.Column(db.String(200), nullable=True, default="default.jpg")
-    role = db.Column(db.String(50), nullable=False, default="user")
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 # Decorator yêu cầu quyền admin
 def admin_required(f):
@@ -67,7 +47,7 @@ def load_user(user_id):
 def home():
     return render_template('home.html', current_user=current_user)
 
-# Route Settings (mới)
+# Route Settings
 @app.route('/settings')
 def settings():
     return render_template('settings.html', current_user=current_user)
@@ -163,9 +143,80 @@ app.register_blueprint(translate_bp)
 app.register_blueprint(chatting)
 register_socketio_events(socketio)
 
+# Khởi tạo dữ liệu mẫu ban đầu
+def init_sample_data():
+    # Thêm cấp độ (A1-C1)
+    if not Level.query.first():
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1']
+        for level_name in levels:
+            level = Level(level_name=level_name)
+            db.session.add(level)
+        db.session.commit()
+
+    # Thêm bài kiểm tra speech test mặc định
+    if not Test.query.first():
+        level_a1 = Level.query.filter_by(level_name='A1').first()
+        speech_test = Test(
+            test_type='speech',
+            level_id=level_a1.level_id,
+            description='Speech Test for Pronunciation Evaluation'
+        )
+        db.session.add(speech_test)
+        db.session.commit()
+
+        # Thêm 4 câu mẫu cho speech test
+        sample_sentences = [
+            ("The quick brown fox jumps over the lazy dog.", "correct_audios/sentence1.wav"),
+            ("She sells seashells by the seashore.", "correct_audios/sentence2.wav"),
+            ("How much wood would a woodchuck chuck?", "correct_audios/sentence3.wav"),
+            ("Peter Piper picked a peck of pickled peppers.", "correct_audios/sentence4.wav")
+        ]
+        for sentence_text, audio_file in sample_sentences:
+            sentence = SampleSentence(
+                test_id=speech_test.test_id,
+                sentence_text=sentence_text,
+                correctAudio_file=audio_file
+            )
+            db.session.add(sentence)
+        db.session.commit()
+
+    # Thêm bài học mẫu
+    if not Lesson.query.first():
+        levels = Level.query.all()
+        for level in levels:
+            lesson = Lesson(
+                level_id=level.level_id,
+                title=f"Basic Pronunciation for {level.level_name}",
+                description=f"Learn basic pronunciation skills for {level.level_name} level.",
+                content=f"This is a sample lesson for {level.level_name}."
+            )
+            db.session.add(lesson)
+        db.session.commit()
+
+    # Thêm từ vựng mẫu
+    if not Vocabulary.query.first():
+        levels = Level.query.all()
+        sample_vocab = [
+            ("hello", "Xin chào", "Hello, how are you?", "A1"),
+            ("book", "Sách", "I read a book.", "A1"),
+            ("negotiation", "Đàm phán", "The negotiation was successful.", "C1"),
+            ("strategy", "Chiến lược", "We need a new strategy.", "B2")
+        ]
+        for word, definition, example, level_name in sample_vocab:
+            level = Level.query.filter_by(level_name=level_name).first()
+            vocab = Vocabulary(
+                word=word,
+                definition=definition,
+                example_sentence=example,
+                level_id=level.level_id
+            )
+            db.session.add(vocab)
+        db.session.commit()
+
 if __name__ == '__main__':
     app.debug = True
     with app.app_context():
-        db.create_all()
+        db.drop_all()  # Xóa database cũ (cẩn thận, sẽ xóa dữ liệu cũ)
+        db.create_all()  # Tạo database mới
+        init_sample_data()  # Khởi tạo dữ liệu mẫu
     socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
-
