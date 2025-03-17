@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template
 from flask_socketio import emit
 from flask_login import current_user
-import openai
 import logging
-import os
-
+from flask import Blueprint, render_template
+from flask_socketio import emit
+from flask_login import current_user
+import google.generativeai as genai
+import logging
 # Tạo Blueprint
 chatting = Blueprint('chatting', __name__)
 
@@ -15,27 +17,16 @@ def chat_page():
 # Cấu hình log
 logging.basicConfig(level=logging.DEBUG)
 
-# Cấu hình API Key (thay bằng API key thật của bạn)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Cấu hình API Key OpenAI
+genai.configure(api_key="AIzaSyD_KgoexvUqVcEuEp9m5ZfKbE_eS4YWxPU")  
+model = genai.GenerativeModel("gemini-1.5-pro") 
 
 def get_ai_response(user_message):
     try:
-        logging.debug(f"Đang gửi tin nhắn đến AI: {user_message}")
-
-        client = openai.OpenAI()  # Tạo client mới
-
-        response = client.chat.completions.create(  # Cách gọi API mới
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": user_message}]
-        )
-
-        ai_message = response.choices[0].message.content  # Lấy nội dung phản hồi
-        logging.debug(f"🤖 AI phản hồi: {ai_message}")
-
-        return ai_message
+        response = model.generate_content(user_message)
+        return response.text  # Lấy nội dung phản hồi từ Gemini
     except Exception as e:
-        logging.error(f"🚨 Lỗi khi gọi OpenAI API: {e}")
-        return "Xin lỗi, tôi không thể phản hồi ngay bây giờ."
+        return f"❌ Lỗi API Gemini: {str(e)}"
 
 # Đăng ký sự kiện SocketIO
 def register_socketio_events(socketio):

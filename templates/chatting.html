@@ -139,14 +139,14 @@
         const message = messageInputAI.value.trim();
         if (message) {
             socket.emit("send_message_ai", { message });
-            addMessageAI("You", message, "sent");
+            addMessageAI(" You ", message, "sent");
             messageInputAI.value = "";
         }
     });
 
     // Nhận tin nhắn từ AI
     socket.on("new_message_ai", (data) => {
-        addMessageAI("AI", data.message, "received");
+        addMessageAI("Chat Bot", data.message, "received");
     });
 
     // Hàm thêm tin nhắn vào khung chat AI
