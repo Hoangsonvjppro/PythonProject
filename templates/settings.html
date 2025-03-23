@@ -3,85 +3,251 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-    <div class="col-md-8 offset-md-2">
-        <h2 class="text-center">Settings</h2>
-        <ul class="nav nav-tabs mt-3" id="settingsTab" role="tablist">
-            {% if not current_user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link active" id="login-tab" data-bs-toggle="tab" href="#login" role="tab">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="register-tab" data-bs-toggle="tab" href="#register" role="tab">Register</a>
-                </li>
-            {% else %}
-                <li class="nav-item">
-                    <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab">Update Profile</a>
-                </li>
-            {% endif %}
-        </ul>
-        <div class="tab-content mt-3" id="settingsTabContent">
-            <!-- Login -->
-            {% if not current_user.is_authenticated %}
-                <div class="tab-pane fade show active" id="login" role="tabpanel">
-                    <h3 class="text-center">Login</h3>
-                    <form method="POST" action="{{ url_for('login') }}" class="mt-3">
-                        <div class="mb-3">
-                            <label class="form-label">Username:</label>
-                            <input type="text" name="username" class="form-control" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="settings-card card">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">
+                        <i class="fas fa-cog me-2"></i>Settings
+                    </h2>
+
+                    <ul class="nav nav-tabs mb-4" id="settingsTab" role="tablist">
+                        {% if not current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link active" id="login-tab" data-bs-toggle="tab" href="#login" role="tab">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="register-tab" data-bs-toggle="tab" href="#register" role="tab">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab">
+                                <i class="fas fa-user-edit me-1"></i>Update Profile
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="tab-content" id="settingsTabContent">
+                        <!-- Login -->
+                        {% if not current_user.is_authenticated %}
+                        <div class="tab-pane fade show active" id="login" role="tabpanel">
+                            <div class="form-container">
+                                <h3 class="text-center mb-4">Login</h3>
+                                <form method="POST" action="{{ url_for('login') }}" class="needs-validation" novalidate>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" name="username" class="form-control" id="username" required>
+                                        <label for="username">Username</label>
+                                        <div class="invalid-feedback">Please enter your username.</div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" name="password" class="form-control" id="password"
+                                            required>
+                                        <label for="password">Password</label>
+                                        <div class="invalid-feedback">Please enter your password.</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password:</label>
-                            <input type="password" name="password" class="form-control" required>
+
+                        <!-- Register -->
+                        <div class="tab-pane fade" id="register" role="tabpanel">
+                            <div class="form-container">
+                                <h3 class="text-center mb-4">Register</h3>
+                                <form method="POST" action="{{ url_for('register') }}" class="needs-validation"
+                                    novalidate>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" name="username" class="form-control" id="reg-username"
+                                            required>
+                                        <label for="reg-username">Username</label>
+                                        <div class="invalid-feedback">Please enter a username.</div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="email" name="email" class="form-control" id="email" required>
+                                        <label for="email">Email</label>
+                                        <div class="invalid-feedback">Please enter a valid email.</div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" name="password" class="form-control" id="reg-password"
+                                            required>
+                                        <label for="reg-password">Password</label>
+                                        <div class="invalid-feedback">Please enter a password.</div>
+                                    </div>
+                                    <input type="hidden" name="role" value="user">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-user-plus me-2"></i>Register
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-                </div>
-                <!-- Register -->
-                <div class="tab-pane fade" id="register" role="tabpanel">
-                    <h3 class="text-center">Register</h3>
-                    <form method="POST" action="{{ url_for('register') }}" class="mt-3">
-                        <div class="mb-3">
-                            <label class="form-label">Username:</label>
-                            <input type="text" name="username" class="form-control" required>
+                        {% else %}
+                        <!-- Update Profile -->
+                        <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                            <div class="form-container">
+                                <h3 class="text-center mb-4">Update Profile</h3>
+                                <form method="POST" action="{{ url_for('update_profile') }}" class="needs-validation"
+                                    novalidate enctype="multipart/form-data">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" name="username" class="form-control" id="update-username"
+                                            value="{{ current_user.username }}">
+                                        <label for="update-username">New Username</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" name="password" class="form-control"
+                                            id="update-password">
+                                        <label for="update-password">New Password (leave blank to keep current)</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="avatar" class="form-label">Upload Avatar</label>
+                                        <input type="file" name="avatar" class="form-control" id="avatar"
+                                            accept="image/*">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-save me-2"></i>Update Profile
+                                    </button>
+                                </form>
+
+                                <div class="current-avatar text-center mt-4">
+                                    <h4>Current Avatar</h4>
+                                    <div class="avatar-preview">
+                                        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
+                                            alt="Avatar" class="avatar-large">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email:</label>
-                            <input type="email" name="email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password:</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <!-- Ẩn trường role để mặc định là user -->
-                        <input type="hidden" name="role" value="user">
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                    </form>
-                </div>
-            {% else %}
-                <!-- Update Profile -->
-                <div class="tab-pane fade show active" id="profile" role="tabpanel">
-                    <h3 class="text-center">Update Profile</h3>
-                    <form method="POST" action="{{ url_for('update_profile') }}" class="mt-3" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label class="form-label">New Username:</label>
-                            <input type="text" name="username" class="form-control" value="{{ current_user.username }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">New Password:</label>
-                            <input type="password" name="password" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Avatar:</label>
-                            <input type="file" name="avatar" class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Update Profile</button>
-                    </form>
-                    <div class="text-center mt-3">
-                        <h4>Current Avatar:</h4>
-                        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar" width="150">
+                        {% endif %}
                     </div>
                 </div>
-            {% endif %}
+            </div>
         </div>
     </div>
+</div>
+
+<style>
+    .settings-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .settings-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .nav-tabs {
+        border: none;
+        margin-bottom: 2rem;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: var(--text-color);
+        font-weight: 500;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .nav-tabs .nav-link:hover:not(.active) {
+        background: var(--secondary-color);
+    }
+
+    .form-container {
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 1rem;
+        border: 2px solid #eee;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+    }
+
+    .avatar-preview {
+        margin-top: 1rem;
+    }
+
+    .avatar-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 4px solid var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .avatar-large:hover {
+        transform: scale(1.05);
+    }
+
+    .btn {
+        padding: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .settings-card {
+            margin: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 0.8rem 1.5rem;
+        }
+
+        .form-container {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

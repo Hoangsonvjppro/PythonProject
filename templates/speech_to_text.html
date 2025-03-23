@@ -3,67 +3,199 @@
 {% block title %}Speech to Text{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="text-center">Practice Your Pronunciation</h2>
-        <p class="text-center text-muted">Click "Record" next to a sentence, then read it aloud. The system will evaluate your pronunciation.</p>
-
-        <!-- Danh sách câu mẫu -->
-        <div class="row mt-4">
-            {% for sentence in sample_sentences %}
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="card-text">{{ sentence }}</p>
-                            <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}">🎤 Record</button>
-                            <span class="status-text ms-2" id="status-{{ loop.index0 }}"></span>
-                            <p class="result-text mt-2" id="result-{{ loop.index0 }}"></p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+<div class="container">
+    <div class="speech-header text-center mb-5">
+        <h1 class="display-4 mb-3">
+            <i class="fas fa-microphone-alt me-2"></i>Practice Your Pronunciation
+        </h1>
+        <p class="lead text-muted">
+            Click "Record" next to a sentence, then read it aloud. The system will evaluate your pronunciation.
+        </p>
     </div>
 
-    <script>
-        document.querySelectorAll('.record-btn').forEach((btn, index) => {
-            btn.addEventListener('click', function() {
-                const sentence = this.getAttribute('data-sentence');
-                const statusText = document.getElementById(`status-${index}`);
-                const resultText = document.getElementById(`result-${index}`);
+    <!-- Danh sách câu mẫu -->
+    <div class="row">
+        {% for sentence in sample_sentences %}
+        <div class="col-md-6 mb-4">
+            <div class="sentence-card card">
+                <div class="card-body">
+                    <div class="sentence-content mb-4">
+                        <p class="card-text">{{ sentence }}</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}">
+                            <i class="fas fa-microphone me-2"></i>Record
+                        </button>
+                        <span class="status-text" id="status-{{ loop.index0 }}"></span>
+                    </div>
+                    <div class="result-container mt-3">
+                        <p class="result-text" id="result-{{ loop.index0 }}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
-                // Cập nhật trạng thái ghi âm
-                statusText.textContent = "Recording...";
-                this.disabled = true;
-                this.classList.remove('btn-primary');
-                this.classList.add('btn-secondary');
+<style>
+    .speech-header {
+        padding: 2rem 0;
+        background: linear-gradient(135deg, var(--primary-color), #357abd);
+        color: white;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
 
-                fetch('/speech_to_text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sample_sentence: sentence })
+    .speech-header h1 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sentence-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .sentence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .sentence-content {
+        background: var(--secondary-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .sentence-content p {
+        margin: 0;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+
+    .record-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .record-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .record-btn.recording {
+        background: var(--danger-color);
+        animation: pulse 1.5s infinite;
+    }
+
+    .status-text {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    .result-container {
+        background: var(--secondary-color);
+        padding: 1rem;
+        border-radius: 10px;
+        min-height: 100px;
+    }
+
+    .result-text {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .speech-header {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .sentence-card {
+            margin: 0 1rem;
+        }
+
+        .record-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.record-btn').forEach((btn, index) => {
+        btn.addEventListener('click', function () {
+            const sentence = this.getAttribute('data-sentence');
+            const statusText = document.getElementById(`status-${index}`);
+            const resultText = document.getElementById(`result-${index}`);
+
+            // Cập nhật trạng thái ghi âm
+            statusText.textContent = "Recording...";
+            this.disabled = true;
+            this.classList.add('recording');
+            this.innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+
+            fetch('/speech_to_text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sample_sentence: sentence })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    statusText.textContent = "";
+                    this.disabled = false;
+                    this.classList.remove('recording');
+                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+
+                    if (data.success) {
+                        resultText.innerHTML = `
+                                <div class="result-item">
+                                    <strong>You said:</strong> "${data.text}"
+                                </div>
+                                <div class="result-item">
+                                    <strong>Accuracy:</strong> ${data.accuracy}%
+                                </div>
+                                <div class="result-item">
+                                    <strong>Feedback:</strong> ${data.feedback}
+                                </div>
+                            `;
+                    } else {
+                        resultText.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+                    }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        statusText.textContent = "";
-                        this.disabled = false;
-                        this.classList.remove('btn-secondary');
-                        this.classList.add('btn-primary');
-
-                        if (data.success) {
-                            resultText.innerHTML = `You said: "${data.text}"<br>Accuracy: ${data.accuracy}%<br>Feedback: ${data.feedback}`;
-                        } else {
-                            resultText.textContent = `Error: ${data.error}`;
-                        }
-                    })
-                    .catch(error => {
-                        statusText.textContent = "";
-                        this.disabled = false;
-                        this.classList.remove('btn-secondary');
-                        this.classList.add('btn-primary');
-                        resultText.textContent = "Error: Could not connect to the server.";
-                        console.error("Error:", error);
-                    });
-            });
+                .catch(error => {
+                    statusText.textContent = "";
+                    this.disabled = false;
+                    this.classList.remove('recording');
+                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+                    resultText.innerHTML = '<div class="text-danger">Error: Could not connect to the server.</div>';
+                    console.error("Error:", error);
+                });
         });
-    </script>
+    });
+</script>
 {% endblock %}
