@@ -16,7 +16,7 @@ def translate_text():
     if request.method == 'GET':
         # Lấy lịch sử dịch từ session
         history = session.get('translate_history', [])
-        return render_template("translate_text.html", 
+        return render_template("translate_text.html",
                              history=history,
                              languages=LANGUAGES)
 
