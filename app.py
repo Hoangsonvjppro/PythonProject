@@ -6,9 +6,6 @@ from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
 from flask_socketio import SocketIO, send
-from modules.speech import speech_bp
-from modules.translate import translate_bp
-from modules.chat import chatting, register_socketio_events
 import os
 
 # Khởi tạo Flask
@@ -16,18 +13,18 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, async_mode='eventlet')
 
-# Cấu hình cơ sở dữ liệu và khóa bí mật
+# Cấu hình
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'  # Thay bằng khóa an toàn hơn
+app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Khởi tạo cơ sở dữ liệu
+# Khởi tạo extensions
 db = SQLAlchemy(app)
-
-# Cấu hình Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+
 
 # Model User
 class User(db.Model, UserMixin):
@@ -44,124 +41,107 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# Decorator yêu cầu quyền admin
+
+# Decorator admin
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != "admin":
-            abort(403)  # Trả về lỗi 403 nếu không phải admin
+            abort(403)
         return f(*args, **kwargs)
+
     return decorated_function
 
-# Load user cho Flask-Login
+
+# User loader
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
-# Route trang chủ
+
+# Routes
 @app.route('/')
 def home():
-    return render_template('home.html', current_user=current_user)
+    return render_template('home.html')
 
-# Route đăng ký
+
+@app.route('/settings')
+@login_required
+def settings():
+    return render_template('settings.html')
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        role = request.form['role']  # Cần sửa để mặc định là "user"
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
         if User.query.filter_by(username=username).first():
-            flash("Tên người dùng đã tồn tại!", "danger")
+            flash("Username exists!", "danger")
             return redirect(url_for('register'))
 
-        if User.query.filter_by(email=email).first():
-            flash("Email đã được đăng ký!", "danger")
-            return redirect(url_for('register'))
-
-        new_user = User(username=username, email=email, role=role)
-        new_user.set_password(password)
-        db.session.add(new_user)
+        user = User(username=username, email=email, role="user")
+        user.set_password(password)
+        db.session.add(user)
         db.session.commit()
-        flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
+        flash("Registered!", "success")
         return redirect(url_for('login'))
 
     return render_template('register.html')
 
-# Route đăng nhập
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
             login_user(user)
-            flash("Đăng nhập thành công!", "success")
             return redirect(url_for('home'))
-        else:
-            flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
-            return redirect(url_for('login'))
 
+        flash("Invalid credentials!", "danger")
     return render_template('login.html')
 
-# Route cập nhật hồ sơ
+
 @app.route('/update-profile', methods=['GET', 'POST'])
 @login_required
 def update_profile():
     if request.method == 'POST':
-        new_username = request.form['username']
-        new_password = request.form['password']
-        avatar = request.files['avatar']
+        current_user.username = request.form.get('username', current_user.username)
 
-        if new_username:
-            current_user.username = new_username
+        if password := request.form.get('password'):
+            current_user.set_password(password)
 
-        if new_password:
-            current_user.set_password(new_password)
-
-        if avatar:
+        if avatar := request.files.get('avatar'):
             filename = secure_filename(avatar.filename)
             avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             current_user.avatar = filename
 
         db.session.commit()
-        flash('Cập nhật hồ sơ thành công!', 'success')
-        return redirect(url_for('update_profile'))
+        flash("Profile updated!", "success")
+        return redirect(url_for('settings'))
 
-    return render_template('update_profile.html')
+    return render_template('settings.html')
 
-# Route bảng điều khiển admin
-@app.route('/admin')
-@login_required
-@admin_required
-def admin_dashboard():
-    users = User.query.all()
-    return render_template('admin.html', users=users)
 
-# Route đăng xuất
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('home'))
 
-# Xử lý lỗi 500
-@app.errorhandler(500)
-def handle_internal_error(error):
-    return jsonify({'success': False, 'error': 'Lỗi máy chủ nội bộ'}), 500
 
-# Đăng ký blueprints
-app.register_blueprint(speech_bp)
-app.register_blueprint(translate_bp)
-app.register_blueprint(chatting)
-register_socketio_events(socketio)
+# Error handler
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
+
 
 if __name__ == '__main__':
-    app.debug = True
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
