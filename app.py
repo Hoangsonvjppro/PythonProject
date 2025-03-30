@@ -219,4 +219,4 @@ if __name__ == '__main__':
         # db.drop_all()  # Xóa database cũ (cẩn thận, sẽ xóa dữ liệu cũ)
         db.create_all()  # Tạo database mới
         init_sample_data()  # Khởi tạo dữ liệu mẫu
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, port=5001)
