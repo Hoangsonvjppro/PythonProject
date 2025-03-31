@@ -1,69 +1,419 @@
 {% extends "base.html" %}
 
-{% block title %}Speech to Text{% endblock %}
+{% block title %}English Speaking Level Test{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="text-center">Practice Your Pronunciation</h2>
-        <p class="text-center text-muted">Click "Record" next to a sentence, then read it aloud. The system will evaluate your pronunciation.</p>
-
-        <!-- Danh sách câu mẫu -->
-        <div class="row mt-4">
-            {% for sentence in sample_sentences %}
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="card-text">{{ sentence }}</p>
-                            <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}">🎤 Record</button>
-                            <span class="status-text ms-2" id="status-{{ loop.index0 }}"></span>
-                            <p class="result-text mt-2" id="result-{{ loop.index0 }}"></p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+<div class="container">
+    <div class="speech-header text-center mb-5">
+        <h1 class="display-4 mb-3">
+            <i class="fas fa-microphone-alt me-2"></i>English Speaking Level Test
+        </h1>
+        <p class="lead text-muted">
+            Read all 4 sentences aloud. After completing all, we'll evaluate your English level (A1-C2) and recommend lessons.
+        </p>
+        <div class="progress mt-4" style="height: 10px;">
+            <div id="test-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
         </div>
     </div>
 
-    <script>
-        document.querySelectorAll('.record-btn').forEach((btn, index) => {
-            btn.addEventListener('click', function() {
-                const sentence = this.getAttribute('data-sentence');
-                const statusText = document.getElementById(`status-${index}`);
-                const resultText = document.getElementById(`result-${index}`);
+    <!-- Sample sentences list -->
+    <div class="row">
+        {% for sentence in sample_sentences %}
+        <div class="col-md-6 mb-4">
+            <div class="sentence-card card">
+                <div class="card-body">
+                    <div class="sentence-content mb-4">
+                        <p class="card-text">{{ sentence }}</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}" data-index="{{ loop.index0 }}">
+                            <i class="fas fa-microphone me-2"></i>Record
+                        </button>
+                        <span class="status-text" id="status-{{ loop.index0 }}"></span>
+                        <span class="badge bg-{{ 'secondary' if loop.index0 > 0 else 'success' }}" id="completed-{{ loop.index0 }}">
+                            {{ 'Pending' if loop.index0 > 0 else 'Ready' }}
+                        </span>
+                    </div>
+                    <div class="result-container mt-3">
+                        <p class="result-text" id="result-{{ loop.index0 }}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 
-                // Cập nhật trạng thái ghi âm
-                statusText.textContent = "Recording...";
-                this.disabled = true;
-                this.classList.remove('btn-primary');
-                this.classList.add('btn-secondary');
+    <!-- Final results section -->
+    <div id="final-result" class="card mt-5" style="display: none;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fas fa-award me-2"></i>Your English Speaking Level</h3>
+            <button id="retry-test" class="btn btn-light">
+                <i class="fas fa-redo me-1"></i>Test Again
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="level-display text-center mb-4">
+                        <div id="cefr-level" class="display-2 fw-bold" style="color: var(--primary-color);">B2</div>
+                        <div id="level-description" class="text-muted">Upper Intermediate</div>
+                        <div class="mt-3">
+                            <div class="cefr-scale">
+                                <div class="scale-bar">
+                                    <span class="level A1">A1</span>
+                                    <span class="level A2">A2</span>
+                                    <span class="level B1">B1</span>
+                                    <span class="level B2 active">B2</span>
+                                    <span class="level C1">C1</span>
+                                    <span class="level C2">C2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4><i class="fas fa-lightbulb me-2"></i>Recommendations</h4>
+                    <div id="recommendations">
+                        <p>Based on your results, we recommend starting with:</p>
+                        <ul id="lesson-list" class="list-group mb-3">
+                            <li class="list-group-item">Lesson 12: Past Perfect Tense</li>
+                            <li class="list-group-item">Lesson 13: Reported Speech</li>
+                            <li class="list-group-item">Lesson 14: Conditional Sentences</li>
+                        </ul>
+                        <button class="btn btn-success" id="start-learning">
+                            <i class="fas fa-play me-2"></i>Start Learning
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                fetch('/speech_to_text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sample_sentence: sentence })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        statusText.textContent = "";
-                        this.disabled = false;
-                        this.classList.remove('btn-secondary');
-                        this.classList.add('btn-primary');
+<style>
+    .speech-header {
+        padding: 2rem 0;
+        background: linear-gradient(135deg, var(--primary-color), #357abd);
+        color: white;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
 
-                        if (data.success) {
-                            resultText.innerHTML = `You said: "${data.text}"<br>Accuracy: ${data.accuracy}%<br>Feedback: ${data.feedback}`;
-                        } else {
-                            resultText.textContent = `Error: ${data.error}`;
+    .speech-header h1 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sentence-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .sentence-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .sentence-content {
+        background: var(--secondary-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .sentence-content p {
+        margin: 0;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+
+    .record-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .record-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .record-btn.recording {
+        background: var(--danger-color);
+        animation: pulse 1.5s infinite;
+    }
+
+    .status-text {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    .result-container {
+        background: var(--secondary-color);
+        padding: 1rem;
+        border-radius: 10px;
+        min-height: 100px;
+    }
+
+    .result-text {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    .cefr-scale {
+        margin: 20px 0;
+    }
+
+    .scale-bar {
+        display: flex;
+        height: 30px;
+        background: #f0f0f0;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .scale-bar .level {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #666;
+        position: relative;
+    }
+
+    .scale-bar .level.active {
+        color: white;
+    }
+
+    .scale-bar .level.A1.active { background: #FF6B6B; }
+    .scale-bar .level.A2.active { background: #FF9E4F; }
+    .scale-bar .level.B1.active { background: #FFD166; }
+    .scale-bar .level.B2.active { background: #06D6A0; }
+    .scale-bar .level.C1.active { background: #118AB2; }
+    .scale-bar .level.C2.active { background: #073B4C; }
+
+    #retry-test {
+        transition: all 0.3s ease;
+    }
+
+    #retry-test:hover {
+        transform: rotate(-15deg);
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+        .speech-header {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .sentence-card {
+            margin: 0 1rem;
+        }
+
+        .record-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    const results = Array({{ sample_sentences|length }}).fill(null);
+    let completedCount = 0;
+
+    // Handle record button clicks
+    document.querySelectorAll('.record-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const index = parseInt(this.getAttribute('data-index'));
+            const sentence = this.getAttribute('data-sentence');
+            const statusText = document.getElementById(`status-${index}`);
+            const resultText = document.getElementById(`result-${index}`);
+            const completedBadge = document.getElementById(`completed-${index}`);
+
+            // Update recording status
+            statusText.textContent = "Recording...";
+            this.disabled = true;
+            this.classList.add('recording');
+            this.innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+
+            // Send recording to server
+            fetch('/speech_to_text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sample_sentence: sentence, index: index })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    statusText.textContent = "";
+                    this.disabled = false;
+                    this.classList.remove('recording');
+                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+
+                    if (data.success) {
+                        // Store results
+                        results[index] = {
+                            accuracy: data.accuracy,
+                            feedback: data.feedback,
+                            recognizedText: data.text
+                        };
+
+                        // Update UI
+                        completedBadge.textContent = "Completed";
+                        completedBadge.className = "badge bg-success";
+                        completedCount++;
+
+                        updateProgress();
+
+                        resultText.innerHTML = `
+                            <div class="result-item">
+                                <strong>You said:</strong> "${data.text}"
+                            </div>
+                            <div class="result-item">
+                                <strong>Accuracy:</strong> ${data.accuracy}%
+                            </div>
+                            <div class="result-item">
+                                <strong>Feedback:</strong> ${data.feedback}
+                            </div>
+                        `;
+
+                        // Show final result if all completed
+                        if (completedCount === results.length) {
+                            calculateFinalResult();
                         }
-                    })
-                    .catch(error => {
-                        statusText.textContent = "";
-                        this.disabled = false;
-                        this.classList.remove('btn-secondary');
-                        this.classList.add('btn-primary');
-                        resultText.textContent = "Error: Could not connect to the server.";
-                        console.error("Error:", error);
-                    });
-            });
+                    } else {
+                        resultText.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    statusText.textContent = "";
+                    this.disabled = false;
+                    this.classList.remove('recording');
+                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+                    resultText.innerHTML = '<div class="text-danger">Error: Could not connect to the server.</div>';
+                    console.error("Error:", error);
+                });
         });
-    </script>
+    });
+
+    // Update progress bar
+    function updateProgress() {
+        const progress = (completedCount / results.length) * 100;
+        document.getElementById('test-progress').style.width = `${progress}%`;
+    }
+
+    // Calculate final CEFR level
+    function calculateFinalResult() {
+        // Calculate average accuracy
+        const avgAccuracy = results.reduce((sum, result) => sum + result.accuracy, 0) / results.length;
+
+        // Determine CEFR level
+        let level, description, recommendedLessons;
+
+        if (avgAccuracy >= 90) {
+            level = "C2";
+            description = "Proficient";
+            recommendedLessons = ["Advanced Grammar Structures", "Idiomatic Expressions", "Academic Writing"];
+        } else if (avgAccuracy >= 80) {
+            level = "C1";
+            description = "Advanced";
+            recommendedLessons = ["Complex Sentences", "Formal Presentations", "Debating Skills"];
+        } else if (avgAccuracy >= 70) {
+            level = "B2";
+            description = "Upper Intermediate";
+            recommendedLessons = ["Past Perfect Tense", "Reported Speech", "Conditional Sentences"];
+        } else if (avgAccuracy >= 60) {
+            level = "B1";
+            description = "Intermediate";
+            recommendedLessons = ["Present Perfect", "Future Tenses", "Basic Connectors"];
+        } else if (avgAccuracy >= 50) {
+            level = "A2";
+            description = "Pre-Intermediate";
+            recommendedLessons = ["Simple Past", "Comparatives", "Basic Adverbs"];
+        } else {
+            level = "A1";
+            description = "Beginner";
+            recommendedLessons = ["Simple Present", "Basic Vocabulary", "Pronouns"];
+        }
+
+        // Update level display
+        document.getElementById('cefr-level').textContent = level;
+        document.getElementById('level-description').textContent = description;
+
+        // Update CEFR scale
+        document.querySelectorAll('.cefr-scale .level').forEach(el => {
+            el.classList.remove('active');
+            if (el.textContent === level) {
+                el.classList.add('active');
+            }
+        });
+
+        // Update recommended lessons
+        const lessonList = document.getElementById('lesson-list');
+        lessonList.innerHTML = '';
+        recommendedLessons.forEach(lesson => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = `Lesson: ${lesson}`;
+            lessonList.appendChild(li);
+        });
+
+        // Show final result
+        document.getElementById('final-result').style.display = 'block';
+        document.getElementById('final-result').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Start learning button handler
+    document.getElementById('start-learning').addEventListener('click', function() {
+        alert('Redirecting to recommended lessons...');
+        // Add actual redirection logic here
+    });
+
+    // Test Again button handler
+    document.getElementById('retry-test').addEventListener('click', function() {
+        // Reset all data
+        results.fill(null);
+        completedCount = 0;
+
+        // Reset UI elements
+        document.querySelectorAll('.record-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+            btn.classList.remove('recording');
+        });
+
+        document.querySelectorAll('.status-text').forEach(el => {
+            el.textContent = '';
+        });
+
+        document.querySelectorAll('.result-text').forEach(el => {
+            el.innerHTML = '';
+        });
+
+        document.querySelectorAll('[id^="completed-"]').forEach((el, index) => {
+            el.textContent = index === 0 ? 'Ready' : 'Pending';
+            el.className = `badge bg-${index === 0 ? 'success' : 'secondary'}`;
+        });
+
+        document.getElementById('test-progress').style.width = '0%';
+        document.getElementById('final-result').style.display = 'none';
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+</script>
 {% endblock %}

@@ -1,11 +1,13 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
 from flask_socketio import SocketIO, send
+from models.models import db, User, Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, SpeechTest
+from modules.speech import speech_bp
+from modules.translate import translate_bp
+from modules.chat import chatting, register_socketio_events
 import os
 
 # Khởi tạo Flask
@@ -14,134 +16,207 @@ CORS(app)
 socketio = SocketIO(app, async_mode='eventlet')
 
 # Cấu hình
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learning_app.db'  # Đổi tên DB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Khởi tạo extensions
-db = SQLAlchemy(app)
+# Khởi tạo cơ sở dữ liệu
+db.init_app(app)
+
+# Cấu hình Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-
-# Model User
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    avatar = db.Column(db.String(200), nullable=True, default="default.jpg")
-    role = db.Column(db.String(50), nullable=False, default="user")
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-
-# Decorator admin
+# Decorator yêu cầu quyền admin
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != "admin":
             abort(403)
         return f(*args, **kwargs)
-
     return decorated_function
 
-
-# User loader
+# Load user cho Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    return User.query.get(int(user_id))
 
-
-# Routes
+# Route trang chủ
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', current_user=current_user)
 
-
+# Route Settings
 @app.route('/settings')
-@login_required
 def settings():
-    return render_template('settings.html')
+    return render_template('settings.html', current_user=current_user)
 
-
+# Route đăng ký
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        role = request.form.get('role', 'user')  # Mặc định là user
 
         if User.query.filter_by(username=username).first():
-            flash("Username exists!", "danger")
-            return redirect(url_for('register'))
+            flash("Tên người dùng đã tồn tại!", "danger")
+            return redirect(url_for('settings'))
+        if User.query.filter_by(email=email).first():
+            flash("Email đã được đăng ký!", "danger")
+            return redirect(url_for('settings'))
 
-        user = User(username=username, email=email, role="user")
-        user.set_password(password)
-        db.session.add(user)
+        new_user = User(username=username, email=email, role=role)
+        new_user.set_password(password)
+        db.session.add(new_user)
         db.session.commit()
-        flash("Registered!", "success")
-        return redirect(url_for('login'))
+        flash("Đăng ký thành công! Bạn có thể đăng nhập.", "success")
+        return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
-    return render_template('register.html')
-
-
+# Route đăng nhập
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form['username']
+        password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
             login_user(user)
+            flash("Đăng nhập thành công!", "success")
             return redirect(url_for('home'))
+        else:
+            flash("Tên người dùng hoặc mật khẩu không đúng!", "danger")
+            return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
-        flash("Invalid credentials!", "danger")
-    return render_template('login.html')
-
-
+# Route cập nhật hồ sơ
 @app.route('/update-profile', methods=['GET', 'POST'])
 @login_required
 def update_profile():
     if request.method == 'POST':
-        current_user.username = request.form.get('username', current_user.username)
+        new_username = request.form['username']
+        new_password = request.form['password']
+        avatar = request.files['avatar']
 
-        if password := request.form.get('password'):
-            current_user.set_password(password)
-
-        if avatar := request.files.get('avatar'):
+        if new_username:
+            current_user.username = new_username
+        if new_password:
+            current_user.set_password(new_password)
+        if avatar:
             filename = secure_filename(avatar.filename)
             avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             current_user.avatar = filename
 
         db.session.commit()
-        flash("Profile updated!", "success")
+        flash('Cập nhật hồ sơ thành công!', 'success')
         return redirect(url_for('settings'))
+    return redirect(url_for('settings'))  # Nếu GET, quay về Settings
 
-    return render_template('settings.html')
+# Route bảng điều khiển admin
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    users = User.query.all()
+    return render_template('admin.html', users=users)
 
-
+# Route đăng xuất
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    flash("Bạn đã đăng xuất.", "info")
     return redirect(url_for('home'))
 
+# Xử lý lỗi 500
+@app.errorhandler(500)
+def handle_internal_error(error):
+    return jsonify({'success': False, 'error': 'Lỗi máy chủ nội bộ'}), 500
 
-# Error handler
-@app.errorhandler(404)
-def not_found(e):
-    return render_template('404.html'), 404
+# Đăng ký blueprints
+app.register_blueprint(speech_bp)
+app.register_blueprint(translate_bp)
+app.register_blueprint(chatting)
+register_socketio_events(socketio)
 
+# Khởi tạo dữ liệu mẫu ban đầu
+def init_sample_data():
+    # Thêm cấp độ (A1-C1)
+    if not Level.query.first():
+        levels = ['A1', 'A2', 'B1', 'B2', 'C1']
+        for level_name in levels:
+            level = Level(level_name=level_name)
+            db.session.add(level)
+        db.session.commit()
+
+    # Thêm bài kiểm tra speech test mặc định
+    if not Test.query.first():
+        level_a1 = Level.query.filter_by(level_name='A1').first()
+        speech_test = Test(
+            test_type='speech',
+            level_id=level_a1.level_id,
+            description='Speech Test for Pronunciation Evaluation'
+        )
+        db.session.add(speech_test)
+        db.session.commit()
+
+        # Thêm 4 câu mẫu cho speech test
+        sample_sentences = [
+            ("The quick brown fox jumps over the lazy dog.", "correct_audios/sentence1.wav"),
+            ("She sells seashells by the seashore.", "correct_audios/sentence2.wav"),
+            ("How much wood would a woodchuck chuck?", "correct_audios/sentence3.wav"),
+            ("Peter Piper picked a peck of pickled peppers.", "correct_audios/sentence4.wav")
+        ]
+        for sentence_text, audio_file in sample_sentences:
+            sentence = SampleSentence(
+                test_id=speech_test.test_id,
+                sentence_text=sentence_text,
+                correctAudio_file=audio_file
+            )
+            db.session.add(sentence)
+        db.session.commit()
+
+    # Thêm bài học mẫu
+    if not Lesson.query.first():
+        levels = Level.query.all()
+        for level in levels:
+            lesson = Lesson(
+                level_id=level.level_id,
+                title=f"Basic Pronunciation for {level.level_name}",
+                description=f"Learn basic pronunciation skills for {level.level_name} level.",
+                content=f"This is a sample lesson for {level.level_name}."
+            )
+            db.session.add(lesson)
+        db.session.commit()
+
+    # Thêm từ vựng mẫu
+    if not Vocabulary.query.first():
+        levels = Level.query.all()
+        sample_vocab = [
+            ("hello", "Xin chào", "Hello, how are you?", "A1"),
+            ("book", "Sách", "I read a book.", "A1"),
+            ("negotiation", "Đàm phán", "The negotiation was successful.", "C1"),
+            ("strategy", "Chiến lược", "We need a new strategy.", "B2")
+        ]
+        for word, definition, example, level_name in sample_vocab:
+            level = Level.query.filter_by(level_name=level_name).first()
+            vocab = Vocabulary(
+                word=word,
+                definition=definition,
+                example_sentence=example,
+                level_id=level.level_id
+            )
+            db.session.add(vocab)
+        db.session.commit()
 
 if __name__ == '__main__':
+    app.debug = True
     with app.app_context():
-        db.create_all()
-    socketio.run(app, debug=True)
+        # db.drop_all()  # Xóa database cũ (cẩn thận, sẽ xóa dữ liệu cũ)
+        db.create_all()  # Tạo database mới
+        init_sample_data()  # Khởi tạo dữ liệu mẫu
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, port=5001)
