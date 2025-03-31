@@ -9,7 +9,7 @@
             <i class="fas fa-microphone-alt me-2"></i>English Speaking Level Test
         </h1>
         <p class="lead text-muted">
-            Read all 4 sentences aloud. After completing all, we'll evaluate your English level (A1-C2) and recommend lessons.
+            Read the sentences aloud one by one. Complete each sentence before moving to the next.
         </p>
         <div class="progress mt-4" style="height: 10px;">
             <div id="test-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
@@ -26,12 +26,13 @@
                         <p class="card-text">{{ sentence }}</p>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}" data-index="{{ loop.index0 }}">
+                        <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}" data-index="{{ loop.index0 }}"
+                                {{ 'disabled' if loop.index0 > 0 else '' }}>
                             <i class="fas fa-microphone me-2"></i>Record
                         </button>
                         <span class="status-text" id="status-{{ loop.index0 }}"></span>
                         <span class="badge bg-{{ 'secondary' if loop.index0 > 0 else 'success' }}" id="completed-{{ loop.index0 }}">
-                            {{ 'Pending' if loop.index0 > 0 else 'Ready' }}
+                            {{ 'Locked' if loop.index0 > 0 else 'Ready' }}
                         </span>
                     </div>
                     <div class="result-container mt-3">
@@ -140,13 +141,18 @@
         transition: all 0.3s ease;
     }
 
-    .record-btn:hover {
+    .record-btn:hover:not(:disabled) {
         transform: translateY(-2px);
     }
 
     .record-btn.recording {
         background: var(--danger-color);
         animation: pulse 1.5s infinite;
+    }
+
+    .record-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
     }
 
     .status-text {
@@ -235,10 +241,24 @@
 <script>
     const results = Array({{ sample_sentences|length }}).fill(null);
     let completedCount = 0;
+    let currentRecordingIndex = 0;
+    let isRecording = false;
+
+    // Initialize buttons
+    function initializeButtons() {
+        document.querySelectorAll('.record-btn').forEach((btn, index) => {
+            btn.disabled = index !== 0;
+            const badge = document.getElementById(`completed-${index}`);
+            badge.textContent = index === 0 ? 'Ready' : 'Locked';
+            badge.className = `badge bg-${index === 0 ? 'success' : 'secondary'}`;
+        });
+    }
 
     // Handle record button clicks
     document.querySelectorAll('.record-btn').forEach((btn) => {
         btn.addEventListener('click', function () {
+            if (isRecording) return;
+
             const index = parseInt(this.getAttribute('data-index'));
             const sentence = this.getAttribute('data-sentence');
             const statusText = document.getElementById(`status-${index}`);
@@ -246,10 +266,15 @@
             const completedBadge = document.getElementById(`completed-${index}`);
 
             // Update recording status
+            isRecording = true;
+            currentRecordingIndex = index;
             statusText.textContent = "Recording...";
             this.disabled = true;
             this.classList.add('recording');
             this.innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
+
+            // Disable all other buttons during recording
+            disableAllButtonsExcept(index);
 
             // Send recording to server
             fetch('/speech_to_text', {
@@ -259,10 +284,11 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    isRecording = false;
                     statusText.textContent = "";
-                    this.disabled = false;
+                    this.disabled = true; // Keep this button disabled after recording
                     this.classList.remove('recording');
-                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
+                    this.innerHTML = '<i class="fas fa-check me-2"></i>Completed';
 
                     if (data.success) {
                         // Store results
@@ -291,24 +317,58 @@
                             </div>
                         `;
 
+                        // Enable the next record button if available
+                        enableNextButton(index);
+
                         // Show final result if all completed
                         if (completedCount === results.length) {
                             calculateFinalResult();
                         }
                     } else {
-                        resultText.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+                        handleRecordingError(this, index, data.error);
                     }
                 })
                 .catch(error => {
-                    statusText.textContent = "";
-                    this.disabled = false;
-                    this.classList.remove('recording');
-                    this.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
-                    resultText.innerHTML = '<div class="text-danger">Error: Could not connect to the server.</div>';
+                    isRecording = false;
+                    handleRecordingError(this, index, 'Could not connect to the server');
                     console.error("Error:", error);
                 });
         });
     });
+
+    function disableAllButtonsExcept(index) {
+        document.querySelectorAll('.record-btn').forEach(btn => {
+            if (parseInt(btn.getAttribute('data-index')) !== index) {
+                btn.disabled = true;
+            }
+        });
+    }
+
+    function enableNextButton(currentIndex) {
+        if (currentIndex < results.length - 1) {
+            const nextIndex = currentIndex + 1;
+            const nextBtn = document.querySelector(`.record-btn[data-index="${nextIndex}"]`);
+            const nextBadge = document.getElementById(`completed-${nextIndex}`);
+
+            nextBtn.disabled = false;
+            nextBadge.textContent = "Ready";
+            nextBadge.className = "badge bg-success";
+        }
+    }
+
+    function handleRecordingError(button, index, errorMessage) {
+        button.disabled = false;
+        button.classList.remove('recording');
+        button.innerHTML = '<i class="fas fa-microphone me-2"></i>Try Again';
+
+        const resultText = document.getElementById(`result-${index}`);
+        resultText.innerHTML = `<div class="text-danger">Error: ${errorMessage}</div>`;
+
+        // Re-enable only this record button if error occurred
+        document.querySelectorAll('.record-btn').forEach(btn => {
+            btn.disabled = parseInt(btn.getAttribute('data-index')) !== index;
+        });
+    }
 
     // Update progress bar
     function updateProgress() {
@@ -388,13 +448,11 @@
         // Reset all data
         results.fill(null);
         completedCount = 0;
+        currentRecordingIndex = 0;
+        isRecording = false;
 
         // Reset UI elements
-        document.querySelectorAll('.record-btn').forEach(btn => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-microphone me-2"></i>Record';
-            btn.classList.remove('recording');
-        });
+        initializeButtons();
 
         document.querySelectorAll('.status-text').forEach(el => {
             el.textContent = '';
@@ -404,16 +462,14 @@
             el.innerHTML = '';
         });
 
-        document.querySelectorAll('[id^="completed-"]').forEach((el, index) => {
-            el.textContent = index === 0 ? 'Ready' : 'Pending';
-            el.className = `badge bg-${index === 0 ? 'success' : 'secondary'}`;
-        });
-
         document.getElementById('test-progress').style.width = '0%';
         document.getElementById('final-result').style.display = 'none';
 
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+
+    // Initialize on page load
+    initializeButtons();
 </script>
 {% endblock %}
