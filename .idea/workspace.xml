@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/modules/tutorials.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/tutorials.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/tutorials.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/tutorials.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +59,7 @@
     "JavaScript Debug.tutorials.html.executor": "Run",
     "Python.app.executor": "Run",
     "Python.chat.executor": "Run",
+    "Python.tutorials.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "specking__test",
@@ -73,7 +72,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.tutorials">
+  <component name="RunManager">
     <configuration name="tutorials.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/PythonProject/templates/tutorials.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -119,7 +118,6 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.tutorials" />
-        <item itemvalue="JavaScript Debug.tutorials.html" />
       </list>
     </recent_temporary>
   </component>

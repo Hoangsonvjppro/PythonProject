@@ -8,6 +8,7 @@ from models.models import db, User, Level, Lesson, UserProgress, Vocabulary, Tes
 from modules.speech import speech_bp
 from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
+from modules.tutorials import tutorials_bp
 import os
 
 # Khởi tạo Flask
@@ -142,6 +143,7 @@ app.register_blueprint(speech_bp)
 app.register_blueprint(translate_bp)
 app.register_blueprint(chatting)
 register_socketio_events(socketio)
+app.register_blueprint(tutorials_bp, url_prefix='/tutorials')
 
 # Khởi tạo dữ liệu mẫu ban đầu
 def init_sample_data():
