@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/instance/learning_app.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/learning_app.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tutorials.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/tutorials.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/chatting.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/chatting.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/lesson.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/lesson.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/speech_to_text.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/speech_to_text.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,9 +62,9 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;big__update&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/HK4/PythonProject-sonle_branch&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/Hoangson/PycharmProjects/PythonProject&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
@@ -151,6 +146,11 @@
       <workItem from="1744483054681" duration="2222000" />
       <workItem from="1744527025029" duration="5260000" />
       <workItem from="1744543842171" duration="3239000" />
+      <workItem from="1744556844624" duration="126000" />
+      <workItem from="1744557141642" duration="129000" />
+      <workItem from="1744557286290" duration="9000" />
+      <workItem from="1744557329607" duration="485000" />
+      <workItem from="1744557918841" duration="2381000" />
     </task>
     <servers />
   </component>
@@ -169,7 +169,7 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PythonProject$FlaskProject.coverage" NAME="FlaskProject Coverage Results" MODIFIED="1744529529231" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PythonProject$FlaskProject.coverage" NAME="FlaskProject Coverage Results" MODIFIED="1744558048571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PythonProject$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1743385329723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
