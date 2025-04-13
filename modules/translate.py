@@ -12,7 +12,7 @@ translate_bp = Blueprint('translate', __name__)
 translator = Translator()
 
 @translate_bp.route('/translate', methods=['GET', 'POST'])
-def translate_text():
+async def translate_text():
     if request.method == 'GET':
         # Lấy lịch sử dịch từ session
         history = session.get('translate_history', [])
@@ -41,7 +41,7 @@ def translate_text():
             source_lang = detected.lang
         
         # Dịch văn bản
-        translated_text = asyncio.run(translate_text_async(text, target_lang, source_lang))
+        translated_text = await translate_text_async(text, target_lang, source_lang)
         
         # Lưu vào lịch sử
         history_entry = {
@@ -68,7 +68,7 @@ def translate_text():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @translate_bp.route('/translate/file', methods=['POST'])
-def translate_file():
+async def translate_file():
     if 'file' not in request.files:
         return jsonify({'success': False, 'error': 'No file provided'}), 400
         
@@ -84,7 +84,7 @@ def translate_file():
         content = file.read().decode('utf-8')
         
         # Dịch nội dung
-        translated_text = asyncio.run(translate_text_async(content, target_lang, source_lang))
+        translated_text = await translate_text_async(content, target_lang, source_lang)
         
         return jsonify({
             'success': True,

@@ -393,3 +393,7 @@ input[type="file"]:hover {
   background: var(--secondary-color);
   border-radius: var(--border-radius);
 }
+
+.mt-4 {
+  min-height: 100vh;
+}

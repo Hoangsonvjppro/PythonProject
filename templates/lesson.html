@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Bài học - {{ lesson.title }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ lesson.title }}</h1>
+        <p>{{ lesson.description }}</p>
+        <div>{{ lesson.content | safe }}</div>
+
+        {% if not progress.completion_status %}
+            <form method="POST" action="{{ url_for('tutorials.complete_lesson', lesson_id=lesson.lesson_id) }}">
+                <button type="submit" class="btn btn-success">Hoàn thành bài học</button>
+            </form>
+        {% else %}
+            <p class="text-success">Bạn đã hoàn thành bài học này vào {{ progress.completed_at.strftime('%Y-%m-%d') }}.</p>
+        {% endif %}
+
+        <a href="{{ url_for('tutorials.tutorials') }}" class="btn btn-secondary mt-3">Quay lại lộ trình</a>
+    </div>
+{% endblock %}

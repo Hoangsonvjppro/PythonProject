@@ -21,6 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learning_app.db'  # Đổi t�
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['ASYNC_MODE'] = True
 
 # Khởi tạo cơ sở dữ liệu
 db.init_app(app)
@@ -149,18 +150,90 @@ app.register_blueprint(tutorials_bp, url_prefix='/tutorials')
 def init_sample_data():
     # Thêm cấp độ (A1-C1)
     if not Level.query.first():
-        levels = ['A1', 'A2', 'B1', 'B2', 'C1']
-        for level_name in levels:
-            level = Level(level_name=level_name)
-            db.session.add(level)
+        levels = [
+            Level(level_name='A1'),
+            Level(level_name='A2'),
+            Level(level_name='B1'),
+            Level(level_name='B2'),
+            Level(level_name='C1')
+        ]
+        db.session.add_all(levels)
+        db.session.commit()
+
+    # Thêm bài học mẫu cho mỗi cấp độ
+    if not Lesson.query.first():
+        # Lấy các cấp độ
+        a1 = Level.query.filter_by(level_name='A1').first()
+        a2 = Level.query.filter_by(level_name='A2').first()
+        b1 = Level.query.filter_by(level_name='B1').first()
+        b2 = Level.query.filter_by(level_name='B2').first()
+        c1 = Level.query.filter_by(level_name='C1').first()
+
+        lessons = [
+            # Cấp độ A1
+            Lesson(level_id=a1.level_id, title="Giới thiệu bản thân", description="Học cách giới thiệu tên, tuổi, và quốc tịch.", content="Trong bài học này, bạn sẽ học cách giới thiệu bản thân bằng tiếng Anh. Ví dụ: 'Hello, my name is John. I am 25 years old. I am from Vietnam.'"),
+            Lesson(level_id=a1.level_id, title="Từ vựng cơ bản", description="Học các từ vựng cơ bản như màu sắc, số đếm, và ngày trong tuần.", content="Bài học này giới thiệu các từ vựng cơ bản: red (đỏ), blue (xanh), one (một), two (hai), Monday (Thứ Hai), Tuesday (Thứ Ba)."),
+            Lesson(level_id=a1.level_id, title="Câu chào hỏi hàng ngày", description="Học các câu chào hỏi cơ bản.", content="Học cách chào hỏi: 'Good morning!' (Chào buổi sáng!), 'How are you?' (Bạn khỏe không?), 'I’m fine, thank you.' (Tôi khỏe, cảm ơn bạn)."),
+
+            # Cấp độ A2
+            Lesson(level_id=a2.level_id, title="Mô tả người và vật", description="Học cách mô tả ngoại hình và tính cách của người, vật.", content="Học cách mô tả: 'He is tall and handsome.' (Anh ấy cao và đẹp trai.) 'The cat is small and cute.' (Con mèo nhỏ và dễ thương.)"),
+            Lesson(level_id=a2.level_id, title="Thì quá khứ đơn", description="Học cách sử dụng thì quá khứ đơn để kể về các sự kiện trong quá khứ.", content="Học thì quá khứ đơn: 'I went to the park yesterday.' (Hôm qua tôi đã đi công viên.) 'She watched a movie last night.' (Tối qua cô ấy đã xem một bộ phim.)"),
+            Lesson(level_id=a2.level_id, title="Hỏi đường", description="Học cách hỏi và chỉ đường.", content="Học cách hỏi đường: 'Where is the nearest bus stop?' (Bến xe buýt gần nhất ở đâu?) 'Turn left at the next street.' (Rẽ trái ở con đường tiếp theo.)"),
+
+            # Cấp độ B1
+            Lesson(level_id=b1.level_id, title="Thảo luận về sở thích", description="Học cách nói về sở thích và hoạt động giải trí.", content="Học cách nói về sở thích: 'I enjoy playing football.' (Tôi thích chơi bóng đá.) 'She likes reading books.' (Cô ấy thích đọc sách.)"),
+            Lesson(level_id=b1.level_id, title="Viết email đơn giản", description="Học cách viết email cơ bản để gửi cho bạn bè hoặc đồng nghiệp.", content="Học cách viết email: 'Dear Anna, How are you? I hope you are well. Best regards, John.' (Gửi Anna, Bạn khỏe không? Tôi hy vọng bạn khỏe. Trân trọng, John.)"),
+            Lesson(level_id=b1.level_id, title="Thì hiện tại hoàn thành", description="Học cách sử dụng thì hiện tại hoàn thành.", content="Học thì hiện tại hoàn thành: 'I have just finished my homework.' (Tôi vừa làm xong bài tập.) 'She has visited Paris.' (Cô ấy đã đến Paris.)"),
+
+            # Cấp độ B2
+            Lesson(level_id=b2.level_id, title="Tranh luận cơ bản", description="Học cách đưa ra ý kiến và tranh luận.", content="Học cách tranh luận: 'In my opinion, technology is beneficial.' (Theo ý kiến của tôi, công nghệ có lợi.) 'I disagree because it can be addictive.' (Tôi không đồng ý vì nó có thể gây nghiện.)"),
+            Lesson(level_id=b2.level_id, title="Viết đoạn văn mô tả", description="Học cách viết đoạn văn mô tả chi tiết.", content="Học cách viết đoạn văn: 'My hometown is a small village surrounded by mountains. The air is fresh, and the people are friendly.' (Quê tôi là một ngôi làng nhỏ được bao quanh bởi núi. Không khí trong lành và người dân thân thiện.)"),
+            Lesson(level_id=b2.level_id, title="Thì tương lai", description="Học cách sử dụng các thì tương lai.", content="Học thì tương lai: 'I will visit my grandparents tomorrow.' (Ngày mai tôi sẽ thăm ông bà.) 'She is going to study abroad next year.' (Cô ấy sẽ đi du học vào năm tới.)"),
+
+            # Cấp độ C1
+            Lesson(level_id=c1.level_id, title="Phân tích bài báo", description="Học cách đọc và phân tích bài báo tiếng Anh.", content="Học cách phân tích bài báo: Đọc một bài báo về biến đổi khí hậu và trả lời các câu hỏi như: 'What is the main argument of the article?' (Luận điểm chính của bài báo là gì?)"),
+            Lesson(level_id=c1.level_id, title="Viết luận nâng cao", description="Học cách viết bài luận chuyên sâu.", content="Học cách viết luận: 'To what extent does social media impact mental health? Provide arguments for both sides.' (Mạng xã hội ảnh hưởng đến sức khỏe tinh thần đến mức nào? Đưa ra lập luận cho cả hai phía.)"),
+            Lesson(level_id=c1.level_id, title="Thảo luận chủ đề phức tạp", description="Học cách thảo luận các chủ đề phức tạp.", content="Học cách thảo luận: 'What are the ethical implications of artificial intelligence?' (Những hệ quả đạo đức của trí tuệ nhân tạo là gì?)")
+        ]
+        db.session.add_all(lessons)
+        db.session.commit()
+
+    # Thêm từ vựng mẫu
+    if not Vocabulary.query.first():
+        vocab = [
+            # Cấp độ A1
+            Vocabulary(word="hello", definition="Xin chào", example_sentence="Hello, how are you?", level_id=a1.level_id),
+            Vocabulary(word="book", definition="Sách", example_sentence="I read a book.", level_id=a1.level_id),
+            Vocabulary(word="red", definition="Màu đỏ", example_sentence="The apple is red.", level_id=a1.level_id),
+
+            # Cấp độ A2
+            Vocabulary(word="travel", definition="Du lịch", example_sentence="I love to travel.", level_id=a2.level_id),
+            Vocabulary(word="restaurant", definition="Nhà hàng", example_sentence="We went to a restaurant.", level_id=a2.level_id),
+            Vocabulary(word="beautiful", definition="Đẹp", example_sentence="The sunset is beautiful.", level_id=a2.level_id),
+
+            # Cấp độ B1
+            Vocabulary(word="hobby", definition="Sở thích", example_sentence="My hobby is reading.", level_id=b1.level_id),
+            Vocabulary(word="email", definition="Thư điện tử", example_sentence="I sent an email.", level_id=b1.level_id),
+            Vocabulary(word="opinion", definition="Ý kiến", example_sentence="In my opinion, this is a good idea.", level_id=b1.level_id),
+
+            # Cấp độ B2
+            Vocabulary(word="argument", definition="Lập luận", example_sentence="He presented a strong argument.", level_id=b2.level_id),
+            Vocabulary(word="environment", definition="Môi trường", example_sentence="We need to protect the environment.", level_id=b2.level_id),
+            Vocabulary(word="decision", definition="Quyết định", example_sentence="She made a wise decision.", level_id=b2.level_id),
+
+            # Cấp độ C1
+            Vocabulary(word="ethical", definition="Thuộc về đạo đức", example_sentence="There are ethical concerns about this issue.", level_id=c1.level_id),
+            Vocabulary(word="impact", definition="Tác động", example_sentence="Social media has a big impact on our lives.", level_id=c1.level_id),
+            Vocabulary(word="analyze", definition="Phân tích", example_sentence="We need to analyze the data carefully.", level_id=c1.level_id)
+        ]
+        db.session.add_all(vocab)
         db.session.commit()
 
     # Thêm bài kiểm tra speech test mặc định
     if not Test.query.first():
-        level_a1 = Level.query.filter_by(level_name='A1').first()
         speech_test = Test(
             test_type='speech',
-            level_id=level_a1.level_id,
+            level_id=a1.level_id,
             description='Speech Test for Pronunciation Evaluation'
         )
         db.session.add(speech_test)
@@ -180,39 +253,6 @@ def init_sample_data():
                 correctAudio_file=audio_file
             )
             db.session.add(sentence)
-        db.session.commit()
-
-    # Thêm bài học mẫu
-    if not Lesson.query.first():
-        levels = Level.query.all()
-        for level in levels:
-            lesson = Lesson(
-                level_id=level.level_id,
-                title=f"Basic Pronunciation for {level.level_name}",
-                description=f"Learn basic pronunciation skills for {level.level_name} level.",
-                content=f"This is a sample lesson for {level.level_name}."
-            )
-            db.session.add(lesson)
-        db.session.commit()
-
-    # Thêm từ vựng mẫu
-    if not Vocabulary.query.first():
-        levels = Level.query.all()
-        sample_vocab = [
-            ("hello", "Xin chào", "Hello, how are you?", "A1"),
-            ("book", "Sách", "I read a book.", "A1"),
-            ("negotiation", "Đàm phán", "The negotiation was successful.", "C1"),
-            ("strategy", "Chiến lược", "We need a new strategy.", "B2")
-        ]
-        for word, definition, example, level_name in sample_vocab:
-            level = Level.query.filter_by(level_name=level_name).first()
-            vocab = Vocabulary(
-                word=word,
-                definition=definition,
-                example_sentence=example,
-                level_id=level.level_id
-            )
-            db.session.add(vocab)
         db.session.commit()
 
 if __name__ == '__main__':

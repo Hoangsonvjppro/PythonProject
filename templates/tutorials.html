@@ -3,196 +3,196 @@
 {% block title %}Lộ trình học tiếng Anh - English Learning Path{% endblock %}
 
 {% block content %}
-<style>
-    :root {
-        --primary-color: #4e73df;
-        --secondary-color: #f8f9fc;
-        --accent-color: #2e59d9;
-    }
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --accent-color: #2e59d9;
+        }
 
-    .header {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-        color: white;
-        padding: 3rem 0;
-        margin-bottom: 2rem;
-        border-radius: 0 0 10px 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    .level-card {
-        transition: all 0.3s ease;
-        border: none;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
+        .level-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
 
-    .level-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    .level-header {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 1rem;
-        font-weight: 600;
-    }
+        .level-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
 
-    .level-body {
-        padding: 1.5rem;
-        background-color: white;
-    }
+        .level-body {
+            padding: 1.5rem;
+            background-color: white;
+        }
 
-    .badge-level {
-        background-color: white;
-        color: var(--primary-color);
-        font-size: 0.8rem;
-        font-weight: 700;
-        padding: 0.35rem 0.75rem;
-        border-radius: 50rem;
-    }
+        .badge-level {
+            background-color: white;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50rem;
+        }
 
-    .progress {
-        height: 10px;
-        margin: 1rem 0;
-    }
+        .progress {
+            height: 10px;
+            margin: 1rem 0;
+        }
 
-    .btn-start {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 600;
-        padding: 0.5rem 1.5rem;
-        border-radius: 50rem;
-        border: none;
-        transition: all 0.3s;
-    }
+        .btn-start {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50rem;
+            border: none;
+            transition: all 0.3s;
+        }
 
-    .btn-start:hover {
-        background-color: var(--accent-color);
-        transform: translateY(-2px);
-    }
+        .btn-start:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
 
-    .features-footer {
-        background-color: #f1f3f9;
-        padding: 2rem 0;
-        margin-top: 3rem;
-        border-radius: 10px 10px 0 0;
-    }
-</style>
+        .features-footer {
+            background-color: #f1f3f9;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-radius: 10px 10px 0 0;
+        }
+    </style>
 
-<!-- Header Section -->
-<div class="header text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-3"><i class="fas fa-graduation-cap me-2"></i>Lộ trình học tiếng Anh</h1>
-        <p class="lead">Khám phá các cấp độ học tập được thiết kế bài bản giúp bạn tiến bộ từng ngày</p>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        {% for level, data in levels.items() %}
-        <div class="col-md-6 col-lg-4">
-            <div class="level-card">
-                <div class="level-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-{{ data.icon }} me-2"></i>Cấp độ {{ level }}</span>
-                    <span class="badge-level">{{ data.difficulty }}</span>
-                </div>
-                <div class="level-body">
-                    <h5 class="fw-bold">{{ data.title }}</h5>
-                    <p class="text-muted">{{ data.description }}</p>
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <small class="text-muted">Tiến độ</small>
-                        <small>{{ data.completion }}% hoàn thành</small>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: {{ data.completion }}%"
-                            aria-valuenow="{{ data.completion }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <small><i class="fas fa-book me-1"></i> {{ data.lessons }} bài học</small>
-                        <button class="btn btn-sm btn-start">
-                            {% if data.completion == 0 %}Bắt đầu{% else %}Tiếp tục{% endif %}
-                            <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Features Section -->
-<div class="container mt-5">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-headset text-primary fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold">Luyện nghe</h5>
-                    <p class="text-muted">Cải thiện kỹ năng nghe với các bài tập đa dạng từ cơ bản đến nâng cao</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-comment-dots text-primary fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold">Luyện nói</h5>
-                    <p class="text-muted">Thực hành phát âm và giao tiếp với công nghệ nhận diện giọng nói AI</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
-                        <i class="fas fa-trophy text-primary fs-2"></i>
-                    </div>
-                    <h5 class="fw-bold">Theo dõi tiến độ</h5>
-                    <p class="text-muted">Hệ thống báo cáo chi tiết giúp bạn theo dõi sự tiến bộ của mình</p>
-                </div>
-            </div>
+    <!-- Header Section -->
+    <div class="header text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3"><i class="fas fa-graduation-cap me-2"></i>Lộ trình học tiếng Anh</h1>
+            <p class="lead">Khám phá các cấp độ học tập được thiết kế bài bản giúp bạn tiến bộ từng ngày</p>
         </div>
     </div>
-</div>
 
-<!-- Features Footer -->
-<div class="features-footer text-center">
+    <!-- Main Content -->
     <div class="container">
         <div class="row">
-            <div class="col-md-6 mx-auto">
-                <h5 class="fw-bold mb-3">English Learning Platform</h5>
-                <p class="text-muted">Nền tảng học tiếng Anh thông minh giúp bạn chinh phục ngôn ngữ toàn cầu</p>
-                <div class="mt-4">
-                    <a href="#" class="text-decoration-none me-3"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-decoration-none me-3"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-decoration-none"><i class="fab fa-youtube"></i></a>
+            {% for level, data in levels.items() %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="level-card">
+                        <div class="level-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-{{ data['icon'] }} me-2"></i>Cấp độ {{ level }}</span>
+                            <span class="badge-level">{{ data['difficulty'] }}</span>
+                        </div>
+                        <div class="level-body">
+                            <h5 class="fw-bold">{{ data['title'] }}</h5>
+                            <p class="text-muted">{{ data['description'] }}</p>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <small class="text-muted">Tiến độ</small>
+                                <small>{{ data['completion'] }}% hoàn thành</small>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ data['completion'] }}%"
+                                     aria-valuenow="{{ data['completion'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small><i class="fas fa-book me-1"></i> {{ data['lessons'] }} bài học</small>
+                                <a href="{{ url_for('tutorials.start_lesson', level_name=level) }}" class="btn btn-sm btn-start">
+                                    {% if data['completion'] == 0 %}Bắt đầu{% else %}Tiếp tục{% endif %}
+                                    <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container mt-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                            <i class="fas fa-headset text-primary fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">Luyện nghe</h5>
+                        <p class="text-muted">Cải thiện kỹ năng nghe với các bài tập đa dạng từ cơ bản đến nâng cao</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                            <i class="fas fa-comment-dots text-primary fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">Luyện nói</h5>
+                        <p class="text-muted">Thực hành phát âm và giao tiếp với công nghệ nhận diện giọng nói AI</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                            <i class="fas fa-trophy text-primary fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">Theo dõi tiến độ</h5>
+                        <p class="text-muted">Hệ thống báo cáo chi tiết giúp bạn theo dõi sự tiến bộ của mình</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <hr class="my-4">
-        <p class="mb-0 text-muted">© 2023 English Learning Platform. All rights reserved.</p>
     </div>
-</div>
 
-<script>
-    // Thêm hiệu ứng khi click vào level card
-    document.querySelectorAll('.level-card').forEach(card => {
-        card.addEventListener('click', function() {
-            // Xử lý khi click vào card (có thể chuyển hướng đến trang chi tiết)
-            console.log('Selected level:', this.querySelector('h5').innerText);
+    <!-- Features Footer -->
+    <div class="features-footer text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <h5 class="fw-bold mb-3">English Learning Platform</h5>
+                    <p class="text-muted">Nền tảng học tiếng Anh thông minh giúp bạn chinh phục ngôn ngữ toàn cầu</p>
+                    <div class="mt-4">
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-decoration-none me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-decoration-none"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <p class="mb-0 text-muted">© 2023 English Learning Platform. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Thêm hiệu ứng khi click vào level card
+        document.querySelectorAll('.level-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Xử lý khi click vào card (có thể chuyển hướng đến trang chi tiết)
+                console.log('Selected level:', this.querySelector('h5').innerText);
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}
