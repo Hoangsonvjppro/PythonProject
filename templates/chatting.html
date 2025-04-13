@@ -60,9 +60,14 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            height: calc(100vh - 200px);
+            height: calc(100vh - 180px);
             display: flex;
             flex-direction: column;
+        }
+
+        .message-timestamp {
+            margin-top: 0.2rem;
+            text-align: right;
         }
 
         .chat-header {
@@ -323,6 +328,15 @@
                 const messageText = document.createElement("div");
                 messageText.textContent = message;
                 contentDiv.appendChild(messageText);
+
+                // Thêm thời gian gửi tin nhắn
+                const timestampDiv = document.createElement("div");
+                timestampDiv.className = "message-timestamp";
+                timestampDiv.style.fontSize = "0.7rem";
+                timestampDiv.style.color = "#999";
+                const now = new Date();
+                timestampDiv.textContent = now.toLocaleTimeString();
+                contentDiv.appendChild(timestampDiv);
 
                 messageElement.appendChild(contentDiv);
             } else {
