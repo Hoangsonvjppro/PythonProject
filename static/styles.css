@@ -394,6 +394,3 @@ input[type="file"]:hover {
   border-radius: var(--border-radius);
 }
 
-.mt-4 {
-  min-height: 100vh;
-}
