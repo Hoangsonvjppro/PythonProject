@@ -8,14 +8,181 @@
         <p>{{ lesson.description }}</p>
         <div>{{ lesson.content | safe }}</div>
 
+        <h3>Bài tập phát âm</h3>
+        <div class="row">
+            {% for sentence in pronunciation_sentences %}
+                <div class="col-md-6 mb-4">
+                    <div class="sentence-card card">
+                        <div class="card-body">
+                            <p class="card-text">{{ sentence.sentence_text }}</p>
+                            <button class="btn btn-primary record-btn" data-sentence="{{ sentence.sentence_text }}" data-id="{{ loop.index0 }}">
+                                <i class="fas fa-microphone me-2"></i>Ghi âm
+                            </button>
+                            <span class="status-text" id="status-{{ loop.index0 }}"></span>
+                            <div class="result-container mt-3">
+                                <p class="result-text" id="result-{{ loop.index0 }}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
         {% if not progress.completion_status %}
-            <form method="POST" action="{{ url_for('tutorials.complete_lesson', lesson_id=lesson.lesson_id) }}">
-                <button type="submit" class="btn btn-success">Hoàn thành bài học</button>
-            </form>
+            <button id="complete-btn" class="btn btn-success" disabled>Hoàn thành bài học</button>
         {% else %}
             <p class="text-success">Bạn đã hoàn thành bài học này vào {{ progress.completed_at.strftime('%Y-%m-%d') }}.</p>
         {% endif %}
 
         <a href="{{ url_for('tutorials.tutorials') }}" class="btn btn-secondary mt-3">Quay lại lộ trình</a>
     </div>
+
+    <script>
+        let completedSentences = 0;
+        const totalSentences = {{ pronunciation_sentences|length }};
+        const accuracies = new Array(totalSentences).fill(null);
+        const completeBtn = document.getElementById('complete-btn');
+
+        // Hàm tính độ chính xác bằng cách so sánh hai chuỗi văn bản
+        function evaluatePronunciation(userText, sampleText) {
+            // So sánh hai chuỗi, bỏ qua hoa thường
+            const similarity = (str1, str2) => {
+                const longer = str1.length > str2.length ? str1 : str2;
+                const shorter = str1.length > str2.length ? str2 : str1;
+                const longerLength = longer.length;
+                if (longerLength === 0) return 1.0;
+                const editDistance = (s1, s2) => {
+                    s1 = s1.toLowerCase();
+                    s2 = s2.toLowerCase();
+                    const costs = new Array();
+                    for (let i = 0; i <= s1.length; i++) {
+                        let lastValue = i;
+                        for (let j = 0; j <= s2.length; j++) {
+                            if (i === 0) costs[j] = j;
+                            else if (j > 0) {
+                                let newValue = costs[j - 1];
+                                if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                                    newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                                costs[j - 1] = lastValue;
+                                lastValue = newValue;
+                            }
+                        }
+                        if (i > 0) costs[s2.length] = lastValue;
+                    }
+                    return costs[s2.length];
+                };
+                return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+            };
+
+            const accuracy = similarity(userText, sampleText) * 100;
+            let feedback = "";
+            if (accuracy >= 90) {
+                feedback = "Excellent pronunciation!";
+            } else if (accuracy >= 70) {
+                feedback = "Good effort, but could be clearer.";
+            } else {
+                feedback = "Needs improvement, try again.";
+            }
+            return { accuracy: Math.round(accuracy * 100) / 100, feedback: feedback };
+        }
+
+        // Khởi tạo SpeechRecognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Trình duyệt của bạn không hỗ trợ SpeechRecognition. Vui lòng sử dụng Chrome hoặc Edge.");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            document.querySelectorAll('.record-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-id'));
+                    const sentence = this.getAttribute('data-sentence');
+                    const statusText = document.getElementById(`status-${index}`);
+                    const resultText = document.getElementById(`result-${index}`);
+
+                    if (this.classList.contains('recording')) {
+                        // Dừng ghi âm
+                        recognition.stop();
+                        this.classList.remove('recording');
+                        this.innerHTML = '<i class="fas fa-microphone me-2"></i>Ghi âm';
+                        statusText.textContent = "Đang xử lý...";
+                    } else {
+                        // Bắt đầu ghi âm
+                        recognition.start();
+                        this.classList.add('recording');
+                        this.innerHTML = '<i class="fas fa-stop me-2"></i>Dừng';
+                        statusText.textContent = "Đang ghi âm...";
+
+                        recognition.onresult = (event) => {
+                            const userText = event.results[0][0].transcript;
+                            statusText.textContent = "";
+                            this.disabled = false;
+
+                            const evaluation = evaluatePronunciation(userText, sentence);
+                            resultText.innerHTML = `<span class="${evaluation.accuracy >= 70 ? 'text-success' : 'text-danger'}">
+                            Chính xác: ${evaluation.accuracy}% - ${evaluation.feedback}</span>`;
+                            accuracies[index] = evaluation.accuracy;
+
+                            if (evaluation.accuracy >= 70) {
+                                completedSentences++;
+                                if (completedSentences === totalSentences) {
+                                    completeBtn.disabled = false;
+                                    completeBtn.onclick = function() {
+                                        fetch(`{{ url_for('tutorials.complete_lesson', lesson_id=lesson.lesson_id) }}`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ accuracies: accuracies })
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    window.location.href = data.redirect;
+                                                } else {
+                                                    alert(data.message || "Lỗi khi hoàn thành bài học!");
+                                                }
+                                            })
+                                            .catch(error => {
+                                                alert("Lỗi khi hoàn thành bài học: " + error.message);
+                                            });
+                                    };
+                                }
+                            }
+                        };
+
+                        recognition.onerror = (event) => {
+                            statusText.textContent = "";
+                            resultText.innerHTML = `<span class="text-danger">Lỗi: ${event.error}</span>`;
+                            this.classList.remove('recording');
+                            this.innerHTML = '<i class="fas fa-microphone me-2"></i>Ghi âm';
+                            this.disabled = false;
+                        };
+
+                        recognition.onend = () => {
+                            if (this.classList.contains('recording')) {
+                                this.classList.remove('recording');
+                                this.innerHTML = '<i class="fas fa-microphone me-2"></i>Ghi âm';
+                                statusText.textContent = "";
+                            }
+                        };
+                    }
+                });
+            });
+        }
+    </script>
+
+    <style>
+        .record-btn.recording {
+            background: #dc3545;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
 {% endblock %}
