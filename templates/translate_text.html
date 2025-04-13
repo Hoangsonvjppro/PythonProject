@@ -18,10 +18,9 @@
 
                 <div class="mb-3">
                     <label for="sourceLang" class="form-label">Ngôn ngữ nguồn</label>
-                    <select class="form-select" id="sourceLang">
-                        <option value="auto">Tự động phát hiện</option>
+                    <select class="form-select" id="sourceLang" required>
                         {% for code, name in languages.items() %}
-                        <option value="{{ code }}">{{ name }}</option>
+                            <option value="{{ code }}">{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -30,7 +29,7 @@
                     <label for="targetLang" class="form-label">Ngôn ngữ đích</label>
                     <select class="form-select" id="targetLang" required>
                         {% for code, name in languages.items() %}
-                        <option value="{{ code }}">{{ name }}</option>
+                            <option value="{{ code }}">{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -352,8 +351,6 @@
             const data = await response.json();
             if (data.success) {
                 document.getElementById('translatedText').value = data.translated_text;
-                document.getElementById('detectedLang').textContent =
-                    `Ngôn ngữ phát hiện: ${data.detected_lang}`;
 
                 // Thêm hiệu ứng fade-in cho kết quả
                 const resultArea = document.getElementById('translatedText');

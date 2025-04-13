@@ -1,49 +1,48 @@
-import asyncio
-from googletrans import Translator, LANGUAGES
 from flask import Flask, Blueprint, render_template, request, jsonify, session
+from deep_translator import GoogleTranslator
 import os
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Thêm secret key cho session
+app.secret_key = os.urandom(24)
 
-# Tạo Blueprint cho dịch thuật
+# Tạo Blueprint cho module dịch
 translate_bp = Blueprint('translate', __name__)
-translator = Translator()
+
+# Khởi tạo translator
+translator = GoogleTranslator()
+
+# Lấy danh sách ngôn ngữ hỗ trợ từ GoogleTranslator
+LANGUAGES = translator.get_supported_languages(as_dict=True)
 
 @translate_bp.route('/translate', methods=['GET', 'POST'])
-async def translate_text():
+def translate_text():
     if request.method == 'GET':
-        # Lấy lịch sử dịch từ session
         history = session.get('translate_history', [])
-        return render_template("translate_text.html",
-                             history=history,
-                             languages=LANGUAGES)
+        return render_template("translate_text.html", history=history, languages=LANGUAGES)
 
     if not request.is_json:
-        return jsonify({'success': False, 'error': 'Request must be JSON'}), 400
+        return jsonify({'success': False, 'error': 'Yêu cầu phải là JSON'}), 400
 
     data = request.get_json(silent=True)
-    if not data or 'text' not in data or 'target_lang' not in data:
-        return jsonify({'success': False, 'error': 'Invalid JSON format'}), 400
+    if not data or 'text' not in data or 'target_lang' not in data or 'source_lang' not in data:
+        return jsonify({'success': False, 'error': 'Định dạng JSON không hợp lệ'}), 400
 
     text = data['text'].strip()
     target_lang = data['target_lang'].strip()
-    source_lang = data.get('source_lang', 'auto')  # Thêm source_lang, mặc định là 'auto'
+    source_lang = data['source_lang'].strip()
 
     if not text:
-        return jsonify({'success': False, 'error': 'No text provided'}), 400
+        return jsonify({'success': False, 'error': 'Không có văn bản để dịch'}), 400
+
+    if source_lang == 'auto':
+        return jsonify({'success': False, 'error': 'Tự động phát hiện ngôn ngữ không được hỗ trợ. Vui lòng chọn ngôn ngữ nguồn.'}), 400
 
     try:
-        # Phát hiện ngôn ngữ nguồn nếu không được chỉ định
-        if source_lang == 'auto':
-            detected = translator.detect(text)
-            source_lang = detected.lang
-        
         # Dịch văn bản
-        translated_text = await translate_text_async(text, target_lang, source_lang)
-        
-        # Lưu vào lịch sử
+        translated_text = GoogleTranslator(source=source_lang, target=target_lang).translate(text)
+
+        # Lưu vào lịch sử dịch
         history_entry = {
             'text': text,
             'translated': translated_text,
@@ -51,41 +50,42 @@ async def translate_text():
             'target_lang': target_lang,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
-        
+
         # Cập nhật session
         history = session.get('translate_history', [])
         history.insert(0, history_entry)
-        history = history[:10]  # Giữ tối đa 10 mục
+        history = history[:10]
         session['translate_history'] = history
-        
+
         return jsonify({
-            'success': True, 
+            'success': True,
             'translated_text': translated_text,
             'source_lang': source_lang,
-            'detected_lang': detected.lang if source_lang == 'auto' else source_lang
+            'detected_lang': source_lang
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @translate_bp.route('/translate/file', methods=['POST'])
-async def translate_file():
+def translate_file():
     if 'file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file provided'}), 400
-        
+        return jsonify({'success': False, 'error': 'Không có file được cung cấp'}), 400
+
     file = request.files['file']
     target_lang = request.form.get('target_lang', 'en')
     source_lang = request.form.get('source_lang', 'auto')
-    
+
     if file.filename == '':
-        return jsonify({'success': False, 'error': 'No file selected'}), 400
-        
+        return jsonify({'success': False, 'error': 'Chưa chọn file'}), 400
+
+    if source_lang == 'auto':
+        return jsonify({'success': False, 'error': 'Tự động phát hiện ngôn ngữ không được hỗ trợ. Vui lòng chọn ngôn ngữ nguồn.'}), 400
+
     try:
-        # Đọc nội dung file
         content = file.read().decode('utf-8')
-        
-        # Dịch nội dung
-        translated_text = await translate_text_async(content, target_lang, source_lang)
-        
+
+        translated_text = GoogleTranslator(source=source_lang, target=target_lang).translate(content)
+
         return jsonify({
             'success': True,
             'translated_text': translated_text
@@ -93,13 +93,7 @@ async def translate_file():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-async def translate_text_async(text, target_lang, source_lang='auto'):
-    loop = asyncio.get_running_loop()
-    translated = await loop.run_in_executor(None, lambda: translator.translate(text, dest=target_lang, src=source_lang))
-    return translated.text
-
-# Đăng ký Blueprint vào ứng dụng Flask
 app.register_blueprint(translate_bp)
 
 if __name__ == "__main__":
-    app.run(debug=True)  
+    app.run(debug=True, host='127.0.0.1', port=5001)
