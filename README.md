@@ -213,6 +213,7 @@ Vui lòng tuân thủ PEP8 và thêm unit tests cho tính năng mới.
 ## Các bước tiếp theo
 
 - Tổ chức lại code thành package `src/`
+- Làm nốt phần Lesson
 - Viết unit tests đầy đủ trong `tests/`
 - Thiết lập CI/CD (GitHub Actions)
 - Cải thiện xử lý lỗi và logging
@@ -220,6 +221,5 @@ Vui lòng tuân thủ PEP8 và thêm unit tests cho tính năng mới.
 
 ---
 
-&mdash; **Chúc bạn học vui vẻ!** 🎓
 
 
