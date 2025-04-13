@@ -170,7 +170,7 @@ def init_sample_data():
         sample_sentences = [
             ("The quick brown fox jumps over the lazy dog.", "correct_audios/sentence1.wav"),
             ("She sells seashells by the seashore.", "correct_audios/sentence2.wav"),
-            ("How much wood would a woodchuck chuck?", "correct_audios/sentence3.wav"),
+            ("How much wood would a woodchuck chuck?", "correct_audios/sentence3.wav"),~
             ("Peter Piper picked a peck of pickled peppers.", "correct_audios/sentence4.wav")
         ]
         for sentence_text, audio_file in sample_sentences:

@@ -25,6 +25,10 @@
                     <div class="sentence-content mb-4">
                         <p class="card-text">{{ sentence }}</p>
                     </div>
+                    <!-- Thêm audio visualizer vào đây -->
+                    <div class="audio-visualizer">
+                        <canvas id="visualizer-{{ loop.index0 }}" width="300" height="80"></canvas>
+                    </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <button class="btn btn-primary record-btn" data-sentence="{{ sentence }}" data-index="{{ loop.index0 }}"
                                 {{ 'disabled' if loop.index0 > 0 else '' }}>
@@ -66,7 +70,6 @@
                                     <span class="level B1">B1</span>
                                     <span class="level B2 active">B2</span>
                                     <span class="level C1">C1</span>
-                                    <span class="level C2">C2</span>
                                 </div>
                             </div>
                         </div>
@@ -132,6 +135,15 @@
         font-size: 1.1rem;
         line-height: 1.6;
         color: var(--text-color);
+    }
+
+    /* Audio visualizer styles */
+    .audio-visualizer {
+        background: #f5f5f5;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 10px 0;
+        display: none; /* Ẩn ban đầu, chỉ hiện khi ghi âm */
     }
 
     .record-btn {
@@ -206,7 +218,6 @@
     .scale-bar .level.B1.active { background: #FFD166; }
     .scale-bar .level.B2.active { background: #06D6A0; }
     .scale-bar .level.C1.active { background: #118AB2; }
-    .scale-bar .level.C2.active { background: #073B4C; }
 
     #retry-test {
         transition: all 0.3s ease;
@@ -235,6 +246,10 @@
         .record-btn {
             width: 100%;
         }
+
+        .audio-visualizer canvas {
+            width: 100% !important;
+        }
     }
 </style>
 
@@ -243,6 +258,10 @@
     let completedCount = 0;
     let currentRecordingIndex = 0;
     let isRecording = false;
+    let audioContext = null;
+    let analyser = null;
+    let microphone = null;
+    let animationId = null;
 
     // Initialize buttons
     function initializeButtons() {
@@ -252,6 +271,79 @@
             badge.textContent = index === 0 ? 'Ready' : 'Locked';
             badge.className = `badge bg-${index === 0 ? 'success' : 'secondary'}`;
         });
+    }
+
+    // Audio visualizer setup
+    function setupVisualizer(index) {
+        const canvas = document.getElementById(`visualizer-${index}`);
+        const ctx = canvas.getContext('2d');
+
+        // Hiển thị visualizer
+        canvas.parentElement.style.display = 'block';
+
+        // Khởi tạo AudioContext nếu chưa có
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+        }
+
+        // Kết nối microphone với analyser
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(function(stream) {
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+
+                // Bắt đầu vẽ visualizer
+                drawVisualizer(index, canvas, ctx, analyser);
+            })
+            .catch(function(err) {
+                console.error('Error accessing microphone:', err);
+            });
+    }
+
+    // Vẽ audio visualizer
+    function drawVisualizer(index, canvas, ctx, analyser) {
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function draw() {
+            animationId = requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height;
+
+                ctx.fillStyle = `rgb(${Math.floor(barHeight + 100)}, 50, 50)`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                x += barWidth + 1;
+            }
+        }
+
+        draw();
+    }
+
+    // Dừng visualizer
+    function stopVisualizer(index) {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+
+        if (microphone) {
+            microphone.disconnect();
+            microphone = null;
+        }
+
+        const canvas = document.getElementById(`visualizer-${index}`);
+        canvas.parentElement.style.display = 'none';
     }
 
     // Handle record button clicks
@@ -273,6 +365,9 @@
             this.classList.add('recording');
             this.innerHTML = '<i class="fas fa-stop me-2"></i>Stop';
 
+            // Bắt đầu visualizer
+            setupVisualizer(index);
+
             // Disable all other buttons during recording
             disableAllButtonsExcept(index);
 
@@ -289,6 +384,9 @@
                     this.disabled = true; // Keep this button disabled after recording
                     this.classList.remove('recording');
                     this.innerHTML = '<i class="fas fa-check me-2"></i>Completed';
+
+                    // Dừng visualizer
+                    stopVisualizer(index);
 
                     if (data.success) {
                         // Store results
@@ -361,6 +459,9 @@
         button.classList.remove('recording');
         button.innerHTML = '<i class="fas fa-microphone me-2"></i>Try Again';
 
+        // Dừng visualizer nếu có lỗi
+        stopVisualizer(index);
+
         const resultText = document.getElementById(`result-${index}`);
         resultText.innerHTML = `<div class="text-danger">Error: ${errorMessage}</div>`;
 
@@ -385,9 +486,9 @@
         let level, description, recommendedLessons;
 
         if (avgAccuracy >= 90) {
-            level = "C2";
-            description = "Proficient";
-            recommendedLessons = ["Advanced Grammar Structures", "Idiomatic Expressions", "Academic Writing"];
+            level = "C1";
+            description = "Advanced";
+            recommendedLessons = ["Complex Sentences", "Formal Presentations", "Debating Skills"];
         } else if (avgAccuracy >= 80) {
             level = "C1";
             description = "Advanced";
@@ -450,6 +551,21 @@
         completedCount = 0;
         currentRecordingIndex = 0;
         isRecording = false;
+
+        // Dừng tất cả visualizer nếu có
+        document.querySelectorAll('.audio-visualizer').forEach(vis => {
+            vis.style.display = 'none';
+        });
+
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+
+        if (microphone) {
+            microphone.disconnect();
+            microphone = null;
+        }
 
         // Reset UI elements
         initializeButtons();
