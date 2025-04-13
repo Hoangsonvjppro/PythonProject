@@ -41,6 +41,9 @@
                         <button type="button" class="btn btn-outline-primary" onclick="copyToClipboard()">
                             <i class="fas fa-copy"></i>
                         </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="speakText()">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -478,6 +481,16 @@
         const historyItems = historyList.getElementsByClassName('history-item');
         if (historyItems.length > 10) {
             historyList.removeChild(historyItems[historyItems.length - 1]);
+        }
+    }
+
+    function speakText() {
+        const text = document.getElementById('translatedText').value;
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert('Trình duyệt của bạn không hỗ trợ tính năng này.');
         }
     }
 </script>
