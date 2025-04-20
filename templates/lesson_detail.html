@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Bài {{ lesson.lesson_id }}: {{ lesson.title }} - English Learning{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('tutorials.tutorials') }}">Lộ trình học</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('tutorials.level_detail', level_id=level.level_id) }}">Cấp độ {{ level.level_name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Bài {{ lesson.lesson_id }}</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Bài {{ lesson.lesson_id }}: {{ lesson.title }}</h1>
+                {% if progress.completion_status %}
+                <span class="badge bg-success">
+                    <i class="fas fa-check me-1"></i> Đã hoàn thành
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="lesson-content">
+                        {{ lesson.content|safe }}
+                    </div>
+                </div>
+            </div>
+
+            {% if pronunciation_sentences %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-microphone me-2"></i>Bài tập phát âm</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Luyện phát âm các câu sau với độ chính xác trên 70% để hoàn thành bài học
+                    </p>
+
+                    <div class="row">
+                        {% for sentence in pronunciation_sentences %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">Câu {{ loop.index }}</h6>
+                                    <p class="card-text">{{ sentence.sentence_text }}</p>
+
+                                    <div class="pronunciation-exercise">
+                                        <button class="btn btn-outline-primary record-btn"
+                                                data-sentence="{{ sentence.sentence_text }}"
+                                                data-id="{{ loop.index0 }}">
+                                            <i class="fas fa-microphone me-2"></i>Ghi âm
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="status-text" id="status-{{ loop.index0 }}"></small>
+                                        </div>
+                                        <div class="result-container mt-2">
+                                            <div class="alert" id="result-{{ loop.index0 }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('tutorials.level_detail', level_id=level.level_id) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+
+                {% if not progress.completion_status %}
+                <button id="complete-btn" class="btn btn-success" {% if pronunciation_sentences %}disabled{% endif %}>
+                    <i class="fas fa-check-circle me-2"></i>Hoàn thành bài học
+                </button>
+                {% else %}
+                <div class="alert alert-success mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Bạn đã hoàn thành bài học này vào {{ progress.completed_at.strftime('%d/%m/%Y') }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Phần JavaScript giữ nguyên như trước, nhưng cập nhật phần xử lý khi hoàn thành
+    document.getElementById('complete-btn').addEventListener('click', function() {
+        const requirePronunciation = {{ pronunciation_sentences|length }} > 0;
+        const accuracies = Array({{ pronunciation_sentences|length }}).fill(0);
+
+        if (requirePronunciation) {
+            // Lấy độ chính xác từ các bài tập phát âm
+            for (let i = 0; i < {{ pronunciation_sentences|length }}; i++) {
+                const resultText = document.getElementById(`result-${i}`).textContent;
+                const match = resultText.match(/Chính xác: (\d+)%/);
+                if (match) {
+                    accuracies[i] = parseInt(match[1]);
+                }
+            }
+
+            // Kiểm tra tất cả bài tập đã đạt yêu cầu chưa
+            if (!accuracies.every(acc => acc >= 70)) {
+                alert("Bạn cần hoàn thành tất cả bài tập phát âm với độ chính xác >= 70%!");
+                return;
+            }
+        }
+
+        // Gửi yêu cầu hoàn thành bài học
+        fetch("{{ url_for('tutorials.complete_lesson', level_id=level.level_id, lesson_id=lesson.lesson_id) }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                require_pronunciation: requirePronunciation,
+                accuracies: accuracies
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.next_lesson_url) {
+                    window.location.href = data.next_lesson_url;
+                } else {
+                    window.location.href = data.level_url;
+                }
+            } else {
+                alert(data.message || "Có lỗi xảy ra khi hoàn thành bài học");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Có lỗi xảy ra khi hoàn thành bài học");
+        });
+    });
+</script>
+
+<style>
+    .record-btn.recording {
+        background-color: #dc3545;
+        color: white;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .lesson-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .lesson-content table {
+        width: 100%;
+        margin: 1rem 0;
+        border-collapse: collapse;
+    }
+
+    .lesson-content table, .lesson-content th, .lesson-content td {
+        border: 1px solid #dee2e6;
+    }
+
+    .lesson-content th, .lesson-content td {
+        padding: 0.75rem;
+        text-align: left;
+    }
+</style>
+{% endblock %}

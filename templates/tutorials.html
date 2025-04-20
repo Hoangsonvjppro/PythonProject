@@ -26,6 +26,7 @@
             overflow: hidden;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .level-card:hover {
@@ -80,6 +81,39 @@
             margin-top: 3rem;
             border-radius: 10px 10px 0 0;
         }
+
+        /* New styles for locked levels */
+        .level-card.locked {
+            opacity: 0.7;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .locked-overlay i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .level-card .locked-overlay {
+            display: none;
+        }
+
+        .level-card.locked .locked-overlay {
+            display: flex;
+        }
     </style>
 
     <!-- Header Section -->
@@ -93,12 +127,12 @@
     <!-- Main Content -->
     <div class="container">
         <div class="row">
-            {% for level, data in levels.items() %}
+            {% for level_id, data in levels.items() %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="level-card">
+                    <div class="level-card {% if data['is_locked'] %}locked{% endif %}">
                         <div class="level-header d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-{{ data['icon'] }} me-2"></i>Cấp độ {{ level }}</span>
-                            <span class="badge-level">{{ data['difficulty'] }}</span>
+                            <span><i class="fas fa-{{ data['icon'] }} me-2"></i>Cấp độ {{ data['level_name'] }}</span>
+                            <span class="badge-level">{{ data['level_name'] }}</span>
                         </div>
                         <div class="level-body">
                             <h5 class="fw-bold">{{ data['title'] }}</h5>
@@ -114,13 +148,21 @@
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mt-3">
-                                <small><i class="fas fa-book me-1"></i> {{ data['lessons'] }} bài học</small>
-                                <a href="{{ url_for('tutorials.start_lesson', level_name=level) }}" class="btn btn-sm btn-start">
+                                <small><i class="fas fa-book me-1"></i> {{ data['total_lessons'] }} bài học</small>
+                                <a href="{% if data['is_locked'] %}#{% else %}{{ url_for('tutorials.level_detail', level_id=level_id) }}{% endif %}"
+                                   class="btn btn-sm btn-start {% if data['is_locked'] %}disabled{% endif %}">
                                     {% if data['completion'] == 0 %}Bắt đầu{% else %}Tiếp tục{% endif %}
                                     <i class="fas fa-arrow-right ms-2"></i>
                                 </a>
                             </div>
                         </div>
+
+                        {% if data['is_locked'] %}
+                        <div class="locked-overlay">
+                            <i class="fas fa-lock"></i>
+                            <span>Hoàn thành 80% cấp độ trước để mở khóa</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -181,17 +223,17 @@
                     </div>
                 </div>
             </div>
-            <hr class="my-4">
-            <p class="mb-0 text-muted">© 2023 English Learning Platform. All rights reserved.</p>
         </div>
     </div>
 
     <script>
         // Thêm hiệu ứng khi click vào level card
-        document.querySelectorAll('.level-card').forEach(card => {
+        document.querySelectorAll('.level-card:not(.locked)').forEach(card => {
             card.addEventListener('click', function() {
-                // Xử lý khi click vào card (có thể chuyển hướng đến trang chi tiết)
-                console.log('Selected level:', this.querySelector('h5').innerText);
+                const link = this.querySelector('a.btn-start');
+                if (link) {
+                    window.location.href = link.href;
+                }
             });
         });
     </script>

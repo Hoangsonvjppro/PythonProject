@@ -11,12 +11,24 @@
   --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Global Styles */
-body {
+/* Ensure full height and flex layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
+}
+
+.container {
+  flex: 1;
+}
+
+footer {
+  margin-top: auto;
 }
 
 /* Navbar Styles */
@@ -393,4 +405,3 @@ input[type="file"]:hover {
   background: var(--secondary-color);
   border-radius: var(--border-radius);
 }
-

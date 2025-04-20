@@ -22,10 +22,10 @@ def recognize_speech():
 
 # Danh sách câu mẫu (có thể lưu trong database sau này)
 SAMPLE_SENTENCES = [
-    "The quick brown fox jumps over the lazy dog.",
-    "She sells seashells by the seashore.",
-    "How much wood would a woodchuck chuck?",
-    "Peter Piper picked a peck of pickled peppers."
+    "She sells seashells by the seashore",
+    "This restaurant serves delicious Vietnamese food",
+    "Technology is transforming the way we communicate",
+    "She often participates in academic discussions"
 ]
 
 def evaluate_pronunciation(user_text, sample_text):
@@ -55,3 +55,4 @@ def speech_to_text():
             result.update(evaluation)  # Thêm kết quả đánh giá vào phản hồi
         return jsonify(result)
     return render_template('speech_to_text.html', sample_sentences=SAMPLE_SENTENCES)
+
