@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}{{ room.name }} - Chat Room{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('chatting.chat_page') }}">Community Hub</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ room.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="chat-room-container">
+                <div class="row">
+                    <!-- Chat messages area -->
+                    <div class="col-md-9">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">
+                                        {% if room.is_private %}
+                                        <i class="fas fa-lock me-2 text-warning"></i>
+                                        {% else %}
+                                        <i class="fas fa-door-open me-2 text-primary"></i>
+                                        {% endif %}
+                                        {{ room.name }}
+                                    </h5>
+                                    <small class="text-muted">{{ room.description }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary users-count">
+                                        <i class="fas fa-users me-1"></i><span id="online-count">{{ participants|length }}</span> Online
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="chat-messages" id="chat-messages">
+                                    {% if messages %}
+                                    {% for message in messages %}
+                                    <div class="message {% if message.user_id == current_user.id %}sent{% else %}received{% endif %}">
+                                        <img src="{{ url_for('static', filename='uploads/' + message.user.avatar) }}" class="avatar avatar-sm" alt="{{ message.user.username }}">
+                                        <div class="message-content">
+                                            <div class="message-header">
+                                                <span class="message-username">{{ message.user.username }}</span>
+                                                <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
+                                            </div>
+                                            <div class="message-text">{{ message.content }}</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    <div class="no-messages text-center py-5">
+                                        <i class="fas fa-comments fa-3x mb-3 text-muted"></i>
+                                        <p class="text-muted">No messages yet. Start the conversation!</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="chat-input">
+                                    <form id="message-form" class="m-0">
+                                        <div class="input-group">
+                                            <input type="text" id="message-input" class="form-control" placeholder="Type your message..." autocomplete="off">
+                                            <button type="submit" class="btn btn-primary" id="send-button">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Participants sidebar -->
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>Participants
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush participants-list" id="participants-list">
+                                    {% for user in participants %}
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" class="avatar avatar-sm me-2" alt="{{ user.username }}">
+                                        <span>{{ user.username }}</span>
+                                        {% if user.id == current_user.id %}
+                                        <span class="badge bg-success ms-auto">You</span>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Room Info
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Room Type</span>
+                                        <span class="badge {% if room.is_private %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                            {% if room.is_private %}Private{% else %}Public{% endif %}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Created</span>
+                                        <span>{{ room.created_at.strftime('%Y-%m-%d') }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Messages</span>
+                                        <span class="badge bg-primary rounded-pill">{{ messages|length }}</span>
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-3">
+                                    <a href="{{ url_for('chatting.chat_page') }}" class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Rooms
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-room-container {
+        margin-top: 1rem;
+    }
+    
+    .chat-messages {
+        height: 60vh;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+    
+    .message {
+        display: flex;
+        margin-bottom: 1rem;
+        max-width: 80%;
+    }
+    
+    .message.received {
+        align-self: flex-start;
+    }
+    
+    .message.sent {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+        margin-left: auto;
+    }
+    
+    .message-content {
+        padding: 0.75rem 1rem;
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+        margin: 0 0.5rem;
+    }
+    
+    .message.sent .message-content {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.3rem;
+        font-size: 0.8rem;
+    }
+    
+    .message.sent .message-header {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .message-username {
+        font-weight: 600;
+    }
+    
+    .message-time {
+        opacity: 0.8;
+    }
+    
+    .chat-input {
+        padding: 1rem;
+        background-color: white;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .participants-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .no-messages {
+        color: #6c757d;
+    }
+    
+    /* Animation for new messages */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-new {
+        animation: fadeIn 0.3s ease;
+    }
+</style>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const socket = io();
+        const roomId = "{{ room.room_id }}";
+        const currentUserId = {{ current_user.id }};
+        const chatMessages = document.getElementById('chat-messages');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const participantsList = document.getElementById('participants-list');
+        const onlineCountEl = document.getElementById('online-count');
+        
+        // Join the room on connection
+        socket.on('connect', function() {
+            socket.emit('join', { room_id: roomId });
+            console.log('Connected to room:', roomId);
+        });
+        
+        // Event listeners
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('send_message', {
+                    room_id: roomId,
+                    message: message
+                });
+                messageInput.value = '';
+            }
+        });
+        
+        // Socket event handlers
+        socket.on('new_message', function(data) {
+            addMessage(data);
+        });
+        
+        socket.on('user_joined', function(data) {
+            // Add user to participants list
+            const userExistsInList = Array.from(participantsList.children)
+                .some(item => item.querySelector('span').textContent === data.username);
+                
+            if (!userExistsInList) {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex align-items-center';
+                listItem.innerHTML = `
+                    <img src="/static/uploads/${data.avatar}" class="avatar avatar-sm me-2" alt="${data.username}">
+                    <span>${data.username}</span>
+                `;
+                
+                if (data.username === "{{ current_user.username }}") {
+                    listItem.innerHTML += '<span class="badge bg-success ms-auto">You</span>';
+                }
+                
+                participantsList.appendChild(listItem);
+            }
+            
+            // Update online count
+            updateParticipantCount(1);
+            
+            // System message
+            addSystemMessage(`${data.username} joined the room`);
+        });
+        
+        socket.on('user_left', function(data) {
+            // Find and remove user from participants list
+            const userItems = Array.from(participantsList.children)
+                .filter(item => item.querySelector('span').textContent === data.username);
+                
+            userItems.forEach(item => item.remove());
+            
+            // Update online count
+            updateParticipantCount(-1);
+            
+            // System message
+            addSystemMessage(`${data.username} left the room`);
+        });
+        
+        socket.on('error', function(data) {
+            console.error('Error:', data.message);
+            addSystemMessage(`Error: ${data.message}`, true);
+        });
+        
+        // Helper functions
+        function addMessage(data) {
+            const messageDiv = document.createElement('div');
+            const isSent = data.username === "{{ current_user.username }}";
+            
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'} message-new`;
+            
+            messageDiv.innerHTML = `
+                <img src="/static/uploads/${data.avatar}" class="avatar avatar-sm" alt="${data.username}">
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-username">${data.username}</span>
+                        <span class="message-time">${data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div class="message-text">${data.message}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function addSystemMessage(message, isError = false) {
+            const systemDiv = document.createElement('div');
+            systemDiv.className = `system-message ${isError ? 'error' : ''}`;
+            systemDiv.textContent = message;
+            chatMessages.appendChild(systemDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function updateParticipantCount(change) {
+            const currentCount = parseInt(onlineCountEl.textContent) || 0;
+            onlineCountEl.textContent = currentCount + change;
+        }
+        
+        // Auto-scroll to bottom on page load
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Cleanup on page leave
+        window.addEventListener('beforeunload', function() {
+            socket.emit('leave', { room_id: roomId });
+        });
+    });
+</script>
+{% endblock %} 

@@ -10,6 +10,7 @@ from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
 from modules.tutorials import tutorials_bp
 import os
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 CORS(app)
@@ -25,6 +26,8 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+
+migrate = Migrate(app, db)
 
 def admin_required(f):
     @wraps(f)
@@ -153,7 +156,7 @@ def init_sample_data():
         lessons = [
             Lesson(level_id=a1.level_id, title="Giới thiệu bản thân", description="Học cách giới thiệu tên, tuổi, và quốc tịch.", content="Trong bài học này, bạn sẽ học cách giới thiệu bản thân bằng tiếng Anh. Ví dụ: 'Hello, my name is John. I am 25 years old. I am from Vietnam.'"),
             Lesson(level_id=a1.level_id, title="Từ vựng cơ bản", description="Học các từ vựng cơ bản như màu sắc, số đếm, và ngày trong tuần.", content="Bài học này giới thiệu các từ vựng cơ bản: red (đỏ), blue (xanh), one (một), two (hai), Monday (Thứ Hai), Tuesday (Thứ Ba)."),
-            Lesson(level_id=a1.level_id, title="Câu chào hỏi hàng ngày", description="Học các câu chào hỏi cơ bản.", content="Học cách chào hỏi: 'Good morning!' (Chào buổi sáng!), 'How are you?' (Bạn khỏe không?), 'I’m fine, thank you.' (Tôi khỏe, cảm ơn bạn)."),
+            Lesson(level_id=a1.level_id, title="Câu chào hỏi hàng ngày", description="Học các câu chào hỏi cơ bản.", content="Học cách chào hỏi: 'Good morning!' (Chào buổi sáng!), 'How are you?' (Bạn khỏe không?), 'I'm fine, thank you.' (Tôi khỏe, cảm ơn bạn)."),
             Lesson(level_id=a2.level_id, title="Mô tả người và vật", description="Học cách mô tả ngoại hình và tính cách của người, vật.", content="Học cách mô tả: 'He is tall and handsome.' (Anh ấy cao và đẹp trai.) 'The cat is small and cute.' (Con mèo nhỏ và dễ thương.)"),
             Lesson(level_id=a2.level_id, title="Thì quá khứ đơn", description="Học cách sử dụng thì quá khứ đơn để kể về các sự kiện trong quá khứ.", content="Học thì quá khứ đơn: 'I went to the park yesterday.' (Hôm qua tôi đã đi công viên.) 'She watched a movie last night.' (Tối qua cô ấy đã xem một bộ phim.)"),
             Lesson(level_id=a2.level_id, title="Hỏi đường", description="Học cách hỏi và chỉ đường.", content="Học cách hỏi đường: 'Where is the nearest bus stop?' (Bến xe buýt gần nhất ở đâu?) 'Turn left at the next street.' (Rẽ trái ở con đường tiếp theo.)"),
@@ -244,8 +247,14 @@ def init_sample_data():
             db.session.commit()
 
 if __name__ == '__main__':
+    import eventlet
+    import eventlet.wsgi
+    from eventlet import wsgi
+
     app.debug = True
     with app.app_context():
         db.create_all()
         init_sample_data()
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, port=5001)
+
+    # Chạy server eventlet
+    wsgi.server(eventlet.listen(('', 5001)), app)

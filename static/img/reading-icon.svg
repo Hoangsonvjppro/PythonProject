@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <style>
+    @keyframes pageFlip {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes bookGlow {
+      0% { filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); }
+      50% { filter: drop-shadow(0 0 5px rgba(0, 123, 255, 0.7)); }
+      100% { filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); }
+    }
+    .book {
+      animation: bookGlow 3s ease-in-out infinite;
+    }
+    .page {
+      animation: pageFlip 6s ease-in-out infinite;
+    }
+  </style>
+  
+  <!-- Background -->
+  <circle cx="60" cy="60" r="60" fill="#007bff" opacity="0.2"/>
+  <circle cx="60" cy="60" r="50" fill="#007bff" opacity="0.3"/>
+
+  <!-- Book -->
+  <g class="book">
+    <!-- Book binding -->
+    <rect x="40" y="35" width="8" height="50" rx="2" ry="2" fill="#004a9f" stroke="#003366" stroke-width="1"/>
+    
+    <!-- Book cover -->
+    <rect x="48" y="30" width="35" height="60" rx="2" ry="2" fill="#007bff" stroke="#0062cc" stroke-width="1"/>
+    
+    <!-- Book details -->
+    <rect x="53" y="40" width="25" height="3" rx="1" ry="1" fill="#ffffff" opacity="0.7"/>
+    <rect x="53" y="47" width="20" height="2" rx="1" ry="1" fill="#ffffff" opacity="0.5"/>
+    <rect x="53" y="53" width="22" height="2" rx="1" ry="1" fill="#ffffff" opacity="0.5"/>
+    <rect x="53" y="59" width="18" height="2" rx="1" ry="1" fill="#ffffff" opacity="0.5"/>
+  </g>
+  
+  <!-- Page turning effect -->
+  <g class="page">
+    <path d="M83,30 Q93,45 83,90" fill="#e6f2ff" stroke="#cccccc" stroke-width="0.5"/>
+    <path d="M83,30 Q85,45 83,90" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="40" x2="88" y2="40" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="45" x2="89" y2="45" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="50" x2="90" y2="50" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="55" x2="89" y2="55" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="60" x2="88" y2="60" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="65" x2="87" y2="65" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="70" x2="86" y2="70" stroke="#e0e0e0" stroke-width="0.5"/>
+    <line x1="83" y1="75" x2="85" y2="75" stroke="#e0e0e0" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Reading glasses -->
+  <g transform="translate(30, 15) scale(0.8)">
+    <circle cx="35" cy="25" r="8" fill="none" stroke="#0062cc" stroke-width="2"/>
+    <circle cx="65" cy="25" r="8" fill="none" stroke="#0062cc" stroke-width="2"/>
+    <line x1="43" y1="25" x2="57" y2="25" stroke="#0062cc" stroke-width="2"/>
+    <line x1="27" y1="25" x2="20" y2="20" stroke="#0062cc" stroke-width="2"/>
+    <line x1="73" y1="25" x2="80" y2="20" stroke="#0062cc" stroke-width="2"/>
+  </g>
+</svg> 

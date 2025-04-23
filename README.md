@@ -1,6 +1,6 @@
-# Ứng dụng Học Ngôn ngữ
+# SpeakEasy - Ứng dụng Học Ngôn ngữ
 
-Một ứng dụng học ngôn ngữ dựa trên Flask, hỗ trợ nhận diện giọng nói, dịch văn bản/tập tin, chat thời gian thực và các bài học có cấu trúc. Xây dựng với Python 3.13, Flask, SQLite và SocketIO.
+Một ứng dụng học ngôn ngữ toàn diện dựa trên Flask, hỗ trợ nhận diện giọng nói, dịch văn bản/tập tin, giao tiếp thời gian thực và các bài học có cấu trúc. Được xây dựng với Python 3.13, Flask, SQLite và SocketIO.
 
 ---
 
@@ -8,50 +8,54 @@ Một ứng dụng học ngôn ngữ dựa trên Flask, hỗ trợ nhận diện
 
 1. [Tính năng](#tính-năng)
 2. [Công nghệ sử dụng](#công-nghệ-sử-dụng)
-3. [Yêu cầu trước khi cài đặt](#yêu-cầu-trước-khi-cài-đặt)
+3. [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
 4. [Cài đặt](#cài-đặt)
 5. [Cấu hình](#cấu-hình)
 6. [Chạy ứng dụng](#chạy-ứng-dụng)
 7. [Cấu trúc dự án](#cấu-trúc-dự-án)
 8. [Các mô hình dữ liệu (Models)](#các-mô-hình-dữ-liệu-models)
 9. [Blueprints & Endpoints](#blueprints--endpoints)
-10. [Cơ sở dữ liệu & Migrations](#cơ-sở-dữ-liệu--migrations)
-11. [Đóng góp](#đóng-góp)
-12. [Các bước tiếp theo](#các-bước-tiếp-theo)
+10. [Quản lý cơ sở dữ liệu](#quản-lý-cơ-sở-dữ-liệu)
+11. [Khắc phục sự cố](#khắc-phục-sự-cố)
+12. [Kế hoạch phát triển](#kế-hoạch-phát-triển)
 
 ---
 
 ## Tính năng
 
-- Đăng ký, đăng nhập/đăng xuất và quản lý hồ sơ người dùng
-- Phân quyền (admin và user)
-- Nhận diện giọng nói và đánh giá phát âm
-- Dịch văn bản và tập tin qua Google Translate API
-- Chat thời gian thực với SocketIO
-- Bài học có cấu trúc: cấp độ, bài học, từ vựng, bài kiểm tra
-- Khởi tạo dữ liệu mẫu tự động
+- **Quản lý người dùng**: Đăng ký, đăng nhập/đăng xuất và tùy chỉnh hồ sơ cá nhân
+- **Phân quyền**: Phân biệt vai trò admin và user
+- **Nhận diện giọng nói**: Đánh giá phát âm và cung cấp phản hồi chi tiết
+- **Dịch thuật**: Dịch văn bản và tập tin với bộ nhớ đệm thông minh
+- **Cộng đồng chat**: Hỗ trợ phòng chat công khai/riêng tư và diễn đàn thảo luận
+- **Học có cấu trúc**: Hệ thống cấp độ, bài học và từ vựng theo tiêu chuẩn CEFR
+- **Đánh giá trình độ**: Xác định trình độ CEFR (A1-C1) dựa trên bài kiểm tra phát âm
 
 ---
 
 ## Công nghệ sử dụng
 
-- **Ngôn ngữ:** Python 3.13
-- **Web Framework:** Flask
-- **Cơ sở dữ liệu:** SQLite (qua SQLAlchemy)
-- **Thời gian thực:** Flask-SocketIO + eventlet
-- **Xác thực:** Flask-Login
-- **CORS:** Flask-CORS
-- **Dịch thuật:** deep-translator (GoogleTranslator)
-- **Nhận diện giọng nói:** SpeechRecognition + Google Speech API
-- **Template:** Jinja2
+- **Backend**: Python 3.13, Flask, SQLAlchemy, Flask-Migrate
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
+- **Cơ sở dữ liệu**: SQLite
+- **Thời gian thực**: Flask-SocketIO, Eventlet
+- **Xác thực**: Flask-Login
+- **API tích hợp**:
+  - Google Speech Recognition API (nhận diện giọng nói)
+  - Google Translate API (thông qua deep-translator)
+- **Thư viện hỗ trợ**:
+  - SpeechRecognition (xử lý âm thanh)
+  - PyDub (phân tích âm thanh)
+  - CacheLib (bộ nhớ đệm)
 
 ---
 
-## Yêu cầu trước khi cài đặt
+## Yêu cầu hệ thống
 
-- Python 3.13
-- Git
-- Công cụ tạo môi trường ảo (venv, virtualenv)
+- Python 3.13+
+- Môi trường hỗ trợ ghi âm (microphone)
+- Kết nối Internet (để sử dụng các API nhận dạng giọng nói và dịch thuật)
+- Git (để clone repository)
 
 ---
 
@@ -60,14 +64,14 @@ Một ứng dụng học ngôn ngữ dựa trên Flask, hỗ trợ nhận diện
 1. **Clone repository**
    ```bash
    git clone <repository_url>
-   cd Learning-App
+   cd SpeakEasy
    ```
 
 2. **Tạo và kích hoạt môi trường ảo**
    ```bash
    python3.13 -m venv .venv
    source .venv/bin/activate    # Linux/macOS
-   .\.venv\\Scripts\\activate  # Windows
+   .\.venv\Scripts\activate     # Windows
    ```
 
 3. **Cài đặt các gói phụ thuộc**
@@ -81,39 +85,37 @@ Một ứng dụng học ngôn ngữ dựa trên Flask, hỗ trợ nhận diện
    flask db migrate -m "Initial migration"
    flask db upgrade
    ```
+   
+   Hoặc sử dụng phương pháp tạo trực tiếp:
+   ```bash
+   python -c "from app import app; from models.models import db; app.app_context().push(); db.create_all()"
+   ```
 
 ---
 
 ## Cấu hình
 
-1. **Biến môi trường**
-   - Tạo file `.env` ở thư mục gốc:
-     ```dotenv
-     FLASK_APP=app.py
-     FLASK_ENV=development
-     SECRET_KEY=your_secret_key
-     DATABASE_URL=sqlite:///instance/learning_app.db
-     ```
+Các thiết lập có thể tùy chỉnh trong `app.py`:
 
-2. **Thư mục lưu tập tin upload**
-   - Mặc định: `static/uploads`
-   - Đảm bảo thư mục tồn tại và có quyền ghi.
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learning_app.db'
+app.config['SECRET_KEY'] = 'your_secret_key'  # Thay đổi trong môi trường production
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+```
+
+Đảm bảo các thư mục uploads tồn tại và có quyền ghi.
 
 ---
 
 ## Chạy ứng dụng
 
-```bash
-flask run --port=5001
-```
-
-Hoặc chạy trực tiếp với SocketIO:
+Chạy với SocketIO và Eventlet (khuyến nghị):
 
 ```bash
 python app.py
 ```
 
-Truy cập ứng dụng tại `http://localhost:5001`.
+Ứng dụng sẽ chạy tại `http://localhost:5001`.
 
 ---
 
@@ -121,105 +123,157 @@ Truy cập ứng dụng tại `http://localhost:5001`.
 
 ```
 Learning-App/
-├─ .gitignore           # Loại trừ .venv/, instance/*.db, __pycache__/, .idea/
-├─ .env                 # Biến môi trường
-├─ app.py               # Entry point và app factory
-├─ requirements.txt     # Danh sách phụ thuộc Python
-├─ instance/
-│  └─ learning_app.db   # Cơ sở dữ liệu SQLite
-├─ modules/             # Các blueprint chức năng
-│  ├─ speech.py
-│  ├─ translate.py
-│  ├─ chat.py
-│  └─ tutorials.py
-├─ models/              # Định nghĩa SQLAlchemy models
-│  └─ models.py
-├─ templates/           # Jinja2 templates
-│  ├─ home.html
-│  ├─ settings.html
-│  ├─ speech_to_text.html
-│  ├─ translate_text.html
-│  ├─ chatting.html
-│  ├─ tutorials.html
-│  ├─ lesson.html
-│  └─ admin.html
-├─ static/              # Static assets (CSS, JS, images)
-│  └─ uploads/          # Tập tin người dùng upload
-└─ tests/               # (Tùy chọn) Unit tests
+├─ app.py # Entry point và cấu hình ứng dụng
+├─ requirements.txt # Danh sách phụ thuộc Python
+├─ learning_app.db # Cơ sở dữ liệu SQLite
+├─ modules/ # Các blueprint chức năng
+│ ├─ speech.py # Nhận diện giọng nói và đánh giá phát âm
+│ ├─ translate.py # Dịch văn bản và tập tin
+│ ├─ chat.py # Chat thời gian thực và diễn đàn
+│ └─ tutorials.py # Quản lý bài học và tiến độ
+├─ models/ # Định nghĩa SQLAlchemy models
+│ └─ models.py # Tất cả mô hình dữ liệu
+├─ templates/ # Giao diện người dùng
+│ ├─ base.html # Template cơ sở
+│ ├─ home.html # Trang chủ
+│ ├─ settings.html # Cài đặt người dùng
+│ ├─ speech_to_text.html # Đánh giá phát âm
+│ ├─ translate_text.html # Dịch thuật
+│ ├─ chatting.html # Chat và diễn đàn
+│ ├─ tutorials.html # Danh sách bài học
+│ └─ ... # Các template khác
+└─ static/ # Tài nguyên tĩnh (CSS, JS, hình ảnh)
+├─ styles.css # Stylesheet chính
+├─ uploads/ # Tập tin người dùng upload
+└─ img/ # Hình ảnh và biểu tượng
 ```
 
 ---
 
 ## Các mô hình dữ liệu (Models)
 
-- **User**: Quản lý tài khoản, hồ sơ, phân quyền
-- **Level**: Các cấp độ học (A1, A2, B1, B2, C1)
-- **Lesson**: Tiêu đề, mô tả, nội dung theo cấp độ
-- **UserProgress**: Theo dõi bài học đã hoàn thành
-- **Vocabulary**: Từ vựng, định nghĩa, ví dụ, cấp độ
-- **Test**: Bài kiểm tra phát âm hoặc viết theo cấp độ
-- **SampleSentence**: Câu mẫu kèm audio đúng
-- **SpeechTest**: Theo dõi kết quả đánh giá phát âm
+### Người dùng và Tiến độ
+- **User**: Thông tin người dùng, xác thực và phân quyền
+- **UserProgress**: Theo dõi tiến độ học tập của người dùng
+
+### Hệ thống học tập
+- **Level**: Cấp độ theo tiêu chuẩn CEFR (A1, A2, B1, B2, C1)
+- **Lesson**: Bài học với nội dung, mô tả theo cấp độ
+- **Vocabulary**: Từ vựng, định nghĩa, ví dụ và cấp độ
+- **Test**: Bài kiểm tra phát âm và viết
+- **SampleSentence**: Câu mẫu và file audio chuẩn
+- **SpeechTest**: Kết quả đánh giá phát âm
+
+### Cộng đồng và Chat
+- **ChatRoom**: Phòng chat công khai và riêng tư
+- **Message**: Tin nhắn trong phòng chat
+- **RoomParticipant**: Thành viên của phòng chat
+- **StatusPost**: Bài đăng trên diễn đàn
+- **PostComment**: Bình luận cho bài đăng
 
 ---
 
 ## Blueprints & Endpoints
 
-### Speech (`modules/speech.py`)
-- `GET /speech_to_text` — Hiển thị trang nhận diện giọng nói
-- `POST /speech_to_text` — Ghi âm và đánh giá phát âm
+### Trang chính (`app.py`)
+- `GET /` — Trang chủ
+- `GET /settings` — Cài đặt tài khoản
+- `POST /register` — Đăng ký tài khoản mới
+- `POST /login` — Đăng nhập
+- `GET /logout` — Đăng xuất
+- `POST /update-profile` — Cập nhật thông tin cá nhân
+- `GET /admin` — Bảng điều khiển admin (yêu cầu quyền admin)
 
-### Translate (`modules/translate.py`)
+### Nhận diện giọng nói (`modules/speech.py`)
+- `GET /speech_to_text` — Hiển thị trang đánh giá phát âm
+- `POST /speech_to_text` — Xử lý âm thanh và đánh giá phát âm
+
+### Dịch thuật (`modules/translate.py`)
 - `GET /translate` — Hiển thị trang dịch văn bản
-- `POST /translate` — Dịch văn bản JSON
-- `POST /translate/file` — Upload và dịch nội dung tập tin
+- `POST /translate` — Dịch văn bản (API JSON)
+- `POST /translate/file` — Dịch nội dung tập tin
 
-### Chat (`modules/chat.py`)
-- `GET /chat` — Hiển thị trang chat
-- Sự kiện SocketIO: `connect`, `disconnect`, `send_message`, `join`, `leave`, `update_username`
+### Chat và Diễn đàn (`modules/chat.py`)
+- `GET /chat` — Hiển thị trang chat và diễn đàn
+- `POST /chat/create-room` — Tạo phòng chat mới
+- `GET /chat/room/<room_id>` — Xem phòng chat cụ thể
+- `GET /chat/join-room/<room_id>` — Tham gia phòng chat
+- `POST /chat/new-post` — Tạo bài đăng mới (giới hạn 1/ngày)
+- `POST /chat/post/<post_id>/comment` — Bình luận bài đăng (giới hạn 10/ngày)
 
-### Tutorials (`modules/tutorials.py`)
-- `GET /tutorials` — Liệt kê cấp độ và tiến độ học của người dùng
-- `GET /tutorials/start/<level_name>` — Bắt đầu cấp độ
-- `GET /tutorials/lesson/<lesson_id>` — Xem nội dung bài học
+### Bài học (`modules/tutorials.py`)
+- `GET /tutorials/tutorials` — Danh sách cấp độ và bài học
+- `GET /tutorials/level/<level_name>` — Xem bài học theo cấp độ
+- `GET /tutorials/lesson/<lesson_id>` — Nội dung bài học cụ thể
 - `POST /tutorials/complete/<lesson_id>` — Đánh dấu hoàn thành bài học
+- `GET /tutorials/vocabulary/<level_name>` — Xem từ vựng theo cấp độ
 
 ---
 
-## Cơ sở dữ liệu & Migrations
+## Quản lý cơ sở dữ liệu
 
-Sử dụng Flask-Migrate để quản lý schema:
-
+### Khởi tạo với Flask-Migrate
 ```bash
+# Lần đầu tiên
 flask db init
-flask db migrate -m "Thêm tính năng mới"
+flask db migrate -m "Initial migration"
 flask db upgrade
+
+# Cập nhật schema
+flask db migrate -m "Thêm tính năng XYZ"
+flask db upgrade
+```
+
+### Khởi tạo trực tiếp
+Ứng dụng tự động tạo bảng và dữ liệu mẫu khi chạy:
+```python
+with app.app_context():
+    db.create_all()
+    init_sample_data()  # Tạo dữ liệu mẫu
 ```
 
 ---
 
-## Đóng góp
+## Khắc phục sự cố
 
-1. Fork repository
-2. Tạo nhánh tính năng: `git checkout -b feature/TenTinhNang`
-3. Commit thay đổi: `git commit -m "Thêm tính năng ..."`
-4. Push lên nhánh của bạn: `git push origin feature/TenTinhNang`
-5. Tạo Pull Request
+### Vấn đề với nhận diện giọng nói
+- Đảm bảo microphone được cấu hình đúng
+- Kiểm tra kết nối mạng (cần để truy cập Google Speech API)
+- Thông báo lỗi ALSA trên Linux là bình thường và không ảnh hưởng đến hoạt động
 
-Vui lòng tuân thủ PEP8 và thêm unit tests cho tính năng mới.
+### Lỗi database
+Nếu gặp lỗi "no such table", thử:
+```bash
+flask db stamp head  # Đánh dấu migration hiện tại
+flask db migrate     # Tạo migration mới
+flask db upgrade     # Áp dụng migration
+```
+
+Hoặc xóa và tạo lại:
+```bash
+rm -f learning_app.db
+python app.py  # Tự động tạo lại DB và dữ liệu mẫu
+```
 
 ---
 
-## Các bước tiếp theo
+## Kế hoạch phát triển
 
-- Tổ chức lại code thành package `src/`
-- Làm nốt phần Lesson
-- Viết unit tests đầy đủ trong `tests/`
-- Thiết lập CI/CD (GitHub Actions)
-- Cải thiện xử lý lỗi và logging
-- Triển khai lên môi trường production (Heroku, AWS, v.v.)
+### Tính năng sắp tới
+- Hỗ trợ nhiều ngôn ngữ (hiện tại tập trung vào tiếng Anh)
+- API nhận dạng giọng nói nâng cao với đánh giá chi tiết hơn
+- Ứng dụng di động (React Native)
+- Tích hợp AI để cá nhân hóa lộ trình học tập
+
+### Cải tiến kỹ thuật
+- Tối ưu hóa hiệu suất database với Redis cache
+- Tách frontend thành SPA độc lập với backend REST API
+- Triển khai CI/CD với GitHub Actions
+- Containerization với Docker
 
 ---
+
+© 2025 SpeakEasy. Mọi quyền được bảo lưu.
 
 
 

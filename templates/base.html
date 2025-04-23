@@ -4,31 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Flask App{% endblock %}</title>
+    <title>{% block title %}English Learning Platform{% endblock %}</title>
+    
+    <!-- Core stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Additional fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Additional stylesheets -->
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Main navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
+            <!-- Brand logo -->
             <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="fas fa-globe-asia me-2"></i>Speaking App
+                <i class="fas fa-graduation-cap me-2"></i>SpeakEasy
             </a>
+            
+            <!-- Mobile toggle button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars"></i>
             </button>
+            
+            <!-- Navigation items -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">
+                        <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
+                    
                     {% if current_user.is_authenticated %}
+                    <!-- Learning journey -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path.startswith('/tutorials') %}active{% endif %}" href="{{ url_for('tutorials.tutorials') }}">
+                            <i class="fas fa-book me-1"></i>Learning Path
+                        </a>
+                    </li>
+                    
+                    <!-- Practice tools -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tools me-1"></i>Practice Tools
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('speech.speech_to_text') }}">
+                                    <i class="fas fa-microphone me-2"></i>Speech Recognition
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('translate.translate_text') }}">
+                                    <i class="fas fa-language me-2"></i>Translation
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Community -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path.startswith('/chat') %}active{% endif %}" href="{{ url_for('chatting.chat_page') }}">
+                            <i class="fas fa-users me-1"></i>Community
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- Right-aligned user menu -->
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <!-- Admin tools -->
                     {% if current_user.role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
@@ -36,40 +88,37 @@
                         </a>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('speech.speech_to_text') }}">
-                            <i class="fas fa-microphone me-1"></i>Test Speech
+                    
+                    <!-- User profile dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar" class="avatar-xs me-2">
+                            <span>{{ current_user.username }}</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('translate.translate_text') }}">
-                            <i class="fas fa-language me-1"></i>Translate
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('chatting.chat_page') }}">
-                            <i class="fas fa-comments me-1"></i>Chat Space
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('tutorials.tutorials') }}">
-                            <i class="fas fa-comments me-1"></i>tutorials
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('settings') }}">
-                            <i class="fas fa-cog me-1"></i>Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">
-                            <i class="fas fa-sign-out-alt me-1"></i>Logout
-                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings') }}">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     {% else %}
+                    <!-- Login/Register buttons -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('settings') }}">
-                            <i class="fas fa-cog me-1"></i>Settings
+                        <a href="{{ url_for('settings') }}#login" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('settings') }}#register" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-1"></i>Register
                         </a>
                     </li>
                     {% endif %}
@@ -78,31 +127,424 @@
         </div>
     </nav>
 
-    <!-- Flash messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="container mt-3">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            <i class="fas fa-info-circle me-2"></i>{{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- Page content wrapper -->
+    <div class="content-wrapper">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            <div class="container">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if category == 'success' %}
+                        <i class="fas fa-check-circle me-2"></i>
+                        {% elif category == 'danger' %}
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif category == 'warning' %}
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
+        {% endif %}
+        {% endwith %}
 
-    <!-- Main content -->
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
+        <!-- Main content -->
+        <main>
+            {% block content %}{% endblock %}
+        </main>
     </div>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-dark text-light">
-        <div class="container text-center">
-            <span>© 2024 Speaking App. All rights reserved.</span>
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>SpeakEasy
+                    </h5>
+                    <p class="text-light mb-3">Your AI-powered English learning companion. Practice pronunciation, translate text, and connect with other learners.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h6 class="text-white mb-3">Learning</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('tutorials.tutorials') }}">Learning Path</a></li>
+                        <li><a href="{{ url_for('speech.speech_to_text') }}">Speech Practice</a></li>
+                        <li><a href="{{ url_for('translate.translate_text') }}">Translation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h6 class="text-white mb-3">Community</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('chatting.chat_page') }}">Chat Rooms</a></li>
+                        <li><a href="{{ url_for('chatting.chat_page') }}">Forums</a></li>
+                        <li><a href="#">Success Stories</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h6 class="text-white mb-3">Info</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2">
+                    <h6 class="text-white mb-3">Contact</h6>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@speakeasy.com">support@speakeasy.com</a></li>
+                        <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="footer-divider">
+            
+            <div class="footer-bottom">
+                <p class="mb-0">© 2024 SpeakEasy. All rights reserved.</p>
+                <div class="footer-language">
+                    <select class="form-select form-select-sm">
+                        <option value="en">English</option>
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <!-- Core scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom scripts -->
+    <script>
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide flash messages after 5 seconds
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+            
+            // Active nav link highlighting
+            const currentLocation = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentLocation || 
+                    (linkPath !== '/' && currentLocation.startsWith(linkPath))) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    
+    <!-- Additional scripts -->
+    {% block extra_js %}{% endblock %}
 </body>
+
+<style>
+    :root {
+        /* Primary palette */
+        --primary-color: #4e73df;
+        --primary-dark: #2e59d9;
+        --primary-light: #6f8be8;
+        
+        /* Secondary palette */
+        --secondary-color: #f8f9fc;
+        --secondary-dark: #d1d3e2;
+        
+        /* Accent colors */
+        --success-color: #1cc88a;
+        --danger-color: #e74a3b;
+        --warning-color: #f6c23e;
+        --info-color: #36b9cc;
+        
+        /* Text colors */
+        --text-color: #5a5c69;
+        --text-muted: #858796;
+        --text-light: #f8f9fc;
+        
+        /* Background colors */
+        --bg-dark: #2c3e50;
+        --bg-light: #f8f9fc;
+        
+        /* Other variables */
+        --border-radius: 0.35rem;
+        --box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+        --transition: all 0.3s ease;
+    }
+    
+    /* Base styles */
+    body {
+        font-family: 'Inter', sans-serif;
+        color: var(--text-color);
+        background-color: var(--bg-light);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    a:hover {
+        color: var(--primary-dark);
+    }
+    
+    /* Navbar styles */
+    .navbar {
+        background-color: white;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 0.75rem 0;
+        transition: var(--transition);
+    }
+    
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .navbar-brand:hover {
+        color: var(--primary-dark);
+    }
+    
+    .navbar-toggler {
+        border: none;
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+    
+    .nav-link {
+        color: var(--text-color);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        position: relative;
+        transition: var(--transition);
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        color: var(--primary-color);
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: var(--primary-color);
+        transform: translateX(-50%);
+        transition: var(--transition);
+    }
+    
+    .nav-link:hover::after, .nav-link.active::after {
+        width: 50%;
+    }
+    
+    .dropdown-menu {
+        border: none;
+        box-shadow: var(--box-shadow);
+        border-radius: var(--border-radius);
+        padding: 0.5rem;
+    }
+    
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+    
+    .dropdown-item:hover {
+        background-color: var(--secondary-color);
+        color: var(--primary-color);
+    }
+    
+    .user-dropdown {
+        display: flex;
+        align-items: center;
+    }
+    
+    .avatar-xs {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+    }
+    
+    /* Content wrapper */
+    .content-wrapper {
+        flex: 1;
+        padding-top: 70px; /* Account for fixed navbar */
+        display: flex;
+        flex-direction: column;
+    }
+    
+    main {
+        flex: 1;
+    }
+    
+    /* Flash messages */
+    .flash-messages {
+        margin-bottom: 1rem;
+    }
+    
+    .alert {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    /* Footer styles */
+    .footer {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        padding: 3rem 0 1.5rem;
+        margin-top: 3rem;
+    }
+    
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links li {
+        margin-bottom: 0.75rem;
+    }
+    
+    .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+        color: white;
+        text-decoration: none;
+    }
+    
+    .social-icons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: var(--transition);
+    }
+    
+    .social-icon:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    .footer-divider {
+        margin: 2rem 0 1.5rem;
+        opacity: 0.1;
+    }
+    
+    .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    /* Buttons */
+    .btn {
+        border-radius: 50rem;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .navbar-nav {
+            margin: 1rem 0;
+        }
+        
+        .nav-link::after {
+            display: none;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            background-color: var(--secondary-color);
+            padding: 0;
+            box-shadow: none;
+        }
+        
+        .footer-bottom {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+    }
+</style>
 
 </html>

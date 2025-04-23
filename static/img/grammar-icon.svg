@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <style>
+    @keyframes highlight {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    .highlight {
+      animation: highlight 2s ease-in-out infinite;
+    }
+    .highlight2 {
+      animation: highlight 2s ease-in-out infinite;
+      animation-delay: 0.7s;
+    }
+  </style>
+  
+  <!-- Background -->
+  <circle cx="60" cy="60" r="60" fill="#4E73DF" opacity="0.2"/>
+  <circle cx="60" cy="60" r="50" fill="#4E73DF" opacity="0.3"/>
+  
+  <!-- Text document -->
+  <rect x="30" y="25" width="60" height="70" rx="3" fill="white" stroke="#2E59D9" stroke-width="2"/>
+  
+  <!-- Text lines -->
+  <rect x="40" y="35" width="40" height="2" rx="1" fill="#4E73DF"/>
+  <rect x="40" y="41" width="30" height="2" rx="1" fill="#4E73DF"/>
+  <rect x="40" y="47" width="35" height="2" rx="1" fill="#4E73DF"/>
+  
+  <!-- Grammar correction marks -->
+  <circle cx="45" cy="54" r="3" fill="#4E73DF" class="highlight"/>
+  <path d="M42,54 L48,54" stroke="#2E59D9" stroke-width="1"/>
+  
+  <rect x="40" y="65" width="40" height="2" rx="1" fill="#4E73DF"/>
+  <rect x="40" y="71" width="30" height="2" rx="1" fill="#4E73DF"/>
+  <rect x="40" y="77" width="35" height="2" rx="1" fill="#4E73DF"/>
+  
+  <!-- Grammar correction wiggly line -->
+  <path d="M52,78 Q54,76 56,78 Q58,80 60,78" stroke="#2E59D9" stroke-width="1.5" fill="none" class="highlight2"/>
+  
+  <!-- Grammar symbols -->
+  <text x="75" y="45" font-family="Arial" font-weight="bold" font-size="12" fill="#2E59D9">A</text>
+  <text x="80" y="65" font-family="Arial" font-weight="bold" font-size="12" fill="#2E59D9">!</text>
+  <text x="75" y="85" font-family="Arial" font-weight="bold" font-size="12" fill="#2E59D9">?</text>
+</svg> 
