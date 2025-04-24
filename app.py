@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, redirect, url_for, request, flash, abort, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -14,19 +17,18 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, async_mode='eventlet')
+
+# Cấu hình Socket.IO với eventlet
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learning_app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['ASYNC_MODE'] = True
 
 db.init_app(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
 migrate = Migrate(app, db)
 
 def admin_required(f):
@@ -247,14 +249,9 @@ def init_sample_data():
             db.session.commit()
 
 if __name__ == '__main__':
-    import eventlet
-    import eventlet.wsgi
-    from eventlet import wsgi
-
-    app.debug = True
     with app.app_context():
         db.create_all()
         init_sample_data()
-
-    # Chạy server eventlet
-    wsgi.server(eventlet.listen(('', 5001)), app)
+    
+    # Chạy với eventlet
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)

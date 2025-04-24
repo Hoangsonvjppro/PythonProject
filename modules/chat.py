@@ -244,22 +244,27 @@ def add_comment(post_id):
 def register_socketio_events(socketio):
     @socketio.on('connect')
     def handle_connect():
-        print(f'User connected: {current_user.username if current_user.is_authenticated else "Guest"}')
+        if not current_user.is_authenticated:
+            return False  # Reject connection if user is not authenticated
+        print(f'User connected: {current_user.username}')
 
     @socketio.on('disconnect')
     def handle_disconnect():
-        print(f'User disconnected: {current_user.username if current_user.is_authenticated else "Guest"}')
+        if current_user.is_authenticated:
+            print(f'User disconnected: {current_user.username}')
 
     @socketio.on('join')
     def handle_join(data):
+        if not current_user.is_authenticated:
+            return
+            
         room_id = data.get('room_id')
-        
         if not room_id:
             return
         
-        # Check if room exists and user has access
         room = ChatRoom.query.get(room_id)
         if not room:
+            emit('error', {'message': 'Room does not exist'})
             return
         
         if room.is_private:
@@ -279,6 +284,9 @@ def register_socketio_events(socketio):
 
     @socketio.on('leave')
     def handle_leave(data):
+        if not current_user.is_authenticated:
+            return
+            
         room_id = data.get('room_id')
         if room_id:
             leave_room(room_id)
@@ -288,13 +296,16 @@ def register_socketio_events(socketio):
 
     @socketio.on('send_message')
     def handle_send_message(data):
+        if not current_user.is_authenticated:
+            emit('error', {'message': 'You must be logged in to send messages'})
+            return
+            
         room_id = data.get('room_id')
         message = data.get('message', '').strip()
         
         if not room_id or not message:
             return
         
-        # Check if room exists and user has access
         room = ChatRoom.query.get(room_id)
         if not room:
             emit('error', {'message': 'Room does not exist'})
@@ -309,25 +320,20 @@ def register_socketio_events(socketio):
                 emit('error', {'message': 'You do not have access to this room'})
                 return
         
-        # Save message to database
-        if current_user.is_authenticated:
-            new_message = Message(
-                room_id=room_id,
-                user_id=current_user.id,
-                content=message
-            )
-            db.session.add(new_message)
-            db.session.commit()
-            
-            # Broadcast message to room
-            emit('new_message', {
-                'username': current_user.username,
-                'avatar': current_user.avatar,
-                'message': message,
-                'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-            }, room=room_id)
-        else:
-            emit('error', {'message': 'You must be logged in to send messages'})
+        new_message = Message(
+            room_id=room_id,
+            user_id=current_user.id,
+            content=message
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        
+        emit('new_message', {
+            'username': current_user.username,
+            'avatar': current_user.avatar,
+            'message': message,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        }, room=room_id)
 
     @socketio.on('update_username')
     def handle_update_username(data):

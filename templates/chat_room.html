@@ -233,7 +233,13 @@
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const socket = io();
+        // Kết nối Socket.IO với cấu hình phù hợp
+        const socket = io({
+            transports: ['websocket'],
+            upgrade: false
+        });
+
+        // DOM elements
         const roomId = "{{ room.room_id }}";
         const currentUserId = {{ current_user.id }};
         const chatMessages = document.getElementById('chat-messages');
