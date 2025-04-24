@@ -1,63 +1,23 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, abort
 from flask_socketio import emit, join_room, leave_room
 from flask_login import current_user, login_required
-from models.models import db, User
+from models.models import db, User, ChatRoom, RoomParticipant, Message, StatusPost, PostComment
 from datetime import datetime, timedelta
+from functools import wraps
 import uuid
 
 chatting = Blueprint('chatting', __name__)
 
-# New models for forum-like features
-class ChatRoom(db.Model):
-    __tablename__ = 'chat_rooms'
-    room_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    is_private = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
-    messages = db.relationship('Message', backref='room', lazy=True, cascade='all, delete-orphan')
-    participants = db.relationship('RoomParticipant', backref='room', lazy=True, cascade='all, delete-orphan')
-
-class RoomParticipant(db.Model):
-    __tablename__ = 'room_participants'
-    id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.String(36), db.ForeignKey('chat_rooms.room_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    __table_args__ = (db.UniqueConstraint('room_id', 'user_id', name='_room_user_uc'),)
-
-class Message(db.Model):
-    __tablename__ = 'messages'
-    message_id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.String(36), db.ForeignKey('chat_rooms.room_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user = db.relationship('User', backref='messages')
-
-class StatusPost(db.Model):
-    __tablename__ = 'status_posts'
-    post_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    comments = db.relationship('PostComment', backref='post', lazy=True, cascade='all, delete-orphan')
-    user = db.relationship('User', backref='posts')
-
-class PostComment(db.Model):
-    __tablename__ = 'post_comments'
-    comment_id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('status_posts.post_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user = db.relationship('User', backref='comments')
+# Decorator kiểm tra quyền chủ phòng
+def room_owner_required(f):
+    @wraps(f)
+    def decorated_function(room_id, *args, **kwargs):
+        room = ChatRoom.query.get_or_404(room_id)
+        if not room.is_owner(current_user.id):
+            flash('Bạn không phải là chủ phòng này', 'danger')
+            return redirect(url_for('chatting.room_detail', room_id=room_id))
+        return f(room_id, *args, **kwargs)
+    return decorated_function
 
 # Routes for chat community
 @chatting.route('/chat')
@@ -71,6 +31,9 @@ def chat_page():
     ).filter(
         RoomParticipant.user_id == current_user.id
     ).all()
+    
+    # Get rooms owned by current user
+    owned_rooms = ChatRoom.query.filter_by(owner_id=current_user.id).all()
     
     # Get recent status posts for the forum section
     recent_posts = StatusPost.query.order_by(StatusPost.created_at.desc()).limit(20).all()
@@ -94,6 +57,7 @@ def chat_page():
         'chatting.html',
         public_rooms=public_rooms,
         user_rooms=user_rooms,
+        owned_rooms=owned_rooms,
         recent_posts=recent_posts,
         can_post_today=can_post_today,
         remaining_comments=remaining_comments
@@ -110,21 +74,28 @@ def create_room():
         flash('Room name is required', 'danger')
         return redirect(url_for('chatting.chat_page'))
     
+    # Tạo room_id trước khi tạo ChatRoom
+    room_id = str(uuid.uuid4())
+    
     new_room = ChatRoom(
+        room_id=room_id,
         name=name,
         description=description,
         is_private=is_private,
-        created_by=current_user.id
+        owner_id=current_user.id
     )
     db.session.add(new_room)
     
-    # Add creator as participant
-    participant = RoomParticipant(room_id=new_room.room_id, user_id=current_user.id)
-    db.session.add(participant)
-    
+    # Commit trước để lưu ChatRoom và room_id
     db.session.commit()
+    
+    # Sau đó thêm participant với room_id đã có
+    participant = RoomParticipant(room_id=room_id, user_id=current_user.id)
+    db.session.add(participant)
+    db.session.commit()
+    
     flash('Room created successfully', 'success')
-    return redirect(url_for('chatting.room_detail', room_id=new_room.room_id))
+    return redirect(url_for('chatting.room_detail', room_id=room_id))
 
 @chatting.route('/chat/room/<room_id>')
 @login_required
@@ -151,11 +122,15 @@ def room_detail(room_id):
         RoomParticipant.room_id == room_id
     ).all()
     
+    # Kiểm tra người dùng hiện tại có phải là chủ phòng không
+    is_owner = room.is_owner(current_user.id)
+    
     return render_template(
         'chat_room.html',
         room=room,
         messages=messages,
-        participants=participants
+        participants=participants,
+        is_owner=is_owner
     )
 
 @chatting.route('/chat/join-room/<room_id>')
@@ -239,6 +214,123 @@ def add_comment(post_id):
     db.session.commit()
     
     flash('Comment added successfully', 'success')
+    return redirect(url_for('chatting.chat_page'))
+
+# Chức năng mới: Chỉnh sửa phòng chat (chỉ chủ phòng)
+@chatting.route('/chat/edit-room/<room_id>', methods=['GET', 'POST'])
+@login_required
+@room_owner_required
+def edit_room(room_id):
+    room = ChatRoom.query.get_or_404(room_id)
+    
+    if request.method == 'POST':
+        name = request.form.get('room_name')
+        description = request.form.get('room_description')
+        is_private = 'is_private' in request.form
+        
+        if not name:
+            flash('Room name is required', 'danger')
+            return redirect(url_for('chatting.edit_room', room_id=room_id))
+        
+        room.name = name
+        room.description = description
+        room.is_private = is_private
+        
+        db.session.commit()
+        flash('Room updated successfully', 'success')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    return render_template('edit_room.html', room=room)
+
+# Chức năng mới: Xóa phòng chat (chỉ chủ phòng)
+@chatting.route('/chat/delete-room/<room_id>', methods=['POST'])
+@login_required
+@room_owner_required
+def delete_room(room_id):
+    room = ChatRoom.query.get_or_404(room_id)
+    
+    db.session.delete(room)
+    db.session.commit()
+    
+    flash('Room deleted successfully', 'success')
+    return redirect(url_for('chatting.chat_page'))
+
+# Chức năng mới: Mời người dùng vào phòng chat private (chỉ chủ phòng)
+@chatting.route('/chat/invite-user/<room_id>', methods=['POST'])
+@login_required
+@room_owner_required
+def invite_user(room_id):
+    room = ChatRoom.query.get_or_404(room_id)
+    username = request.form.get('username')
+    
+    if not username:
+        flash('Username is required', 'danger')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        flash('User not found', 'danger')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    # Check if user is already a participant
+    participant = RoomParticipant.query.filter_by(
+        room_id=room_id, user_id=user.id
+    ).first()
+    
+    if participant:
+        flash('User is already a participant', 'warning')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    new_participant = RoomParticipant(room_id=room_id, user_id=user.id)
+    db.session.add(new_participant)
+    db.session.commit()
+    
+    flash(f'{username} has been invited to the room', 'success')
+    return redirect(url_for('chatting.room_detail', room_id=room_id))
+
+# Chức năng mới: Xóa người dùng khỏi phòng chat (chỉ chủ phòng)
+@chatting.route('/chat/remove-user/<room_id>/<user_id>', methods=['POST'])
+@login_required
+@room_owner_required
+def remove_user(room_id, user_id):
+    room = ChatRoom.query.get_or_404(room_id)
+    user_id = int(user_id)
+    
+    # Không thể xóa chủ phòng
+    if user_id == room.owner_id:
+        flash('Cannot remove the room owner', 'danger')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    participant = RoomParticipant.query.filter_by(
+        room_id=room_id, user_id=user_id
+    ).first_or_404()
+    
+    db.session.delete(participant)
+    db.session.commit()
+    
+    user = User.query.get(user_id)
+    flash(f'{user.username} has been removed from the room', 'success')
+    return redirect(url_for('chatting.room_detail', room_id=room_id))
+
+# Chức năng mới: Rời khỏi phòng chat
+@chatting.route('/chat/leave-room/<room_id>', methods=['POST'])
+@login_required
+def leave_room_route(room_id):
+    room = ChatRoom.query.get_or_404(room_id)
+    
+    # Chủ phòng không thể rời phòng
+    if room.owner_id == current_user.id:
+        flash('Room owner cannot leave the room. Delete the room instead.', 'danger')
+        return redirect(url_for('chatting.room_detail', room_id=room_id))
+    
+    participant = RoomParticipant.query.filter_by(
+        room_id=room_id, user_id=current_user.id
+    ).first_or_404()
+    
+    db.session.delete(participant)
+    db.session.commit()
+    
+    flash('You have left the room', 'success')
     return redirect(url_for('chatting.chat_page'))
 
 def register_socketio_events(socketio):

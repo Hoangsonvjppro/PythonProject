@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
 
 # Khởi tạo db (sẽ được khởi tạo từ app.py)
 db = SQLAlchemy()
@@ -20,6 +21,7 @@ class User(db.Model, UserMixin):
     # Relationships
     progress = db.relationship('UserProgress', backref='user', lazy=True)
     speech_tests = db.relationship('SpeechTest', backref='user', lazy=True)
+    owned_rooms = db.relationship('ChatRoom', backref='owner', lazy=True, foreign_keys='ChatRoom.owner_id')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -102,3 +104,60 @@ class SpeechTest(db.Model):
     userAudio_file = db.Column(db.String(200))
     similarity_score = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=db.func.now())
+
+# Chat models
+class ChatRoom(db.Model):
+    __tablename__ = 'chat_rooms'
+    room_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    is_private = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    messages = db.relationship('Message', backref='room', lazy=True, cascade='all, delete-orphan')
+    participants = db.relationship('RoomParticipant', backref='room', lazy=True, cascade='all, delete-orphan')
+
+    def is_owner(self, user_id):
+        return self.owner_id == user_id
+
+class RoomParticipant(db.Model):
+    __tablename__ = 'room_participants'
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.String(36), db.ForeignKey('chat_rooms.room_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('room_id', 'user_id', name='_room_user_uc'),)
+    
+    user = db.relationship('User')
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    message_id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.String(36), db.ForeignKey('chat_rooms.room_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='messages')
+
+class StatusPost(db.Model):
+    __tablename__ = 'status_posts'
+    post_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    comments = db.relationship('PostComment', backref='post', lazy=True, cascade='all, delete-orphan')
+    user = db.relationship('User', backref='posts')
+
+class PostComment(db.Model):
+    __tablename__ = 'post_comments'
+    comment_id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('status_posts.post_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='comments')

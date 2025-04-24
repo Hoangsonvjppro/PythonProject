@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Room - {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('chatting.chat_page') }}">Community Hub</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}">{{ room.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Room</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Edit Room
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('chatting.edit_room', room_id=room.room_id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="room_name" class="form-label">Room Name</label>
+                            <input type="text" class="form-control" id="room_name" name="room_name" value="{{ room.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="room_description" class="form-label">Description</label>
+                            <textarea class="form-control" id="room_description" name="room_description" rows="3">{{ room.description }}</textarea>
+                            <small class="form-text text-muted">Provide a brief description of your room</small>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_private" name="is_private" {% if room.is_private %}checked{% endif %}>
+                            <label class="form-check-label" for="is_private">Private Room</label>
+                            <small class="form-text text-muted d-block">Private rooms are only visible to invited members</small>
+                        </div>
+                        
+                        <div class="alert alert-warning mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Changing a room from public to private will restrict access to current participants only.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
