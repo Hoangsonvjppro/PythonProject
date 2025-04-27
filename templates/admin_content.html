@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+{% extends "base.html" %}
+
+{% block title %}Admin - Content Management{% endblock %}
+
+{% block content %}
+<div class="container admin-dashboard mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">
+                <i class="fas fa-book me-2"></i> Quản lý nội dung
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý nội dung</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấp độ</h6>
+                    <a href="{{ url_for('add_content', content_type='level') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Thêm cấp độ
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for level in levels %}
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-{{ level.icon }} me-2"></i>
+                                <strong>{{ level.level_name }}</strong> - {{ level.description }}
+                                <span class="badge bg-primary rounded-pill ms-2">{{ level.lessons|length }} bài học</span>
+                            </div>
+                            <div class="btn-group">
+                                <a href="{{ url_for('edit_content', content_type='level', content_id=level.level_id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_content', content_type='level', content_id=level.level_id) }}" 
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa cấp độ này? Hành động này không thể hoàn tác.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" {% if level.lessons %}disabled title="Không thể xóa cấp độ có bài học"{% endif %}>
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">Chưa có cấp độ nào được tạo.</p>
+                            <a href="{{ url_for('add_content', content_type='level') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Thêm cấp độ đầu tiên
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê nội dung</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="card border-left-primary shadow h-100 py-2">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                        Cấp độ
+                                                    </div>
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ levels|length }}</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-layer-group fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-left-success shadow h-100 py-2">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                        Bài học
+                                                    </div>
+                                                    {% set total_lessons = namespace(value=0) %}
+                                                    {% for level in levels %}
+                                                        {% set total_lessons.value = total_lessons.value + level.lessons|length %}
+                                                    {% endfor %}
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_lessons.value }}</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-book fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('add_content', content_type='lesson') }}" class="btn btn-success btn-block">
+                                <i class="fas fa-plus"></i> Thêm bài học mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lessons by Level -->
+    {% for level in levels %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-{{ level.icon }} me-2"></i> Bài học cấp độ {{ level.level_name }}
+            </h6>
+            <a href="{{ url_for('add_content', content_type='lesson') }}" class="btn btn-sm btn-success">
+                <i class="fas fa-plus"></i> Thêm bài học
+            </a>
+        </div>
+        <div class="card-body">
+            {% if level.lessons %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="10%">Thứ tự</th>
+                            <th width="25%">Tiêu đề</th>
+                            <th width="40%">Mô tả</th>
+                            <th width="20%">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lesson in level.lessons|sort(attribute='order') %}
+                        <tr>
+                            <td>{{ lesson.lesson_id }}</td>
+                            <td>{{ lesson.order }}</td>
+                            <td>{{ lesson.title }}</td>
+                            <td>{{ lesson.description }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('edit_content', content_type='lesson', content_id=lesson.lesson_id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a href="{{ url_for('admin_dashboard') }}../tutorials/lesson/{{ lesson.lesson_id }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i> Xem
+                                    </a>
+                                    <form method="POST" action="{{ url_for('delete_content', content_type='lesson', content_id=lesson.lesson_id) }}" 
+                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài học này? Hành động này không thể hoàn tác và sẽ xóa cả tiến độ học tập liên quan.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-3">
+                <p class="text-muted">Cấp độ này chưa có bài học nào.</p>
+                <a href="{{ url_for('add_content', content_type='lesson') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Thêm bài học đầu tiên
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTables for better table functionality
+        $('.table').DataTable({
+            language: {
+                search: "Tìm kiếm:",
+                info: "Hiển thị _START_ đến _END_ của _TOTAL_ bài học",
+                lengthMenu: "Hiển thị _MENU_ bài học",
+                paginate: {
+                    first: "Đầu",
+                    last: "Cuối",
+                    next: "Tiếp",
+                    previous: "Trước"
+                }
+            },
+            "order": [[ 1, "asc" ]], // Order by lesson order column
+            "pageLength": 10
+        });
+    });
+</script>
+{% endblock %}
+{% block title %}Content Management{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="admin-card card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-book me-2"></i>Content Management
+                        </h2>
+                        <div>
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContentModal">
+                                <i class="fas fa-plus me-2"></i>Add New Content
+                            </a>
+                        </div>
+                    </div>
+
+                    <ul class="nav nav-tabs mb-4" id="contentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="levels-tab" data-bs-toggle="tab" data-bs-target="#levels-content" 
+                                    type="button" role="tab" aria-selected="true">Levels</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="lessons-tab" data-bs-toggle="tab" data-bs-target="#lessons-content" 
+                                    type="button" role="tab" aria-selected="false">Lessons</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="vocabulary-tab" data-bs-toggle="tab" data-bs-target="#vocabulary-content" 
+                                    type="button" role="tab" aria-selected="false">Vocabulary</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="contentTabsContent">
+                        <!-- Levels Tab -->
+                        <div class="tab-pane fade show active" id="levels-content" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Level Name</th>
+                                            <th>Description</th>
+                                            <th>Lessons</th>
+                                            <th>Order</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for level in levels %}
+                                        <tr>
+                                            <td>{{ level.level_id }}</td>
+                                            <td>{{ level.level_name }}</td>
+                                            <td>{{ level.description }}</td>
+                                            <td>{{ level.lessons|length }}</td>
+                                            <td>{{ level.order }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('edit_content', content_type='level', content_id=level.level_id) }}" 
+                                                       class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-danger" title="Delete"
+                                                            onclick="confirmDelete('level', {{ level.level_id }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Lessons Tab -->
+                        <div class="tab-pane fade" id="lessons-content" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Level</th>
+                                            <th>Description</th>
+                                            <th>Order</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for level in levels %}
+                                            {% for lesson in level.lessons %}
+                                            <tr>
+                                                <td>{{ lesson.lesson_id }}</td>
+                                                <td>{{ lesson.title }}</td>
+                                                <td>{{ level.level_name }}</td>
+                                                <td>{{ lesson.description }}</td>
+                                                <td>{{ lesson.order }}</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{{ url_for('edit_content', content_type='lesson', content_id=lesson.lesson_id) }}" 
+                                                           class="btn btn-sm btn-outline-primary" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-danger" title="Delete"
+                                                                onclick="confirmDelete('lesson', {{ lesson.lesson_id }})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Vocabulary Tab -->
+                        <div class="tab-pane fade" id="vocabulary-content" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Word</th>
+                                            <th>Definition</th>
+                                            <th>Level</th>
+                                            <th>Example</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vocabulary-table-body">
+                                        <!-- Vocabulary items will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Content Modal -->
+<div class="modal fade" id="addContentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-pills mb-3" id="contentTypeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="add-level-tab" data-bs-toggle="pill" 
+                                data-bs-target="#add-level" type="button" role="tab" aria-selected="true">
+                            Level
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="add-lesson-tab" data-bs-toggle="pill" 
+                                data-bs-target="#add-lesson" type="button" role="tab" aria-selected="false">
+                            Lesson
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="add-vocabulary-tab" data-bs-toggle="pill" 
+                                data-bs-target="#add-vocabulary" type="button" role="tab" aria-selected="false">
+                            Vocabulary
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="contentTypeTabContent">
+                    <!-- Add Level Form -->
+                    <div class="tab-pane fade show active" id="add-level" role="tabpanel">
+                        <form id="add-level-form" action="{{ url_for('admin_content') }}" method="POST">
+                            <input type="hidden" name="content_type" value="level">
+                            <div class="mb-3">
+                                <label for="level_name" class="form-label">Level Name</label>
+                                <input type="text" class="form-control" id="level_name" name="level_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="level_description" class="form-label">Description</label>
+                                <textarea class="form-control" id="level_description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="level_icon" class="form-label">Icon (FontAwesome class)</label>
+                                <input type="text" class="form-control" id="level_icon" name="icon" value="book">
+                            </div>
+                            <div class="mb-3">
+                                <label for="level_order" class="form-label">Order</label>
+                                <input type="number" class="form-control" id="level_order" name="order" value="0">
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Level</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Add Lesson Form -->
+                    <div class="tab-pane fade" id="add-lesson" role="tabpanel">
+                        <form id="add-lesson-form" action="{{ url_for('admin_content') }}" method="POST">
+                            <input type="hidden" name="content_type" value="lesson">
+                            <div class="mb-3">
+                                <label for="lesson_title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="lesson_title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="lesson_level" class="form-label">Level</label>
+                                <select class="form-select" id="lesson_level" name="level_id" required>
+                                    {% for level in levels %}
+                                    <option value="{{ level.level_id }}">{{ level.level_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="lesson_description" class="form-label">Description</label>
+                                <textarea class="form-control" id="lesson_description" name="description" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="lesson_content" class="form-label">Content (HTML supported)</label>
+                                <textarea class="form-control" id="lesson_content" name="content" rows="6"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="lesson_order" class="form-label">Order</label>
+                                <input type="number" class="form-control" id="lesson_order" name="order" value="0">
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Lesson</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Add Vocabulary Form -->
+                    <div class="tab-pane fade" id="add-vocabulary" role="tabpanel">
+                        <form id="add-vocabulary-form" action="{{ url_for('admin_content') }}" method="POST">
+                            <input type="hidden" name="content_type" value="vocabulary">
+                            <div class="mb-3">
+                                <label for="vocab_word" class="form-label">Word</label>
+                                <input type="text" class="form-control" id="vocab_word" name="word" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="vocab_definition" class="form-label">Definition</label>
+                                <input type="text" class="form-control" id="vocab_definition" name="definition" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="vocab_level" class="form-label">Level</label>
+                                <select class="form-select" id="vocab_level" name="level_id" required>
+                                    {% for level in levels %}
+                                    <option value="{{ level.level_id }}">{{ level.level_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="vocab_example" class="form-label">Example Sentence</label>
+                                <textarea class="form-control" id="vocab_example" name="example_sentence" rows="2"></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Vocabulary</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize rich text editor for content areas if available
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof ClassicEditor !== 'undefined') {
+            ClassicEditor
+                .create(document.querySelector('#lesson_content'))
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    });
+    
+    // Handle delete confirmation
+    function confirmDelete(type, id) {
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = `/admin/content/delete/${type}/${id}`;
+        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        modal.show();
+    }
+</script>
+
+<style>
+    .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .table thead th {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background: var(--secondary-color);
+        transform: scale(1.01);
+    }
+
+    .btn-group {
+        gap: 0.5rem;
+    }
+    
+    .tab-content {
+        padding: 1rem 0;
+    }
+    
+    .nav-tabs .nav-link.active {
+        font-weight: 600;
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% extends "base.html" %}
+
+{% block title %}Admin - Edit {{ content_type | capitalize }}{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+    .ql-editor {
+        min-height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">
+                <i class="fas fa-edit me-2"></i> 
+                Chỉnh sửa {{ 'bài học' if content_type == 'lesson' else 'cấp độ' }}
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_content') }}">Quản lý nội dung</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Chỉnh sửa {{ 'bài học' if content_type == 'lesson' else 'cấp độ' }}
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {{ 'Thông tin bài học' if content_type == 'lesson' else 'Thông tin cấp độ' }}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('edit_content', content_type=content_type, content_id=content.lesson_id if content_type == 'lesson' else content.level_id) }}">
+                {% if content_type == 'lesson' %}
+                <!-- Lesson Form -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Tiêu đề bài học <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ content.title }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả ngắn <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="description" name="description" rows="2" required>{{ content.description }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="order" class="form-label">Thứ tự hiển thị</label>
+                    <input type="number" class="form-control" id="order" name="order" value="{{ content.order }}" min="0">
+                    <div class="form-text">Thứ tự để sắp xếp bài học trong cùng một cấp độ (0, 1, 2, ...)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Nội dung bài học <span class="text-danger">*</span></label>
+                    <div id="editor-container"></div>
+                    <input type="hidden" id="content" name="content" value="{{ content.content }}">
+                    <div class="form-text">Sử dụng trình soạn thảo để định dạng nội dung bài học.</div>
+                </div>
+                
+                {% else %}
+                <!-- Level Form -->
+                <div class="mb-3">
+                    <label for="level_name" class="form-label">Tên cấp độ <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="level_name" name="level_name" value="{{ content.level_name }}" required>
+                    <div class="form-text">Ví dụ: A1, A2, B1, B2, C1, C2</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="description" name="description" rows="2" required>{{ content.description }}</textarea>
+                    <div class="form-text">Mô tả ngắn gọn về cấp độ này</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="icon" class="form-label">Biểu tượng</label>
+                    <input type="text" class="form-control" id="icon" name="icon" value="{{ content.icon }}">
+                    <div class="form-text">
+                        Tên biểu tượng Font Awesome (xem tại <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com/icons</a>)
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="order" class="form-label">Thứ tự hiển thị</label>
+                    <input type="number" class="form-control" id="order" name="order" value="{{ content.order }}" min="0">
+                    <div class="form-text">Thứ tự để sắp xếp cấp độ (0, 1, 2, ...)</div>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin_content') }}" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if content_type == 'lesson' %}
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Quill editor
+        var quill = new Quill('#editor-container', {
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'align': [] }],
+                    ['link', 'image', 'video'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Nhập nội dung bài học...',
+            theme: 'snow'
+        });
+        
+        // Set initial content
+        quill.root.innerHTML = document.getElementById('content').value;
+        
+        // When form is submitted, copy HTML content to hidden input
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            document.getElementById('content').value = quill.root.innerHTML;
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
+{% block title %}Edit {{ content_type|capitalize }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="admin-card card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>Edit {{ content_type|capitalize }}
+                        </h2>
+                        <a href="{{ url_for('admin_content') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Content
+                        </a>
+                    </div>
+
+                    {% if content_type == 'lesson' %}
+                    <form action="{{ url_for('edit_content', content_type=content_type, content_id=content.lesson_id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   value="{{ content.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3">{{ content.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content (HTML supported)</label>
+                            <textarea class="form-control" id="content" name="content" 
+                                      rows="15">{{ content.content }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Order</label>
+                            <input type="number" class="form-control" id="order" name="order" 
+                                   value="{{ content.order }}">
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                    
+                    {% elif content_type == 'level' %}
+                    <form action="{{ url_for('edit_content', content_type=content_type, content_id=content.level_id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="level_name" class="form-label">Level Name</label>
+                            <input type="text" class="form-control" id="level_name" name="level_name" 
+                                   value="{{ content.level_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3">{{ content.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="icon" class="form-label">Icon (FontAwesome class)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-{{ content.icon or 'book' }}"></i></span>
+                                <input type="text" class="form-control" id="icon" name="icon" 
+                                       value="{{ content.icon or 'book' }}">
+                            </div>
+                            <div class="form-text">Example: book, graduation-cap, certificate</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Order</label>
+                            <input type="number" class="form-control" id="order" name="order" 
+                                   value="{{ content.order }}">
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize rich text editor for content areas if available
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof ClassicEditor !== 'undefined') {
+            ClassicEditor
+                .create(document.querySelector('#content'))
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    });
+</script>
+
+<style>
+    .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .form-control, .input-group-text {
+        border-radius: 10px;
+    }
+    
+    .btn {
+        border-radius: 10px;
+        padding: 0.5rem 1.5rem;
+    }
+</style>
+{% endblock %}

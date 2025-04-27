@@ -4,9 +4,11 @@ from flask_login import UserMixin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import json
 
 # Khởi tạo db (sẽ được khởi tạo từ app.py)
 db = SQLAlchemy()
+
 
 # Model Users
 class User(db.Model, UserMixin):
@@ -17,6 +19,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(200), nullable=False)
     avatar = db.Column(db.String(200), nullable=True, default="default.jpg")
     role = db.Column(db.String(50), nullable=False, default="user")
+    is_active = db.Column(db.Boolean, default=True)  # For locking/unlocking accounts
 
     # Relationships
     progress = db.relationship('UserProgress', backref='user', lazy=True)
@@ -29,16 +32,45 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_active_account(self):
+        return self.is_active
+
+    def toggle_active_status(self):
+        """Toggle the active status of a user account"""
+        self.is_active = not self.is_active
+        return self.is_active
+
+    @staticmethod
+    def create_admin(username, email, password):
+        """Create an admin user"""
+        admin = User(username=username, email=email, role='admin')
+        admin.set_password(password)
+        return admin
+
+
 # Model Levels
 class Level(db.Model):
     __tablename__ = 'levels'
     level_id = db.Column(db.Integer, primary_key=True)
     level_name = db.Column(db.String(10), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True, default="")
+    icon = db.Column(db.String(50), nullable=True, default="book")
+    order = db.Column(db.Integer, nullable=False, default=0)
 
     # Relationships
     lessons = db.relationship('Lesson', backref='level', lazy=True)
     vocabulary = db.relationship('Vocabulary', backref='level', lazy=True)
     tests = db.relationship('Test', backref='level', lazy=True)
+
 
 # Model Lessons
 class Lesson(db.Model):
@@ -48,9 +80,11 @@ class Lesson(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     content = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
 
     # Relationships
     progress = db.relationship('UserProgress', backref='lesson', lazy=True)
+
 
 # Model User_Progress
 class UserProgress(db.Model):
@@ -62,6 +96,7 @@ class UserProgress(db.Model):
     score = db.Column(db.Float)
     completed_at = db.Column(db.DateTime)
 
+
 # Model Vocabulary
 class Vocabulary(db.Model):
     __tablename__ = 'vocabulary'
@@ -70,6 +105,7 @@ class Vocabulary(db.Model):
     definition = db.Column(db.Text)
     example_sentence = db.Column(db.Text)
     level_id = db.Column(db.Integer, db.ForeignKey('levels.level_id'), nullable=False)
+
 
 # Model Tests
 class Test(db.Model):
@@ -83,6 +119,7 @@ class Test(db.Model):
     sentences = db.relationship('SampleSentence', backref='test', lazy=True)
     speech_tests = db.relationship('SpeechTest', backref='test', lazy=True)
 
+
 # Model Sample_Sentences
 class SampleSentence(db.Model):
     __tablename__ = 'sample_sentences'
@@ -93,6 +130,7 @@ class SampleSentence(db.Model):
 
     # Relationships
     speech_tests = db.relationship('SpeechTest', backref='sentence', lazy=True)
+
 
 # Model SpeechTests
 class SpeechTest(db.Model):
@@ -105,6 +143,7 @@ class SpeechTest(db.Model):
     similarity_score = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=db.func.now())
 
+
 # Chat models
 class ChatRoom(db.Model):
     __tablename__ = 'chat_rooms'
@@ -114,12 +153,13 @@ class ChatRoom(db.Model):
     is_private = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    
+
     messages = db.relationship('Message', backref='room', lazy=True, cascade='all, delete-orphan')
     participants = db.relationship('RoomParticipant', backref='room', lazy=True, cascade='all, delete-orphan')
 
     def is_owner(self, user_id):
         return self.owner_id == user_id
+
 
 class RoomParticipant(db.Model):
     __tablename__ = 'room_participants'
@@ -127,10 +167,11 @@ class RoomParticipant(db.Model):
     room_id = db.Column(db.String(36), db.ForeignKey('chat_rooms.room_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     joined_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     __table_args__ = (db.UniqueConstraint('room_id', 'user_id', name='_room_user_uc'),)
-    
+
     user = db.relationship('User')
+
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -139,8 +180,9 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     user = db.relationship('User', backref='messages')
+
 
 class StatusPost(db.Model):
     __tablename__ = 'status_posts'
@@ -148,9 +190,10 @@ class StatusPost(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     comments = db.relationship('PostComment', backref='post', lazy=True, cascade='all, delete-orphan')
     user = db.relationship('User', backref='posts')
+
 
 class PostComment(db.Model):
     __tablename__ = 'post_comments'
@@ -159,5 +202,28 @@ class PostComment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     user = db.relationship('User', backref='comments')
+
+
+# Model Content - Quản lý nội dung của ứng dụng
+class Content(db.Model):
+    __tablename__ = 'content'
+    content_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)  # lesson, article, vocabulary
+    html_content = db.Column(db.Text)
+    related_id = db.Column(db.Integer)  # ID of the related entity (lesson_id, etc.)
+    content_metadata = db.Column(db.Text)  # JSON string for additional data
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def get_metadata(self):
+        """Convert metadata JSON string to dictionary"""
+        if self.content_metadata:
+            return json.loads(self.content_metadata)
+        return {}
+
+    def set_metadata(self, metadata_dict):
+        """Convert dictionary to JSON string for storage"""
+        self.content_metadata = json.dumps(metadata_dict)

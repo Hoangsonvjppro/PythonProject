@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Statistics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="admin-card card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Application Statistics
+                        </h2>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Overview Stats -->
+                    <div class="row mb-5">
+                        <div class="col-md-3">
+                            <div class="stat-card bg-primary text-white">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>{{ total_users }}</h3>
+                                    <p>Total Users</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-success text-white">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>{{ active_users }}</h3>
+                                    <p>Active Learners</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-info text-white">
+                                <div class="stat-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>{{ lesson_stats|length }}</h3>
+                                    <p>Total Lessons</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-warning text-white">
+                                <div class="stat-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="stat-content">
+                                    {% if active_users > 0 and total_users > 0 %}
+                                        <h3>{{ (active_users / total_users * 100)|round(1) }}%</h3>
+                                    {% else %}
+                                        <h3>0%</h3>
+                                    {% endif %}
+                                    <p>Engagement Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Completion Stats -->
+                    <h4 class="mb-4"><i class="fas fa-tasks me-2"></i>Lesson Completion Statistics</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Lesson Title</th>
+                                    <th>Level</th>
+                                    <th>Completed By</th>
+                                    <th>Completion Rate</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in lesson_stats %}
+                                <tr>
+                                    <td>{{ stat.lesson.title }}</td>
+                                    <td>{{ stat.lesson.level.level_name }}</td>
+                                    <td>{{ stat.completions }} user{{ 's' if stat.completions != 1 else '' }}</td>
+                                    <td>{{ stat.completion_rate }}%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar {{ 'bg-success' if stat.completion_rate >= 50 else 'bg-primary' }}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ stat.completion_rate }}%" 
+                                                 aria-valuenow="{{ stat.completion_rate }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- User Activity Graph -->
+                    <h4 class="mt-5 mb-4"><i class="fas fa-chart-bar me-2"></i>User Activity Trends</h4>
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+
+                    <!-- Level Popularity Graph -->
+                    <h4 class="mt-5 mb-4"><i class="fas fa-chart-pie me-2"></i>Level Engagement Distribution</h4>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="chart-container" style="position: relative; height:300px;">
+                                <canvas id="levelDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="level-stats-panel">
+                                <h5 class="text-center mb-3">Level Insights</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Most Popular
+                                        <span class="badge bg-primary rounded-pill">A1</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Highest Completion
+                                        <span class="badge bg-success rounded-pill">A2</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Needs Attention
+                                        <span class="badge bg-danger rounded-pill">C1</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // User Activity Chart - Simulated data
+        const activityCtx = document.getElementById('userActivityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                datasets: [{
+                    label: 'Active Users',
+                    data: [65, 72, 78, 85, 92, 100],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }, {
+                    label: 'Completed Lessons',
+                    data: [25, 29, 33, 42, 50, 55],
+                    borderColor: 'rgb(153, 102, 255)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Activity Trends'
+                    }
+                }
+            }
+        });
+
+        // Level Distribution Chart - Simulated data
+        const levelCtx = document.getElementById('levelDistributionChart').getContext('2d');
+        const levelChart = new Chart(levelCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['A1 - Beginner', 'A2 - Elementary', 'B1 - Intermediate', 'B2 - Upper', 'C1 - Advanced'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'User Distribution by Level'
+                    },
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        background: rgba(255, 255, 255, 0.2);
+        margin-right: 1rem;
+    }
+
+    .stat-content h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-content p {
+        margin: 0;
+        opacity: 0.8;
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    .chart-container {
+        margin-bottom: 2rem;
+    }
+
+    .level-stats-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .list-group-item {
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    h4 {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .table th {
+        background: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}
