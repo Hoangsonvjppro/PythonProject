@@ -1,7 +1,10 @@
 import eventlet
 eventlet.monkey_patch()
 
-from app import app
- 
+from app import create_app
+from app.extensions import socketio
+
+app = create_app()
+
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5000) 
+    socketio.run(app, debug=app.config['DEBUG'], host='127.0.0.1', port=5000) 
