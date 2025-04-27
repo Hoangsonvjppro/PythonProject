@@ -1,7 +1,6 @@
-from flask import Flask
+from flask import Flask, render_template
 from app.config import Config
-from app.extensions import db, login_manager, migrate, socketio
-from app.models import user, learning, chat
+from app.extensions import db, login_manager, migrate, socketio, csrf
 
 def create_app(config_class=Config):
     """
@@ -15,6 +14,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*")
+    csrf.init_app(app)
     
     # Thiết lập login manager
     login_manager.login_view = 'auth.login'
@@ -48,4 +48,18 @@ def create_app(config_class=Config):
     from app.commands import register_commands
     register_commands(app)
     
-    return app 
+    # Xử lý lỗi
+    register_error_handlers(app)
+    
+    return app
+
+def register_error_handlers(app):
+    """Đăng ký các hàm xử lý lỗi cho ứng dụng"""
+    
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return render_template('errors/500.html'), 500 
