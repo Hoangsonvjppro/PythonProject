@@ -6,7 +6,7 @@ class Level(db.Model):
     __tablename__ = 'levels'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    level_name = db.Column(db.String(10), unique=True, nullable=False)
     description = db.Column(db.Text)
     icon = db.Column(db.String(50), default='graduation-cap')
     order = db.Column(db.Integer, default=0)
@@ -32,7 +32,7 @@ class Level(db.Model):
         return user.get_completion_percentage(self.id)
     
     def __repr__(self):
-        return f'<Level {self.name}>'
+        return f'<Level {self.level_name}>'
 
 
 class Lesson(db.Model):

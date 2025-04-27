@@ -7,7 +7,7 @@ class Config:
     """Lớp cấu hình cơ bản cho ứng dụng Flask"""
     
     # Cấu hình bảo mật
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-should-be-changed-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-should-be-changed'
     
     # Cấu hình cơ sở dữ liệu
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -15,7 +15,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Cấu hình tải lên
-    UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(basedir), 'static', 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
     
     # Cấu hình phiên
