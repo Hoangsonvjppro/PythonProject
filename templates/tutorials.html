@@ -41,7 +41,7 @@
 
         <!-- Learning Progress Overview -->
         <div class="progress-overview mb-5">
-            <div class="row">
+        <div class="row">
                 {% set total_levels = levels|length %}
                 {% set completed_levels = namespace(count=0) %}
                 
@@ -132,8 +132,8 @@
                                 <div class="progress-label">
                                     <span>Progress</span>
                                     <span>{{ data['completion'] }}%</span>
-                                </div>
-                                <div class="progress">
+                            </div>
+                            <div class="progress">
                                     <div class="progress-bar {% if data['completion'] >= 80 %}bg-success{% endif %}" 
                                          role="progressbar" 
                                          style="width: {{ data['completion'] }}%" 
@@ -143,9 +143,9 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="level-actions">
-                                <a href="{% if data['is_locked'] %}#{% else %}{{ url_for('tutorials.level_detail', level_id=level_id) }}{% endif %}" 
+                                <a href="{% if data['is_locked'] %}#{% else %}{{ url_for('tutorials.level_detail', level_id=level_id) }}{% endif %}"
                                    class="btn btn-primary {% if data['is_locked'] %}disabled{% endif %}">
                                     {% if data['completion'] == 0 %}
                                         <i class="fas fa-play me-2"></i>Start Level
@@ -157,11 +157,11 @@
                                 </a>
                             </div>
                         </div>
-                        
+
                         {% if data['is_locked'] %}
                         <div class="level-locked-overlay">
                             <div class="lock-icon">
-                                <i class="fas fa-lock"></i>
+                            <i class="fas fa-lock"></i>
                             </div>
                             <p>Complete 80% of the previous level to unlock</p>
                         </div>
@@ -180,7 +180,7 @@
                 <p class="text-muted">Comprehensive tools to enhance your learning experience</p>
             </div>
             
-            <div class="row g-4">
+        <div class="row g-4">
                 <div class="col-md-3">
                     <div class="feature-card">
                         <div class="feature-icon">
@@ -198,8 +198,8 @@
                         </div>
                         <h4>Translation Tools</h4>
                         <p>Translate text and files to understand content better</p>
-                    </div>
                 </div>
+            </div>
                 
                 <div class="col-md-3">
                     <div class="feature-card">
@@ -682,7 +682,7 @@
     }
 </style>
 
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Add smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -720,7 +720,7 @@
         
         document.querySelectorAll('.level-card-container').forEach(card => {
             observer.observe(card);
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}

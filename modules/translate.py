@@ -90,7 +90,7 @@ def translate_text():
     try:
         # Use cached translation
         translated_text = translate_with_cache(text, source_lang, target_lang)
-        
+
         if not translated_text:
             return jsonify({'success': False, 'error': 'Translation failed'}), 500
 
@@ -135,7 +135,7 @@ def translate_file():
 
     try:
         content = file.read().decode('utf-8')
-        
+
         # For large files, break into chunks to avoid API limits
         if len(content) > 5000:  # If content is longer than 5000 chars
             chunks = []

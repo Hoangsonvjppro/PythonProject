@@ -6,11 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/instance/learning_app.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/learning_app.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/chat_room.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/chat_room.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/translate.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/translate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/chatting.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/chatting.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/tutorials.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/tutorials.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,7 +177,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -228,7 +229,8 @@
       <workItem from="1745321502759" duration="17000" />
       <workItem from="1745399846519" duration="2691000" />
       <workItem from="1745435956633" duration="264000" />
-      <workItem from="1745484505573" duration="3888000" />
+      <workItem from="1745484505573" duration="6381000" />
+      <workItem from="1745745426418" duration="1625000" />
     </task>
     <servers />
   </component>
@@ -249,6 +251,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PythonProject$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1745205423291" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PythonProject$FlaskProject.coverage" NAME="FlaskProject Coverage Results" MODIFIED="1744558048571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/PythonProject$PythonProject.coverage" NAME="PythonProject Coverage Results" MODIFIED="1745487150116" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PythonProject$PythonProject.coverage" NAME="PythonProject Coverage Results" MODIFIED="1745745817205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

@@ -99,14 +99,14 @@
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('settings') }}">
                                     <i class="fas fa-cog me-2"></i>Settings
-                                </a>
-                            </li>
+                        </a>
+                    </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                </a>
-                            </li>
+                        </a>
+                    </li>
                         </ul>
                     </li>
                     {% else %}
@@ -129,13 +129,13 @@
 
     <!-- Page content wrapper -->
     <div class="content-wrapper">
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
         <div class="flash-messages">
             <div class="container">
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                     <div class="d-flex align-items-center">
                         {% if category == 'success' %}
                         <i class="fas fa-check-circle me-2"></i>
@@ -148,17 +148,17 @@
                         {% endif %}
                         <div>{{ message }}</div>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        {% endif %}
-        {% endwith %}
+        {% endfor %}
+            </div>
+    </div>
+    {% endif %}
+    {% endwith %}
 
-        <!-- Main content -->
+    <!-- Main content -->
         <main>
-            {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
         </main>
     </div>
 
