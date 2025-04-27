@@ -8,17 +8,34 @@ Run this script when you have schema issues.
 
 import os
 import sys
+import shutil
+from app import create_app
+from app.extensions import db
 
-# Check if the database file exists and remove it
-db_file = 'learning_app.db'
-if os.path.exists(db_file):
-    print(f"Removing existing database file: {db_file}")
-    os.remove(db_file)
-    print("Database file removed successfully.")
-else:
-    print("No existing database file found.")
+print("Beginning database recreation process...")
 
-# Execute app.py with recreate-db flag
-print("Recreating database with new schema...")
-os.system("python app.py recreate-db")
-print("Database recreation completed.")
+# Khởi tạo ứng dụng Flask
+app = create_app()
+
+# Xác định đường dẫn đến file database
+with app.app_context():
+    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    if db_uri.startswith('sqlite:///'):
+        # Trích xuất đường dẫn từ sqlite:///path/to/file.db
+        db_path = db_uri.replace('sqlite:///', '')
+        if os.path.exists(db_path):
+            print(f"Removing existing database file: {db_path}")
+            os.remove(db_path)
+            print("Database file removed successfully.")
+        else:
+            print(f"No existing database file found at {db_path}.")
+    else:
+        print("Non-SQLite database detected. Please drop and recreate manually.")
+        sys.exit(1)
+
+# Thông báo user về các bước tiếp theo
+print("\nDatabase has been removed.")
+print("Now run the following commands to recreate it:")
+print("1. flask db upgrade")
+print("2. flask init-db")
+print("\nOr simply run: python -m flask db upgrade && python -m flask init-db")

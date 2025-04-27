@@ -5,3 +5,6 @@ from app.models.learning import (
     PronunciationAttempt, Vocabulary, Test, SampleSentence
 )
 from app.models.chat import ChatRoom, RoomParticipant, Message, StatusPost, Comment 
+
+# Import models để các module khác có thể import từ app.models
+from app.models.models import * 
