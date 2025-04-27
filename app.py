@@ -7,13 +7,12 @@ from werkzeug.utils import secure_filename
 from functools import wraps
 from flask_cors import CORS
 from flask_socketio import SocketIO, send
-from models.models import db, User, Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, SpeechTest, Content
+from models.models import db, User, Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, SpeechTest
 from modules.speech import speech_bp
 from modules.translate import translate_bp
 from modules.chat import chatting, register_socketio_events
 from modules.tutorials import tutorials_bp
 import os
-import json
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -83,10 +82,6 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            if not user.is_active:
-                flash("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", "danger")
-                return redirect(url_for('settings'))
-                
             login_user(user)
             flash("Đăng nhập thành công!", "success")
             return redirect(url_for('home'))
@@ -117,255 +112,12 @@ def update_profile():
         return redirect(url_for('settings'))
     return redirect(url_for('settings'))
 
-# Admin routes
 @app.route('/admin')
 @login_required
 @admin_required
 def admin_dashboard():
     users = User.query.all()
-    total_users = len(users)
-    lessons = Lesson.query.count()
-    return render_template('admin.html', users=users, total_users=total_users, 
-                           lessons=lessons, current_user=current_user)
-
-@app.route('/admin/users')
-@login_required
-@admin_required
-def admin_users():
-    users = User.query.all()
-    return render_template('admin_users.html', users=users, current_user=current_user)
-
-@app.route('/admin/users/toggle-status/<int:user_id>', methods=['POST'])
-@login_required
-@admin_required
-def toggle_user_status(user_id):
-    user = User.query.get_or_404(user_id)
-    
-    # Prevent admins from deactivating their own account
-    if user.user_id == current_user.user_id:
-        flash("Không thể khóa tài khoản của chính bạn!", "danger")
-        return redirect(url_for('admin_users'))
-    
-    # Prevent deactivating other admins
-    if user.role == 'admin' and user.user_id != current_user.user_id:
-        flash("Không thể khóa tài khoản admin khác!", "danger")
-        return redirect(url_for('admin_users'))
-    
-    # Toggle the status
-    new_status = user.toggle_active_status()
-    db.session.commit()
-    
-    status_text = "kích hoạt" if new_status else "khóa"
-    flash(f"Tài khoản của {user.username} đã được {status_text}!", "success")
-    return redirect(url_for('admin_users'))
-
-@app.route('/admin/content')
-@login_required
-@admin_required
-def admin_content():
-    levels = Level.query.order_by(Level.order).all()
-    return render_template('admin_content.html', levels=levels, current_user=current_user)
-
-@app.route('/admin/content/add/<content_type>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def add_content(content_type):
-    if request.method == 'POST':
-        if content_type == 'lesson':
-            # Create a new lesson
-            title = request.form.get('title')
-            description = request.form.get('description')
-            content_html = request.form.get('content')
-            level_id = request.form.get('level_id')
-            order = request.form.get('order', 0)
-            
-            # Validate required fields
-            if not all([title, description, content_html, level_id]):
-                flash("Tất cả các trường bắt buộc phải được điền đầy đủ.", "danger")
-                levels = Level.query.all()
-                return render_template('add_content.html', content_type=content_type, 
-                                      levels=levels, current_user=current_user)
-            
-            # Create the lesson
-            lesson = Lesson(
-                title=title,
-                description=description,
-                content=content_html,
-                level_id=level_id,
-                order=order
-            )
-            db.session.add(lesson)
-            db.session.commit()
-            
-            # Create corresponding Content entry
-            level = Level.query.get(level_id)
-            content_record = Content(
-                title=title,
-                content_type="lesson",
-                html_content=content_html,
-                related_id=lesson.lesson_id,
-                content_metadata=json.dumps({"level": level.level_name})
-            )
-            db.session.add(content_record)
-            db.session.commit()
-            
-            flash(f"Bài học '{title}' đã được tạo thành công!", "success")
-            return redirect(url_for('admin_content'))
-            
-        elif content_type == 'level':
-            # Create a new level
-            level_name = request.form.get('level_name')
-            description = request.form.get('description')
-            icon = request.form.get('icon')
-            order = request.form.get('order', 0)
-            
-            # Validate required fields
-            if not all([level_name, description]):
-                flash("Tất cả các trường bắt buộc phải được điền đầy đủ.", "danger")
-                return render_template('add_content.html', content_type=content_type, current_user=current_user)
-            
-            # Check if level already exists
-            if Level.query.filter_by(level_name=level_name).first():
-                flash(f"Cấp độ '{level_name}' đã tồn tại!", "danger")
-                return render_template('add_content.html', content_type=content_type, current_user=current_user)
-            
-            # Create the level
-            level = Level(
-                level_name=level_name,
-                description=description,
-                icon=icon or "graduation-cap",
-                order=order
-            )
-            db.session.add(level)
-            db.session.commit()
-            
-            flash(f"Cấp độ '{level_name}' đã được tạo thành công!", "success")
-            return redirect(url_for('admin_content'))
-        
-    # GET request - show the form
-    levels = Level.query.all()
-    return render_template('add_content.html', content_type=content_type,
-                          levels=levels, current_user=current_user)
-
-@app.route('/admin/content/edit/<content_type>/<int:content_id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def edit_content(content_type, content_id):
-    if content_type == 'lesson':
-        content = Lesson.query.get_or_404(content_id)
-    elif content_type == 'level':
-        content = Level.query.get_or_404(content_id)
-    else:
-        abort(404)
-        
-    if request.method == 'POST':
-        if content_type == 'lesson':
-            content.title = request.form.get('title')
-            content.description = request.form.get('description')
-            content.content = request.form.get('content')
-            content.order = request.form.get('order', 0)
-            
-            # Update the corresponding Content entry if it exists
-            content_record = Content.query.filter_by(
-                content_type="lesson", 
-                related_id=content.lesson_id
-            ).first()
-            
-            if content_record:
-                content_record.title = content.title
-                content_record.html_content = content.content
-                
-        elif content_type == 'level':
-            content.level_name = request.form.get('level_name')
-            content.description = request.form.get('description')
-            content.icon = request.form.get('icon')
-            content.order = request.form.get('order', 0)
-            
-        db.session.commit()
-        flash(f"{content_type.capitalize()} đã được cập nhật thành công!", "success")
-        return redirect(url_for('admin_content'))
-        
-    return render_template('edit_content.html', content=content, 
-                           content_type=content_type, current_user=current_user)
-
-@app.route('/admin/content/delete/<content_type>/<int:content_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_content(content_type, content_id):
-    if content_type == 'lesson':
-        content = Lesson.query.get_or_404(content_id)
-        
-        # Delete related Content entry if it exists
-        content_record = Content.query.filter_by(
-            content_type="lesson", 
-            related_id=content.lesson_id
-        ).first()
-        
-        if content_record:
-            db.session.delete(content_record)
-            
-        # Delete any UserProgress related to this lesson
-        UserProgress.query.filter_by(lesson_id=content_id).delete()
-        
-        db.session.delete(content)
-        flash("Bài học đã được xóa thành công!", "success")
-        
-    elif content_type == 'level':
-        level = Level.query.get_or_404(content_id)
-        
-        # Check if the level has any lessons
-        if level.lessons:
-            flash("Không thể xóa cấp độ này vì nó có các bài học. Hãy xóa tất cả các bài học trước.", "danger")
-            return redirect(url_for('admin_content'))
-            
-        # Delete vocabularies associated with this level
-        Vocabulary.query.filter_by(level_id=content_id).delete()
-        
-        # Delete tests associated with this level
-        tests = Test.query.filter_by(level_id=content_id).all()
-        for test in tests:
-            # Delete sample sentences associated with each test
-            SampleSentence.query.filter_by(test_id=test.test_id).delete()
-            db.session.delete(test)
-            
-        db.session.delete(level)
-        flash("Cấp độ đã được xóa thành công!", "success")
-    
-    else:
-        abort(404)
-        
-    db.session.commit()
-    return redirect(url_for('admin_content'))
-
-@app.route('/admin/stats')
-@login_required
-@admin_required
-def admin_stats():
-    # Get user statistics
-    total_users = User.query.count()
-    active_users = UserProgress.query.distinct(UserProgress.user_id).count()
-    
-    # Get lesson completion statistics
-    lessons = Lesson.query.all()
-    lesson_stats = []
-    
-    for lesson in lessons:
-        completions = UserProgress.query.filter_by(
-            lesson_id=lesson.lesson_id,
-            completion_status=True
-        ).count()
-        
-        lesson_stats.append({
-            'lesson': lesson,
-            'completions': completions,
-            'completion_rate': round(completions / total_users * 100, 2) if total_users > 0 else 0
-        })
-        
-    return render_template('admin_stats.html', 
-                           total_users=total_users, 
-                           active_users=active_users,
-                           lesson_stats=lesson_stats,
-                           current_user=current_user)
+    return render_template('admin.html', users=users)
 
 @app.route('/logout')
 @login_required
@@ -385,88 +137,43 @@ register_socketio_events(socketio)
 app.register_blueprint(tutorials_bp, url_prefix='/tutorials')
 
 def init_sample_data():
-    """Initialize sample data for development purposes.
-    
-    This function creates initial data for the application including:
-    - Standard CEFR levels (A1-C1)
-    - Sample lessons for each level
-    - Sample vocabulary
-    - Speech test samples
-    
-    This function should only run during initial setup or in development.
-    In production, content should be managed through the admin interface.
-    """
-    # Check if we have content in the database already
-    if Content.query.first():
-        return
-        
-    # Create levels if needed
     if not Level.query.first():
-        print("Initializing CEFR Levels...")
         levels = [
-            Level(level_name='A1', description="Beginner - Basic phrases and expressions", icon="graduation-cap", order=1),
-            Level(level_name='A2', description="Elementary - Simple communication on familiar topics", icon="book-open", order=2),
-            Level(level_name='B1', description="Intermediate - Understanding main points", icon="comments", order=3),
-            Level(level_name='B2', description="Upper Intermediate - Effective communication", icon="pen", order=4),
-            Level(level_name='C1', description="Advanced - Fluent expression in complex contexts", icon="certificate", order=5)
+            Level(level_name='A1'),
+            Level(level_name='A2'),
+            Level(level_name='B1'),
+            Level(level_name='B2'),
+            Level(level_name='C1')
         ]
         db.session.add_all(levels)
         db.session.commit()
 
-    # Initialize lessons from Content table
     if not Lesson.query.first():
-        print("Initializing sample lessons...")
-        
-        # Get level references
         a1 = Level.query.filter_by(level_name='A1').first()
         a2 = Level.query.filter_by(level_name='A2').first()
         b1 = Level.query.filter_by(level_name='B1').first()
         b2 = Level.query.filter_by(level_name='B2').first()
         c1 = Level.query.filter_by(level_name='C1').first()
-        
-        # Sample lesson content - this can be moved to JSON files or database seeds
-        lesson_data = [
-            {
-                "level": a1,
-                "title": "Giới thiệu bản thân",
-                "description": "Học cách giới thiệu tên, tuổi, và quốc tịch.",
-                "content": "<h3>Introducing Yourself</h3><p>In this lesson, you'll learn to introduce yourself in English.</p><div class='example'><p>Hello, my name is John. I am 25 years old. I am from Vietnam.</p></div>",
-                "order": 1
-            },
-            {
-                "level": a1,
-                "title": "Từ vựng cơ bản", 
-                "description": "Học các từ vựng cơ bản như màu sắc, số đếm, và ngày trong tuần.",
-                "content": "<h3>Basic Vocabulary</h3><p>Learn essential vocabulary for everyday conversation.</p><div class='vocab-list'><ul><li><strong>red</strong> (đỏ)</li><li><strong>blue</strong> (xanh)</li><li><strong>one</strong> (một)</li><li><strong>two</strong> (hai)</li></ul></div>",
-                "order": 2
-            }
+
+        lessons = [
+            Lesson(level_id=a1.level_id, title="Giới thiệu bản thân", description="Học cách giới thiệu tên, tuổi, và quốc tịch.", content="Trong bài học này, bạn sẽ học cách giới thiệu bản thân bằng tiếng Anh. Ví dụ: 'Hello, my name is John. I am 25 years old. I am from Vietnam.'"),
+            Lesson(level_id=a1.level_id, title="Từ vựng cơ bản", description="Học các từ vựng cơ bản như màu sắc, số đếm, và ngày trong tuần.", content="Bài học này giới thiệu các từ vựng cơ bản: red (đỏ), blue (xanh), one (một), two (hai), Monday (Thứ Hai), Tuesday (Thứ Ba)."),
+            Lesson(level_id=a1.level_id, title="Câu chào hỏi hàng ngày", description="Học các câu chào hỏi cơ bản.", content="Học cách chào hỏi: 'Good morning!' (Chào buổi sáng!), 'How are you?' (Bạn khỏe không?), 'I'm fine, thank you.' (Tôi khỏe, cảm ơn bạn)."),
+            Lesson(level_id=a2.level_id, title="Mô tả người và vật", description="Học cách mô tả ngoại hình và tính cách của người, vật.", content="Học cách mô tả: 'He is tall and handsome.' (Anh ấy cao và đẹp trai.) 'The cat is small and cute.' (Con mèo nhỏ và dễ thương.)"),
+            Lesson(level_id=a2.level_id, title="Thì quá khứ đơn", description="Học cách sử dụng thì quá khứ đơn để kể về các sự kiện trong quá khứ.", content="Học thì quá khứ đơn: 'I went to the park yesterday.' (Hôm qua tôi đã đi công viên.) 'She watched a movie last night.' (Tối qua cô ấy đã xem một bộ phim.)"),
+            Lesson(level_id=a2.level_id, title="Hỏi đường", description="Học cách hỏi và chỉ đường.", content="Học cách hỏi đường: 'Where is the nearest bus stop?' (Bến xe buýt gần nhất ở đâu?) 'Turn left at the next street.' (Rẽ trái ở con đường tiếp theo.)"),
+            Lesson(level_id=b1.level_id, title="Thảo luận về sở thích", description="Học cách nói về sở thích và hoạt động giải trí.", content="Học cách nói về sở thích: 'I enjoy playing football.' (Tôi thích chơi bóng đá.) 'She likes reading books.' (Cô ấy thích đọc sách.)"),
+            Lesson(level_id=b1.level_id, title="Viết email đơn giản", description="Học cách viết email cơ bản để gửi cho bạn bè hoặc đồng nghiệp.", content="Học cách viết email: 'Dear Anna, How are you? I hope you are well. Best regards, John.' (Gửi Anna, Bạn khỏe không? Tôi hy vọng bạn khỏe. Trân trọng, John.)"),
+            Lesson(level_id=b1.level_id, title="Thì hiện tại hoàn thành", description="Học cách sử dụng thì hiện tại hoàn thành.", content="Học thì hiện tại hoàn thành: 'I have just finished my homework.' (Tôi vừa làm xong bài tập.) 'She has visited Paris.' (Cô ấy đã đến Paris.)"),
+            Lesson(level_id=b2.level_id, title="Tranh luận cơ bản", description="Học cách đưa ra ý kiến và tranh luận.", content="Học cách tranh luận: 'In my opinion, technology is beneficial.' (Theo ý kiến của tôi, công nghệ có lợi.) 'I disagree because it can be addictive.' (Tôi không đồng ý vì nó có thể gây nghiện.)"),
+            Lesson(level_id=b2.level_id, title="Viết đoạn văn mô tả", description="Học cách viết đoạn văn mô tả chi tiết.", content="Học cách viết đoạn văn: 'My hometown is a small village surrounded by mountains. The air is fresh, and the people are friendly.' (Quê tôi là một ngôi làng nhỏ được bao quanh bởi núi. Không khí trong lành và người dân thân thiện.)"),
+            Lesson(level_id=b2.level_id, title="Thì tương lai", description="Học cách sử dụng các thì tương lai.", content="Học thì tương lai: 'I will visit my grandparents tomorrow.' (Ngày mai tôi sẽ thăm ông bà.) 'She is going to study abroad next year.' (Cô ấy sẽ đi du học vào năm tới.)"),
+            Lesson(level_id=c1.level_id, title="Phân tích bài báo", description="Học cách đọc và phân tích bài báo tiếng Anh.", content="Học cách phân tích bài báo: Đọc một bài báo về biến đổi khí hậu và trả lời các câu hỏi như: 'What is the main argument of the article?' (Luận điểm chính của bài báo là gì?)"),
+            Lesson(level_id=c1.level_id, title="Viết luận nâng cao", description="Học cách viết bài luận chuyên sâu.", content="Học cách viết luận: 'To what extent does social media impact mental health? Provide arguments for both sides.' (Mạng xã hội ảnh hưởng đến sức khỏe tinh thần đến mức nào? Đưa ra lập luận cho cả hai phía.)"),
+            Lesson(level_id=c1.level_id, title="Thảo luận chủ đề phức tạp", description="Học cách thảo luận các chủ đề phức tạp.", content="Học cách thảo luận: 'What are the ethical implications of artificial intelligence?' (Những hệ quả đạo đức của trí tuệ nhân tạo là gì?)")
         ]
-        
-        # Create lessons and associated content
-        for data in lesson_data:
-            # Create the lesson
-            lesson = Lesson(
-                level_id=data["level"].level_id,
-                title=data["title"],
-                description=data["description"],
-                content=data["content"],
-                order=data["order"]
-            )
-            db.session.add(lesson)
-            db.session.commit()
-            
-            # Create associated content record
-            content = Content(
-                title=data["title"],
-                content_type="lesson",
-                html_content=data["content"],
-                related_id=lesson.lesson_id,
-                content_metadata=json.dumps({"level": data["level"].level_name})
-            )
-            db.session.add(content)
-            
+        db.session.add_all(lessons)
         db.session.commit()
-        print("Sample lessons initialized successfully")
 
     if not Vocabulary.query.first():
         vocab = [
@@ -541,84 +248,10 @@ def init_sample_data():
                 db.session.add(sentence)
             db.session.commit()
 
-import sys
-import click
-from flask.cli import with_appcontext
-
-@click.command('create-admin')
-@click.argument('username')
-@click.argument('email')
-@click.argument('password')
-@with_appcontext
-def create_admin_command(username, email, password):
-    """Create a new admin user."""
-    if User.query.filter_by(username=username).first():
-        click.echo(f"Error: Username {username} already exists.")
-        return
-    if User.query.filter_by(email=email).first():
-        click.echo(f"Error: Email {email} already exists.")
-        return
-    
-    user = User.create_admin(username, email, password)
-    db.session.add(user)
-    db.session.commit()
-    click.echo(f"Admin user {username} created successfully.")
-
-app.cli.add_command(create_admin_command)
-
-from commands import register_commands
-
-# Register CLI commands
-register_commands(app)
-
 if __name__ == '__main__':
     with app.app_context():
-        # Check if database needs to be recreated
-        recreate_db = False
-        
-        if len(sys.argv) > 1 and sys.argv[1] == 'recreate-db':
-            recreate_db = True
-            print("Recreating database...")
-        
-        # Try to access the database to check if it has the correct schema
-        try:
-            # Test if we can access the Level model with all columns
-            if not recreate_db:
-                test_level = Level.query.first()
-                if test_level:
-                    # Try to access the new columns to see if they exist
-                    test_desc = test_level.description
-                    test_icon = test_level.icon
-                    test_order = test_level.order
-                    print("Database schema is valid.")
-        except Exception as e:
-            print(f"Database schema issue detected: {e}")
-            recreate_db = True
-            
-        # Recreate database if needed
-        if recreate_db:
-            # Drop all tables and recreate
-            db.drop_all()
-            db.create_all()
-            print("Database has been recreated with the correct schema.")
-            # Initialize with sample data after recreation
-            init_sample_data()
-        elif len(sys.argv) > 1 and sys.argv[1] == 'create-admin':
-            if len(sys.argv) != 5:
-                print("Usage: python app.py create-admin <username> <email> <password>")
-                sys.exit(1)
-            username = sys.argv[2]
-            email = sys.argv[3]
-            password = sys.argv[4]
-            user = User.create_admin(username, email, password)
-            db.session.add(user)
-            db.session.commit()
-            print(f"Admin user {username} created successfully.")
-            sys.exit(0)
-        else:
-            # Only initialize sample data if no command was specified and it's a fresh database
-            if not Level.query.first():
-                init_sample_data()
+        db.create_all()
+        init_sample_data()
 
     # Chạy với eventlet
     socketio.run(app, debug=True, host='127.0.0.1', port=5000)
