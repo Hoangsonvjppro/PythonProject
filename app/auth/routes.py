@@ -5,14 +5,13 @@ from datetime import datetime
 
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm, ChangePasswordForm
-from app.models.user import User
-from app.extensions import db
+from app.models.models import User, db
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Trang đăng nhập"""
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -29,7 +28,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for('main.home')
         
         flash(f'Đăng nhập thành công. Xin chào {user.username}!', 'success')
         return redirect(next_page)
@@ -40,7 +39,7 @@ def login():
 def register():
     """Trang đăng ký"""
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
     
     form = RegisterForm()
     if form.validate_on_submit():
@@ -61,7 +60,7 @@ def logout():
     """Đăng xuất"""
     logout_user()
     flash('Bạn đã đăng xuất thành công.', 'info')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.home'))
 
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required

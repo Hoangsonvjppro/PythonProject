@@ -54,7 +54,7 @@ def chat_page():
     remaining_comments = max(0, 10 - today_comments_count)
     
     return render_template(
-        'chat/chatting.html',
+        'chat/index.html',
         public_rooms=public_rooms,
         user_rooms=user_rooms,
         owned_rooms=owned_rooms,
@@ -126,7 +126,7 @@ def room_detail(room_id):
     is_owner = room.is_owner(current_user.id)
     
     return render_template(
-        'chat/chat_room.html',
+        'chat/room.html',
         room=room,
         messages=messages,
         participants=participants,

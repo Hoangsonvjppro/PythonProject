@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Giới thiệu | SpeakEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-section {
+        padding: 5rem 0;
+    }
+    
+    .about-img {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+    }
+    
+    .team-member {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .team-member img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .feature-box {
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        background-color: white;
+        box-shadow: var(--box-shadow);
+        height: 100%;
+        transition: var(--transition);
+    }
+    
+    .feature-box:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background-color: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center mb-5">
+            <h1 class="display-4 mb-3">Giới thiệu về SpeakEasy</h1>
+            <p class="lead text-muted">Nền tảng học tiếng Anh thú vị, tương tác và hiệu quả</p>
+        </div>
+    </div>
+    
+    <div class="row about-section align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="about-img">
+                <img src="{{ url_for('static', filename='images/about-us.jpg') }}" alt="About SpeakEasy" class="img-fluid">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <h2 class="mb-4">Sứ mệnh của chúng tôi</h2>
+            <p>SpeakEasy ra đời với sứ mệnh giúp người học tiếng Anh vượt qua rào cản ngôn ngữ một cách dễ dàng, vui vẻ và hiệu quả. Chúng tôi tin rằng việc học ngôn ngữ không chỉ dừng lại ở việc ghi nhớ từ vựng và ngữ pháp, mà còn là quá trình phát triển khả năng giao tiếp thực tế.</p>
+            <p>Với phương pháp học tập tương tác, cá nhân hóa và được hỗ trợ bởi trí tuệ nhân tạo, SpeakEasy giúp người học phát triển toàn diện bốn kỹ năng ngôn ngữ: nghe, nói, đọc và viết.</p>
+            <div class="mt-4">
+                <a href="{{ url_for('main.contact') }}" class="btn btn-primary">Liên hệ với chúng tôi</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h2>Đặc điểm nổi bật</h2>
+            <p class="text-muted">Những gì làm nên sự khác biệt của SpeakEasy</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <h4>Luyện phát âm thông minh</h4>
+                <p>Công nghệ nhận dạng giọng nói hiện đại giúp bạn hoàn thiện phát âm tiếng Anh một cách chính xác.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h4>Lộ trình học tập cá nhân hóa</h4>
+                <p>Hệ thống tự động điều chỉnh nội dung học tập phù hợp với trình độ và tiến độ của từng người học.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="feature-box">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4>Cộng đồng học tập</h4>
+                <p>Kết nối với những người học khác thông qua phòng chat và diễn đàn để cùng nhau tiến bộ.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

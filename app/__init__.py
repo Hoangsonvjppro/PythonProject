@@ -17,16 +17,25 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     
     # Thiết lập login manager
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'main.login'
     login_manager.login_message = 'Vui lòng đăng nhập để truy cập trang này.'
     login_manager.login_message_category = 'warning'
     
-    # Đăng ký các blueprint
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models.models import User
+        return User.query.get(int(user_id))
+    
+    # Đăng ký trang chủ trước
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
+    
+    # Đăng ký các blueprint khác
     from app.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
     
     from app.auth import bp as auth_bp
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     
     from app.tutorials import bp as tutorials_bp
     app.register_blueprint(tutorials_bp, url_prefix='/tutorials')
@@ -39,10 +48,6 @@ def create_app(config_class=Config):
     
     from app.translate import bp as translate_bp
     app.register_blueprint(translate_bp)
-    
-    # Đăng ký trang chủ
-    from app.main import bp as main_bp
-    app.register_blueprint(main_bp)
     
     # Đăng ký các lệnh CLI
     from app.commands import register_commands
@@ -62,4 +67,4 @@ def register_error_handlers(app):
     
     @app.errorhandler(500)
     def internal_server_error(error):
-        return render_template('errors/500.html'), 500 
+        return render_template('errors/500.html'), 500

@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <!-- Brand logo -->
-            <a class="navbar-brand" href="{{ url_for('home') }}">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">
                 <i class="fas fa-graduation-cap me-2"></i>SpeakEasy
             </a>
             
@@ -36,7 +36,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('home') %}active{% endif %}" href="{{ url_for('home') }}">
+                        <a class="nav-link {% if request.path == url_for('main.home') %}active{% endif %}" href="{{ url_for('main.home') }}">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
@@ -70,7 +70,7 @@
                     
                     <!-- Community -->
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path.startswith('/chat') %}active{% endif %}" href="{{ url_for('chatting.chat_page') }}">
+                        <a class="nav-link {% if request.path.startswith('/chat') %}active{% endif %}" href="{{ url_for('chat.chat_page') }}">
                             <i class="fas fa-users me-1"></i>Community
                         </a>
                     </li>
@@ -83,7 +83,7 @@
                     <!-- Admin tools -->
                     {% if current_user.role == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
                             <i class="fas fa-user-shield me-1"></i>Admin
                         </a>
                     </li>
@@ -97,27 +97,27 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="{{ url_for('settings') }}">
+                                <a class="dropdown-item" href="{{ url_for('main.settings') }}">
                                     <i class="fas fa-cog me-2"></i>Settings
-                        </a>
-                    </li>
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <a class="dropdown-item" href="{{ url_for('main.logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a>
-                    </li>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     {% else %}
                     <!-- Login/Register buttons -->
                     <li class="nav-item">
-                        <a href="{{ url_for('settings') }}#login" class="btn btn-outline-primary me-2">
+                        <a href="{{ url_for('main.settings') }}#login" class="btn btn-outline-primary me-2">
                             <i class="fas fa-sign-in-alt me-1"></i>Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url_for('settings') }}#register" class="btn btn-primary">
+                        <a href="{{ url_for('main.settings') }}#register" class="btn btn-primary">
                             <i class="fas fa-user-plus me-1"></i>Register
                         </a>
                     </li>
@@ -191,8 +191,8 @@
                 <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
                     <h6 class="text-white mb-3">Community</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('chatting.chat_page') }}">Chat Rooms</a></li>
-                        <li><a href="{{ url_for('chatting.chat_page') }}">Forums</a></li>
+                        <li><a href="{{ url_for('chat.chat_page') }}">Chat Rooms</a></li>
+                        <li><a href="{{ url_for('chat.chat_page') }}">Forums</a></li>
                         <li><a href="#">Success Stories</a></li>
                     </ul>
                 </div>
