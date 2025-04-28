@@ -5,7 +5,8 @@ from datetime import datetime
 
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm, ChangePasswordForm
-from app.models.models import User, db
+from app.models.user import User
+from app.extensions import db
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():

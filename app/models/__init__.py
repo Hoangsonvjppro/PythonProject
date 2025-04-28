@@ -1,2 +1,3 @@
-# Import models để các module khác có thể import từ app.models
-from app.models.models import * 
+from app.models.user import User
+from app.models.learning import Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, PronunciationExercise, PronunciationAttempt, SpeechTest
+from app.models.chat import ChatRoom, RoomParticipant, Message, StatusPost, Comment

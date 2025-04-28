@@ -1,7 +1,8 @@
 from flask import render_template, Blueprint, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.main import bp
-from app.models.models import User, db
+from app.extensions import db  # Sửa dòng này
+from app.models.user import User  # Sửa dòng này
 from werkzeug.utils import secure_filename
 import os
 from flask import current_app

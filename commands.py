@@ -1,7 +1,10 @@
 import click
 from flask.cli import with_appcontext
 from flask import current_app
-from models.models import User, db
+from app.models.user import User
+from app.models.learning import Level, Lesson, UserProgress, Vocabulary, Test, SampleSentence, SpeechTest
+from app.extensions import db
+
 
 @click.command('create-admin')
 @click.argument('username')
@@ -10,7 +13,7 @@ from models.models import User, db
 @with_appcontext
 def create_admin_command(username, email, password):
     """Create a new admin user.
-    
+
     Example:
         flask create-admin admin admin@example.com password123
     """
@@ -21,7 +24,7 @@ def create_admin_command(username, email, password):
         if User.query.filter_by(email=email).first():
             click.echo(f"Error: Email {email} already exists.")
             return
-        
+
         user = User.create_admin(username, email, password)
         db.session.add(user)
         db.session.commit()
@@ -29,6 +32,7 @@ def create_admin_command(username, email, password):
     except Exception as e:
         db.session.rollback()
         click.echo(f"Error creating admin user: {str(e)}")
+
 
 @click.command('list-users')
 @with_appcontext
@@ -39,18 +43,19 @@ def list_users_command():
         if not users:
             click.echo("No users found.")
             return
-            
+
         click.echo("\nUser List:")
         click.echo("=" * 80)
         click.echo(f"{'ID':<5} {'Username':<20} {'Email':<30} {'Role':<10} {'Created'}")
         click.echo("-" * 80)
-        
+
         for user in users:
             created = "N/A"  # User model hiện không có trường created_at
             click.echo(f"{user.id:<5} {user.username:<20} {user.email:<30} {user.role:<10} {created}")
-            
+
     except Exception as e:
         click.echo(f"Error listing users: {str(e)}")
+
 
 @click.command('init-db')
 @with_appcontext
@@ -61,6 +66,7 @@ def init_db_command():
         click.echo("Database tables created successfully.")
     except Exception as e:
         click.echo(f"Error creating database tables: {str(e)}")
+
 
 def register_commands(app):
     """Register CLI commands with the Flask application."""

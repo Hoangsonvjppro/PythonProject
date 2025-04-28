@@ -6,29 +6,41 @@
   <component name="ChangeListManager">
     <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/admin/routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/auth/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/auth/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/chat/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/chat/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/learning.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/learning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/models.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/add_content.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/add_content.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/admin.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/content.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/content.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/edit_content.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/edit_content.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/stats.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/stats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/users.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/users.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chat/edit_room.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chat/edit_room.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chat/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chat/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chat/room.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chat/room.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/errors/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/errors/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/errors/500.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/errors/500.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/main/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/main/about.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/main/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/main/contact.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/main/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/main/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/main/settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/main/settings.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/speech/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/speech/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/translate/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/translate/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/lesson.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/lesson.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/lesson_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/lesson_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/level_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/level_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/tutorials.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/tutorials.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/instance/learning_app.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/chat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/speech.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/translate.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/tutorials.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/calendar-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/female-avt.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/grammar-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/learning-illustration.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/listening-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/male.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/notification-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/pronunciation-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/reading-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/vocabulary-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/img/writing-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/uploads/0e0bce90-30a3-4077-a11b-fc09e6392fc63.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/uploads/download.jfif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/uploads/female-avt.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/uploads/wall.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/uploads/zombie.svg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +53,17 @@
         <option value="Python Script" />
         <option value="HTML File" />
       </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
     </option>
   </component>
   <component name="Git.Settings">
@@ -72,32 +95,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Flask server.Flask (app.py).executor": "Run",
-    "Flask server.FlaskProject.executor": "Run",
-    "Flask server.PythonProject.executor": "Run",
-    "JavaScript Debug.tutorials.html.executor": "Run",
-    "Python.app.executor": "Run",
-    "Python.chat.executor": "Run",
-    "Python.tutorials.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/Hoangson/PycharmProjects/PythonProject/templates",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Flask server.Flask (app.py).executor&quot;: &quot;Run&quot;,
+    &quot;Flask server.FlaskProject.executor&quot;: &quot;Run&quot;,
+    &quot;Flask server.PythonProject.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.tutorials.html.executor&quot;: &quot;Run&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.chat.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tutorials.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/Hoangson/PycharmProjects/PythonProject/templates&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/templates" />
@@ -201,7 +224,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -257,7 +280,7 @@
       <workItem from="1745745426418" duration="7355000" />
       <workItem from="1745765435726" duration="2559000" />
       <workItem from="1745769093031" duration="3273000" />
-      <workItem from="1745772688020" duration="1319000" />
+      <workItem from="1745772688020" duration="4526000" />
     </task>
     <servers />
   </component>
@@ -265,6 +288,21 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="master" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
