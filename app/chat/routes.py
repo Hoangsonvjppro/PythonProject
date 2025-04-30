@@ -30,7 +30,7 @@ def index():
     return chat_page()
 
 
-@bp.route('/chat')
+@bp.route('/')
 @login_required
 def chat_page():
     # Get public rooms and rooms the user is participating in
@@ -74,7 +74,7 @@ def chat_page():
     )
 
 
-@bp.route('/chat/create-room', methods=['POST'])
+@bp.route('/create-room', methods=['POST'])
 @login_required
 def create_room():
     name = request.form.get('room_name')
@@ -109,7 +109,7 @@ def create_room():
     return redirect(url_for('chat.room_detail', room_id=room_id))
 
 
-@bp.route('/chat/room/<room_id>')
+@bp.route('/room/<room_id>')
 @login_required
 def room_detail(room_id):
     room = ChatRoom.query.get_or_404(room_id)
@@ -146,7 +146,7 @@ def room_detail(room_id):
     )
 
 
-@bp.route('/chat/join-room/<room_id>')
+@bp.route('/join-room/<room_id>')
 @login_required
 def join_room_route(room_id):
     room = ChatRoom.query.get_or_404(room_id)
@@ -169,7 +169,7 @@ def join_room_route(room_id):
     return redirect(url_for('chat.room_detail', room_id=room_id))
 
 
-@bp.route('/chat/new-post', methods=['POST'])
+@bp.route('/new-post', methods=['POST'])
 @login_required
 def create_post():
     content = request.form.get('content')
@@ -197,7 +197,7 @@ def create_post():
     return redirect(url_for('chat.chat_page'))
 
 
-@bp.route('/chat/post/<post_id>/comment', methods=['POST'])
+@bp.route('/post/<post_id>/comment', methods=['POST'])
 @login_required
 def add_comment(post_id):
     content = request.form.get('content')
@@ -232,7 +232,7 @@ def add_comment(post_id):
     return redirect(url_for('chat.chat_page'))
 
 
-@bp.route('/chat/edit-room/<room_id>', methods=['GET', 'POST'])
+@bp.route('/edit-room/<room_id>', methods=['GET', 'POST'])
 @login_required
 @room_owner_required
 def edit_room(room_id):
@@ -258,7 +258,7 @@ def edit_room(room_id):
     return render_template('chat/edit_room.html', room=room)
 
 
-@bp.route('/chat/delete-room/<room_id>', methods=['POST'])
+@bp.route('/delete-room/<room_id>', methods=['POST'])
 @login_required
 @room_owner_required
 def delete_room(room_id):
@@ -270,7 +270,7 @@ def delete_room(room_id):
     return redirect(url_for('chat.chat_page'))
 
 
-@bp.route('/chat/invite-user/<room_id>', methods=['POST'])
+@bp.route('/invite-user/<room_id>', methods=['POST'])
 @login_required
 @room_owner_required
 def invite_user(room_id):
@@ -303,7 +303,7 @@ def invite_user(room_id):
     return redirect(url_for('chat.room_detail', room_id=room_id))
 
 
-@bp.route('/chat/remove-user/<room_id>/<user_id>', methods=['POST'])
+@bp.route('/remove-user/<room_id>/<user_id>', methods=['POST'])
 @login_required
 @room_owner_required
 def remove_user(room_id, user_id):
@@ -326,7 +326,7 @@ def remove_user(room_id, user_id):
     return redirect(url_for('chat.room_detail', room_id=room_id))
 
 
-@bp.route('/chat/leave-room/<room_id>', methods=['POST'])
+@bp.route('/leave-room/<room_id>', methods=['POST'])
 @login_required
 def leave_room_route(room_id):
     room = ChatRoom.query.get_or_404(room_id)

@@ -57,18 +57,6 @@
                         {% endfor %}
                     </div>
                     
-                    <div class="mb-3">
-                        <div class="form-check">
-                            {{ form.agree_terms(class="form-check-input" + (" is-invalid" if form.agree_terms.errors else "")) }}
-                            <label class="form-check-label" for="agree_terms">
-                                Tôi đồng ý với <a href="#" class="link-primary">Điều khoản dịch vụ</a> và <a href="#" class="link-primary">Chính sách bảo mật</a>
-                            </label>
-                            {% for error in form.agree_terms.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
                     <div class="d-grid gap-2 mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-user-plus me-2"></i>Đăng ký

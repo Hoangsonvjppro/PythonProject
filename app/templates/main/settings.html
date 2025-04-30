@@ -1,4 +1,4 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Settings{% endblock %}
 
@@ -39,7 +39,8 @@
                         <div class="tab-pane fade show active" id="login" role="tabpanel">
                             <div class="form-container">
                                 <h3 class="text-center mb-4">Login</h3>
-                                <form method="POST" action="{{ url_for('login') }}" class="needs-validation" novalidate>
+                                <form method="POST" action="{{ url_for('main.login') }}" class="needs-validation" novalidate>
+                                    {{ form.csrf_token }}
                                     <div class="form-floating mb-3">
                                         <input type="text" name="username" class="form-control" id="username" required>
                                         <label for="username">Username</label>
@@ -62,8 +63,9 @@
                         <div class="tab-pane fade" id="register" role="tabpanel">
                             <div class="form-container">
                                 <h3 class="text-center mb-4">Register</h3>
-                                <form method="POST" action="{{ url_for('register') }}" class="needs-validation"
+                                <form method="POST" action="{{ url_for('main.register') }}" class="needs-validation"
                                     novalidate>
+                                    {{ form.csrf_token }}
                                     <div class="form-floating mb-3">
                                         <input type="text" name="username" class="form-control" id="reg-username"
                                             required>
@@ -93,8 +95,9 @@
                         <div class="tab-pane fade show active" id="profile" role="tabpanel">
                             <div class="form-container">
                                 <h3 class="text-center mb-4">Update Profile</h3>
-                                <form method="POST" action="{{ url_for('update_profile') }}" class="needs-validation"
+                                <form method="POST" action="{{ url_for('main.update_profile') }}" class="needs-validation"
                                     novalidate enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <div class="form-floating mb-3">
                                         <input type="text" name="username" class="form-control" id="update-username"
                                             value="{{ current_user.username }}">

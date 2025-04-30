@@ -1,4 +1,4 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Community Hub{% endblock %}
 
@@ -32,7 +32,7 @@
                                     <h5 class="card-title">
                                         <i class="fas fa-edit me-2"></i>Create a new post
                                     </h5>
-                                    <form action="{{ url_for('chatting.create_post') }}" method="POST">
+                                    <form action="{{ url_for('chat.create_post') }}" method="POST">
                                         <div class="mb-3">
                                             <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?"></textarea>
                                         </div>
@@ -44,7 +44,7 @@
                                         </div>
                                     </form>
                                 </div>
-                    </div>
+                            </div>
                             {% else %}
                             <div class="alert alert-info mb-4">
                                 <i class="fas fa-info-circle me-2"></i>You've already created a post today. You can post again tomorrow.
@@ -102,12 +102,12 @@
                                         
                                         <!-- Add comment form -->
                                         {% if remaining_comments > 0 %}
-                                        <form action="{{ url_for('chatting.add_comment', post_id=post.post_id) }}" method="POST">
+                                        <form action="{{ url_for('chat.add_comment', post_id=post.post_id) }}" method="POST">
                                             <div class="input-group">
                                                 <input type="text" class="form-control" name="content" placeholder="Add a comment...">
                                                 <button class="btn btn-outline-primary" type="submit">
                                                     <i class="fas fa-paper-plane"></i>
-                                </button>
+                                                </button>
                                             </div>
                                             <small class="text-muted">You have {{ remaining_comments }} comments remaining today</small>
                                         </form>
@@ -141,7 +141,7 @@
                                         <div class="card-body p-0">
                                             <div class="list-group list-group-flush">
                                                 {% for room in public_rooms %}
-                                                <a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                <a href="{{ url_for('chat.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <h6 class="mb-1">{{ room.name }}</h6>
                                                         <small class="text-muted">{{ room.description or 'No description available' }}</small>
@@ -170,7 +170,7 @@
                                         <div class="card-body p-0">
                                             <div class="list-group list-group-flush">
                                                 {% for room in user_rooms %}
-                                                <a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                <a href="{{ url_for('chat.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <h6 class="mb-1">
                                                             {{ room.name }}
@@ -199,7 +199,7 @@
                                                 {% endfor %}
                                             </div>
                                         </div>
-                        </div>
+                                    </div>
 
                                     <!-- Rooms you own -->
                                     <div class="card mt-4">
@@ -211,7 +211,7 @@
                                         <div class="card-body p-0">
                                             <div class="list-group list-group-flush">
                                                 {% for room in owned_rooms %}
-                                                <a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                <a href="{{ url_for('chat.room_detail', room_id=room.room_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                                     <div>
                                                         <h6 class="mb-1">
                                                             {{ room.name }}
@@ -228,7 +228,7 @@
                                                             {{ room.participants|length }}
                                                             <i class="fas fa-user ms-1"></i>
                                                         </span>
-                                                        <a href="{{ url_for('chatting.edit_room', room_id=room.room_id) }}" class="btn btn-sm btn-outline-secondary">
+                                                        <a href="{{ url_for('chat.edit_room', room_id=room.room_id) }}" class="btn btn-sm btn-outline-secondary">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
                                                     </div>
@@ -252,7 +252,7 @@
                                             </h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="{{ url_for('chatting.create_room') }}" method="POST">
+                                            <form action="{{ url_for('chat.create_room') }}" method="POST">
                                                 <div class="mb-3">
                                                     <label for="room_name" class="form-label">Room Name</label>
                                                     <input type="text" class="form-control" id="room_name" name="room_name" required>
@@ -268,7 +268,7 @@
                                                 </div>
                                                 <button type="submit" class="btn btn-primary w-100">
                                                     <i class="fas fa-plus-circle me-2"></i>Create Room
-                                </button>
+                                                </button>
                                             </form>
                                         </div>
                                     </div>

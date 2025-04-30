@@ -6,7 +6,7 @@ import hashlib
 import functools
 import json
 from app.translate import bp
-from app.extensions import translate_cache
+from app.extensions import translate_cache, csrf
 from flask import current_app
 
 # Initialize translator
@@ -57,22 +57,48 @@ def batch_translate(text_list, source_lang, target_lang):
         return translated_combined.split(delimiter)
     return None
 
-@bp.route('/translate', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET'])
+def index():
+    """Render the translation homepage"""
+    return render_template("translate/index.html")
+
+@bp.route('/translate', methods=['GET'])
 def translate_text():
-    if request.method == 'GET':
-        history = session.get('translate_history', [])
-        return render_template("translate/translate_text.html", history=history, languages=LANGUAGES)
+    """Handle translation page rendering"""
+    history = session.get('translate_history', [])
+    return render_template("translate/translate_text.html", history=history, languages=LANGUAGES)
+
+@bp.route('/translate', methods=['POST'])
+@csrf.exempt
+def translate_text_api():
+    """Handle translation API requests"""
+    # Debug thông tin request
+    print(f"Request headers: {request.headers}")
+    print(f"Request content type: {request.content_type}")
+    print(f"Request is JSON: {request.is_json}")
+    try:
+        print(f"Request raw data: {request.get_data()}")
+    except Exception as e:
+        print(f"Error reading request data: {e}")
 
     if not request.is_json:
-        return jsonify({'success': False, 'error': 'Request must be JSON'}), 400
+        error_response = jsonify({'success': False, 'error': 'Request must be JSON'})
+        print(f"Returning error: {error_response.get_data(as_text=True)}")
+        return error_response, 400
 
     data = request.get_json(silent=True)
+    print(f"Parsed JSON data: {data}")
+    
     if not data or 'text' not in data or 'target_lang' not in data or 'source_lang' not in data:
-        return jsonify({'success': False, 'error': 'Invalid JSON format'}), 400
+        error_response = jsonify({'success': False, 'error': 'Invalid JSON format'})
+        print(f"Returning error: {error_response.get_data(as_text=True)}")
+        return error_response, 400
 
     text = data['text'].strip()
     target_lang = data['target_lang'].strip()
     source_lang = data['source_lang'].strip()
+    
+    print(f"Processing translation: text='{text[:50]}{'...' if len(text) > 50 else ''}', source={source_lang}, target={target_lang}")
 
     if not text:
         return jsonify({'success': False, 'error': 'No text to translate'}), 400
@@ -88,9 +114,12 @@ def translate_text():
     try:
         # Use cached translation
         translated_text = translate_with_cache(text, source_lang, target_lang)
+        print(f"Translation result: '{translated_text[:50]}{'...' if translated_text and len(translated_text) > 50 else ''}'")
 
         if not translated_text:
-            return jsonify({'success': False, 'error': 'Translation failed'}), 500
+            error_response = jsonify({'success': False, 'error': 'Translation failed'})
+            print(f"Translation failed, returning: {error_response.get_data(as_text=True)}")
+            return error_response, 500
 
         # Add to history
         history_entry = {
@@ -107,17 +136,24 @@ def translate_text():
         history = history[:10]  # Keep only the last 10 entries
         session['translate_history'] = history
 
-        return jsonify({
+        success_response = jsonify({
             'success': True,
             'translated_text': translated_text,
             'source_lang': source_lang,
             'detected_lang': source_lang
         })
+        print(f"Returning success response: {success_response.get_data(as_text=True)[:100]}...")
+        return success_response
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        print(f"Translation API error: {str(e)}")
+        error_response = jsonify({'success': False, 'error': str(e)})
+        print(f"Returning error: {error_response.get_data(as_text=True)}")
+        return error_response, 500
 
 @bp.route('/translate/file', methods=['POST'])
+@csrf.exempt
 def translate_file():
+    """Handle translation requests for files"""
     if 'file' not in request.files:
         return jsonify({'success': False, 'error': 'No file provided'}), 400
 
@@ -173,7 +209,10 @@ def translate_file():
         return jsonify({
             'success': True,
             'translated_text': translated_text,
-            'source_text': content
+            'source_text': content,
+            'source_lang': source_lang,
+            'target_lang': target_lang
         })
     except Exception as e:
+        print(f"File translation error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500 

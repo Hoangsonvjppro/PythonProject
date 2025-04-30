@@ -1,6 +1,10 @@
+import logging
+import os
+from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template
+from flask_cors import CORS
 from app.config import Config
-from app.extensions import db, login_manager, migrate, socketio, csrf, socketio_available
+from app.extensions import db, login_manager, migrate, socketio, csrf, socketio_available, ensure_uploads_dir
 
 
 def create_app(config_class=Config):
@@ -18,18 +22,22 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     migrate.init_app(app, db)
     
-    # Khởi tạo socketio với chế độ cors_allowed_origins nếu có sẵn
+    # Thiết lập CORS
+    CORS(app, resources={r"/translate/*": {"origins": "*"}})
+    
+    # Thiết lập SocketIO
     if socketio_available:
-        try:
-            socketio.init_app(app, cors_allowed_origins="*")
-            print("SocketIO initialized successfully.")
-        except Exception as e:
-            print(f"Failed to initialize SocketIO: {e}")
+        socketio.init_app(app, cors_allowed_origins="*")
+        print("SocketIO initialized successfully.")
+    
+    # Đảm bảo thư mục uploads tồn tại
+    os.makedirs(os.path.join(app.static_folder, 'uploads'), exist_ok=True)
+    ensure_uploads_dir()
     
     csrf.init_app(app)
 
     # Thiết lập login manager
-    login_manager.login_view = 'main.login'
+    login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Vui lòng đăng nhập để truy cập trang này.'
     login_manager.login_message_category = 'warning'
 
@@ -56,7 +64,7 @@ def create_app(config_class=Config):
     app.register_blueprint(speech_bp)
 
     from app.chat import bp as chat_bp
-    app.register_blueprint(chat_bp)
+    app.register_blueprint(chat_bp, url_prefix='/chat')
 
     from app.translate import bp as translate_bp
     app.register_blueprint(translate_bp)
@@ -77,6 +85,18 @@ def create_app(config_class=Config):
     # Đăng ký các lệnh CLI
     from app.commands import register_commands
     register_commands(app)
+
+    # Thiết lập logging
+    if not app.debug and not app.testing:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler('logs/speakeasy.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('SpeakEasy startup')
 
     # Xử lý lỗi
     register_error_handlers(app)

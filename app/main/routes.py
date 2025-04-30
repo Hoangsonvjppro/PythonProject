@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import os
 from flask import current_app
 from app.main.forms import ContactForm
+from flask_wtf import FlaskForm
 
 @bp.route('/')
 def home():
@@ -14,7 +15,8 @@ def home():
 
 @bp.route('/settings')
 def settings():
-    return render_template('main/settings.html', current_user=current_user)
+    form = FlaskForm()  # Empty form just for CSRF protection
+    return render_template('main/settings.html', form=form, current_user=current_user)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -61,13 +63,13 @@ def update_profile():
     if request.method == 'POST':
         new_username = request.form['username']
         new_password = request.form['password']
-        avatar = request.files['avatar']
+        avatar = request.files.get('avatar')
 
         if new_username:
             current_user.username = new_username
         if new_password:
             current_user.set_password(new_password)
-        if avatar:
+        if avatar and avatar.filename:
             filename = secure_filename(avatar.filename)
             avatar.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             current_user.avatar = filename

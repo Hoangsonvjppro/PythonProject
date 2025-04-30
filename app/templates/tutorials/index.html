@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Lộ trình học tập{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center">Lộ trình học tiếng Anh</h1>
+            <p class="text-center">Chọn cấp độ phù hợp để bắt đầu hành trình của bạn</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for level in levels %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h2 class="card-title">{{ level.name }}</h2>
+                    <p class="card-text">{{ level.description }}</p>
+                    <a href="{{ url_for('tutorials.level_detail', level_id=level.id) }}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
