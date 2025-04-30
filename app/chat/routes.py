@@ -24,6 +24,12 @@ def room_owner_required(f):
 
 
 # Routes for chat community
+@bp.route('/')
+@login_required
+def index():
+    return chat_page()
+
+
 @bp.route('/chat')
 @login_required
 def chat_page():

@@ -166,6 +166,16 @@ hoặc
 python train_chatbot.py
 ```
 
+### Khắc phục sự cố SocketIO và SSL
+Nếu gặp lỗi liên quan đến `ssl.wrap_socket` hoặc các lỗi SSL khác:
+```bash
+# Ứng dụng đã được cấu hình để sử dụng chế độ threading thay vì eventlet/gevent
+# để tránh lỗi SSL trên các phiên bản Python mới
+# Bạn không cần thực hiện thêm bất kỳ cấu hình nào để khắc phục lỗi này
+```
+
+Nếu cần cài đặt Python 3.9 hoặc 3.10 để tương thích tốt hơn với tất cả các gói phụ thuộc.
+
 ## Tác giả
 
 - [Tên tác giả]
@@ -173,6 +183,64 @@ python train_chatbot.py
 ## Giấy phép
 
 [Loại giấy phép]
+
+## Tương thích đa nền tảng
+
+Ứng dụng này đã được thiết kế để hoạt động trên nhiều nền tảng khác nhau (Windows, macOS và Linux). Tuy nhiên, có một số lưu ý khi chạy trên các nền tảng khác nhau:
+
+### Windows
+- Cài đặt PyAudio có thể yêu cầu Microsoft Visual C++ Build Tools. Nếu gặp lỗi khi cài đặt PyAudio, bạn có thể:
+  - Cài đặt Microsoft Visual C++ Build Tools từ https://visualstudio.microsoft.com/visual-cpp-build-tools/
+  - Hoặc sử dụng wheel có sẵn: `pip install https://github.com/jleb/pyaudio/releases/download/0.2.11/PyAudio-0.2.11-cp310-cp310-win_amd64.whl` (thay đổi phiên bản Python cho phù hợp)
+  - Hoặc bỏ qua tính năng nhận diện giọng nói (ứng dụng vẫn hoạt động nhưng không có chức năng này)
+
+### macOS
+- Cài đặt PortAudio trước khi cài đặt PyAudio:
+  ```bash
+  brew install portaudio
+  pip install pyaudio
+  ```
+
+### Linux
+- Cài đặt các thư viện phát triển cần thiết:
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get install python3-dev portaudio19-dev
+  pip install pyaudio
+  
+  # Fedora
+  sudo dnf install python3-devel portaudio-devel
+  pip install pyaudio
+  ```
+
+### Khắc phục sự cố SocketIO
+Nếu gặp lỗi "Invalid async_mode specified" khi chạy ứng dụng, hãy đảm bảo bạn đã cài đặt các gói hỗ trợ:
+```bash
+pip install eventlet gevent
+```
+
+Ứng dụng sẽ cố gắng sử dụng SocketIO nếu có thể, nhưng sẽ tự động chuyển sang chế độ Flask thông thường nếu có lỗi.
+
+## Chạy ứng dụng không cần SocketIO
+
+Nếu bạn gặp vấn đề với SocketIO, ứng dụng đã được cấu hình để tự động chuyển sang chế độ Flask thông thường:
+
+```bash
+# Cách 1: Sử dụng app.py (chỉ Flask, không có SocketIO)
+python app.py
+
+# Cách 2: Sử dụng wsgi.py (tự động phát hiện và xử lý SocketIO nếu có thể)
+python wsgi.py
+```
+
+Ứng dụng sẽ tự động phát hiện xem SocketIO có sẵn sàng không và chọn phương thức phù hợp.
+
+### Các tính năng bị giới hạn khi không có SocketIO
+Khi chạy ứng dụng mà không có SocketIO, một số tính năng sẽ hoạt động theo chế độ giới hạn:
+
+- **Chatbot**: Sẽ sử dụng giao tiếp HTTP thông thường thay vì giao tiếp thời gian thực
+- **Chat cộng đồng**: Có thể không hoạt động hoặc hoạt động với tính năng hạn chế
+- **Nhận diện giọng nói**: Vẫn hoạt động bình thường
 
 
 

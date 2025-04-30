@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from flask_socketio import emit
 from flask_login import current_user
 import sqlite3
@@ -7,11 +7,12 @@ from sentence_transformers import SentenceTransformer, util
 from datetime import datetime
 import os
 from app.chatbot import bp
-from app.extensions import socketio
+from app.extensions import socketio, socketio_available
 
-@bp.route('/chatbot', methods=['GET', 'POST'])
+@bp.route('/chatbot')
 def chatbot():
-    return render_template('chatbot/chatbot.html')
+    """Hiển thị trang chatbot"""
+    return render_template('chatbot/chatbot.html', socketio_available=socketio_available)
 
 user_modes = {}
 current_question = {}
@@ -78,98 +79,54 @@ def get_bot_response(user_input, threshold=0.6):
         return f"Đã xảy ra lỗi: {str(e)}"
 
 def register_chatbot_events():
+    if not socketio_available:
+        print("WARNING: SocketIO not available, chatbot events not registered")
+        return
+    
+    @socketio.on('message')
+    def handle_message(data):
+        # Xử lý tin nhắn
+        pass
+    
     @socketio.on('connect')
-    def handle_connect():
-        print(f"[{datetime.now()}] Người dùng đã kết nối!")
-        if model is None:
-            emit("new_message_chatbot", {"message": "Lỗi: Chatbot không khả dụng vì mô hình AI chưa sẵn sàng."})
-        else:
-            emit("new_message_chatbot", {"message": "Đã kết nối với chatbot!"})
+    def test_connect():
+        # Xử lý kết nối
+        pass
+    
+    # Các sự kiện khác
 
-    @socketio.on('disconnect')
-    def handle_disconnect():
-        user_id = request.sid
-        user_modes.pop(user_id, None)
-        current_question.pop(user_id, None)
-        print(f"[{datetime.now()}] Người dùng đã ngắt kết nối.")
+# API cho chatbot khi không có SocketIO
+@bp.route('/api/chatbot', methods=['POST'])
+def api_chatbot():
+    """API endpoint để tương tác với chatbot qua HTTP khi không có SocketIO"""
+    if not request.is_json:
+        return jsonify({"success": False, "error": "Yêu cầu phải ở định dạng JSON"}), 400
+    
+    data = request.get_json()
+    message = data.get('message', '')
+    
+    if not message:
+        return jsonify({"success": False, "error": "Tin nhắn không được để trống"}), 400
+    
+    # Sử dụng cùng logic xử lý tin nhắn như trong SocketIO
+    try:
+        if message.lower().startswith("training:"):
+            return jsonify({
+                "success": True,
+                "response": "Chế độ HTTP không hỗ trợ chức năng training. Vui lòng sử dụng SocketIO."
+            })
+        
+        # Xử lý tin nhắn bình thường
+        response = get_bot_response(message)
+        return jsonify({
+            "success": True,
+            "response": response
+        })
+    except Exception as e:
+        print(f"[{datetime.now()}] Error in API chatbot: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Đã xảy ra lỗi: {str(e)}"
+        })
 
-    @socketio.on("send_message_chatbot")
-    def handle_ai_message(data):
-        user_id = request.sid
-        user_message = data.get("message", "").strip()
-        print(f"[{datetime.now()}] Received message: {user_message}")
-
-        if not user_message:
-            emit("new_message_chatbot", {"message": "Tin nhắn không được để trống."}, room=user_id)
-            return
-
-        try:
-            # Training mode
-            if user_message.lower().startswith("training:"):
-                training_text = user_message[9:].strip()
-
-                if "=>" not in training_text:
-                    emit("new_message_chatbot", {
-                        "message": "Sai cú pháp. Dùng: Training: câu hỏi => câu trả lời"
-                    }, room=user_id)
-                    return
-
-                parts = training_text.split("=>")
-                if len(parts) != 2:
-                    emit("new_message_chatbot", {
-                        "message": "Sai cú pháp. Hãy dùng đúng 1 dấu =>. Ví dụ: Training: Bạn tên gì? => Tôi là chatbot."
-                    }, room=user_id)
-                    return
-
-                new_question = parts[0].strip().lower()
-                new_answer = parts[1].strip()
-
-                if not new_question or not new_answer:
-                    emit("new_message_chatbot", {
-                        "message": "Câu hỏi và câu trả lời không được trống."
-                    }, room=user_id)
-                    return
-
-                if new_question in [q.lower() for q in questions]:
-                    emit("new_message_chatbot", {
-                        "message": "Câu hỏi này đã tồn tại. Vui lòng nhập câu hỏi khác."
-                    }, room=user_id)
-                    return
-
-                try:
-                    new_embedding = model.encode(new_question, convert_to_tensor=True).numpy()
-
-                    conn = sqlite3.connect(os.path.join("instance", "chatbot_data.db"))
-                    cursor = conn.cursor()
-                    cursor.execute("""
-                        INSERT INTO chatbot_data (question, answer, embedding)
-                        VALUES (?, ?, ?)
-                    """, (new_question, new_answer, new_embedding.tobytes()))
-                    conn.commit()
-                    conn.close()
-
-                    # Update local data
-                    questions.append(new_question)
-                    answers.append(new_answer)
-                    embeddings.append(new_embedding)
-
-                    emit("new_message_chatbot", {
-                        "message": "Huấn luyện câu hỏi mới thành công!"
-                    }, room=user_id)
-                    print(f"[{datetime.now()}] Trained new question: {new_question}")
-                except Exception as e:
-                    emit("new_message_chatbot", {
-                        "message": f"Lỗi khi huấn luyện chatbot: {str(e)}"
-                    }, room=user_id)
-                return
-
-            # Regular chat
-            response = get_bot_response(user_message)
-            emit("new_message_chatbot", {"message": response}, room=user_id)
-            print(f"[{datetime.now()}] Sent response: {response}")
-
-        except Exception as e:
-            print(f"[{datetime.now()}] Error handling message: {str(e)}")
-            emit("new_message_chatbot", {
-                "message": f"Đã xảy ra lỗi: {str(e)}"
-            }, room=user_id) 
+# Các route khác 

@@ -15,7 +15,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Cấu hình tải lên
-    UPLOAD_FOLDER = os.path.join(os.path.dirname(basedir), 'static', 'uploads')
+    UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
+    STATIC_FOLDER = os.path.join('app', 'static')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
     
     # Cấu hình phiên
@@ -38,6 +39,15 @@ class Config:
     # Các cấu hình khác
     ITEMS_PER_PAGE = 10
 
+    @staticmethod
+    def init_app(app):
+        """Khởi tạo các thư mục cần thiết"""
+        uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        
+        # Các thư mục khác nếu cần
+        correct_audios_dir = os.path.join(app.root_path, 'static', 'correct_audios')
+        os.makedirs(correct_audios_dir, exist_ok=True)
 
 class DevelopmentConfig(Config):
     """Cấu hình cho môi trường phát triển"""

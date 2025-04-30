@@ -1,11 +1,18 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Lỗi máy chủ{% endblock %}
+{% block title %}500 - Lỗi máy chủ{% endblock %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <h1 class="display-1">500</h1>
-    <p class="lead">Đã xảy ra lỗi từ phía máy chủ.</p>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Về trang chủ</a>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center py-5">
+            <h1 class="display-1 text-danger">500</h1>
+            <h2 class="display-5 mb-4">Lỗi máy chủ</h2>
+            <p class="lead mb-4">Đã có lỗi xảy ra trên máy chủ. Vui lòng thử lại sau.</p>
+            <a href="{{ url_for('main.home') }}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>Quay về trang chủ
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

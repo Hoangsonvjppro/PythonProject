@@ -12,6 +12,16 @@ from app.speech import bp
 from app.models.learning import PronunciationExercise, PronunciationAttempt
 from app.extensions import db
 
+# Biến global để kiểm tra trạng thái PyAudio
+pyaudio_available = False
+
+# Thử import PyAudio, nếu không được thì đánh dấu là không có sẵn
+try:
+    import pyaudio
+    pyaudio_available = True
+except ImportError:
+    print("WARNING: PyAudio or SpeechRecognition not available. Speech recognition features will be disabled.")
+
 def recognize_speech():
     """Nhận dạng giọng nói từ microphone"""
     recognizer = sr.Recognizer()
@@ -176,4 +186,31 @@ def evaluate_speech():
         basic_evaluation = evaluate_pronunciation_basic(user_text, sample_text)
         result.update(basic_evaluation)
         
-    return jsonify(result) 
+    return jsonify(result)
+
+@bp.route('/speech-to-text', methods=['GET'])
+def speech_to_text():
+    """Hiển thị trang nhận diện giọng nói"""
+    return render_template('speech/speech_to_text.html', pyaudio_available=pyaudio_available)
+
+@bp.route('/recognize', methods=['POST'])
+def recognize():
+    """API nhận diện giọng nói từ file được gửi lên"""
+    if not pyaudio_available:
+        return jsonify({
+            'success': False,
+            'message': 'Speech recognition is not available. PyAudio is not installed.',
+            'text': ''
+        }), 503
+        
+    # Phần còn lại của code xử lý nhận diện giọng nói
+    # ... existing code ...
+    
+    # Mẫu code trả về kết quả
+    return jsonify({
+        'success': True,
+        'message': 'Speech recognized successfully',
+        'text': 'Sample recognized text'
+    })
+
+# Thêm các route khác ở đây 

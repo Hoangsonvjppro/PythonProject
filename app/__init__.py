@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from app.config import Config
-from app.extensions import db, login_manager, migrate, socketio, csrf
+from app.extensions import db, login_manager, migrate, socketio, csrf, socketio_available
 
 
 def create_app(config_class=Config):
@@ -9,12 +9,23 @@ def create_app(config_class=Config):
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # Khởi tạo cấu hình (tạo thư mục cần thiết)
+    config_class.init_app(app)
 
     # Khởi tạo các extension
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app, cors_allowed_origins="*", async_mode='threading')
+    
+    # Khởi tạo socketio với chế độ cors_allowed_origins nếu có sẵn
+    if socketio_available:
+        try:
+            socketio.init_app(app, cors_allowed_origins="*")
+            print("SocketIO initialized successfully.")
+        except Exception as e:
+            print(f"Failed to initialize SocketIO: {e}")
+    
     csrf.init_app(app)
 
     # Thiết lập login manager
@@ -53,8 +64,15 @@ def create_app(config_class=Config):
     # Đăng ký chatbot blueprint
     from app.chatbot import bp as chatbot_bp
     app.register_blueprint(chatbot_bp)
-    from app.chatbot.routes import register_chatbot_events
-    register_chatbot_events()
+    
+    # Đăng ký chatbot events nếu SocketIO có sẵn
+    if socketio_available:
+        try:
+            from app.chatbot.routes import register_chatbot_events
+            register_chatbot_events()
+            print("Chatbot events registered successfully.")
+        except Exception as e:
+            print(f"Failed to register chatbot events: {e}")
 
     # Đăng ký các lệnh CLI
     from app.commands import register_commands

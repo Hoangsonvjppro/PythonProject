@@ -1,11 +1,18 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Trang không tìm thấy{% endblock %}
+{% block title %}404 - Không tìm thấy trang{% endblock %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <h1 class="display-1">404</h1>
-    <p class="lead">Trang bạn tìm kiếm không tồn tại.</p>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Về trang chủ</a>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center py-5">
+            <h1 class="display-1 text-danger">404</h1>
+            <h2 class="display-5 mb-4">Không tìm thấy trang</h2>
+            <p class="lead mb-4">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.</p>
+            <a href="{{ url_for('main.home') }}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>Quay về trang chủ
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}
