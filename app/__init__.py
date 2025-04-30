@@ -14,7 +14,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(app, cors_allowed_origins="*", async_mode='threading')
     csrf.init_app(app)
 
     # Thiết lập login manager
@@ -49,7 +49,7 @@ def create_app(config_class=Config):
 
     from app.translate import bp as translate_bp
     app.register_blueprint(translate_bp)
-    
+
     # Đăng ký chatbot blueprint
     from app.chatbot import bp as chatbot_bp
     app.register_blueprint(chatbot_bp)
