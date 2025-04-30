@@ -29,6 +29,12 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     
+    # Cấu hình dịch thuật
+    TRANSLATE_CACHE_TIMEOUT = 86400  # 24 giờ
+    TRANSLATE_MAX_LENGTH = 5000  # Độ dài tối đa của văn bản cần dịch
+    TRANSLATE_DEFAULT_SOURCE = 'en'  # Ngôn ngữ nguồn mặc định
+    TRANSLATE_DEFAULT_TARGET = 'vi'  # Ngôn ngữ đích mặc định
+    
     # Các cấu hình khác
     ITEMS_PER_PAGE = 10
 

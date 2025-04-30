@@ -49,6 +49,12 @@ def create_app(config_class=Config):
 
     from app.translate import bp as translate_bp
     app.register_blueprint(translate_bp)
+    
+    # Đăng ký chatbot blueprint
+    from app.chatbot import bp as chatbot_bp
+    app.register_blueprint(chatbot_bp)
+    from app.chatbot.routes import register_chatbot_events
+    register_chatbot_events()
 
     # Đăng ký các lệnh CLI
     from app.commands import register_commands

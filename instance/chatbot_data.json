@@ -1,0 +1,256 @@
+[
+    {"question": "Hello", "answer": "Xin chào! Tôi có thể giúp gì cho bạn?"},
+    {"question": "What is your name?", "answer": "Tôi là trợ lý AI của bạn."},
+    {"question": "How are you?", "answer": "Tôi là một bot, nhưng tôi đang hoạt động rất tốt!"},
+    {"question": "Goodbye", "answer": "Tạm biệt! Chúc bạn một ngày tốt lành!"},
+    {"question": "Làm thế nào để học từ vựng tiếng Anh hiệu quả?", "answer": "Hãy học từ vựng theo chủ đề và sử dụng flashcards để ghi nhớ."},
+    {"question": "Cách phát âm từ 'apple' là gì?", "answer": "Từ 'apple' được phát âm là /ˈæp.l̩/."},
+    {"question": "Tôi nên học ngữ pháp tiếng Anh như thế nào?", "answer": "Hãy bắt đầu với các thì cơ bản như hiện tại đơn, quá khứ đơn và tương lai đơn."},
+    {"question": "Làm thế nào để cải thiện kỹ năng nghe tiếng Anh?", "answer": "Hãy nghe podcast, xem phim hoặc nghe nhạc tiếng Anh mỗi ngày."},
+    {"question": "Từ 'beautiful' có nghĩa là gì?", "answer": "Từ 'beautiful' có nghĩa là 'đẹp'."},
+    {"question": "Cách sử dụng thì hiện tại đơn?", "answer": "Thì hiện tại đơn được sử dụng để diễn tả hành động lặp lại hoặc sự thật hiển nhiên."},
+    {"question": "Từ 'book' có nghĩa là gì?", "answer": "Từ 'book' có nghĩa là 'quyển sách'."},
+    {"question": "Làm thế nào để viết một đoạn văn tiếng Anh?", "answer": "Hãy bắt đầu với câu chủ đề, sau đó viết các câu hỗ trợ và kết thúc bằng câu kết luận."},
+    {"question": "Từ 'run' có nghĩa là gì?", "answer": "Từ 'run' có nghĩa là 'chạy'."},
+    {"question": "Cách sử dụng thì quá khứ đơn?", "answer": "Thì quá khứ đơn được sử dụng để diễn tả hành động đã xảy ra và kết thúc trong quá khứ."},
+    {"question": "Từ 'happy' có nghĩa là gì?", "answer": "Từ 'happy' có nghĩa là 'vui vẻ'."},
+    {"question": "Làm thế nào để học phát âm tiếng Anh?", "answer": "Hãy luyện tập với các video hướng dẫn phát âm và sử dụng từ điển có phát âm."},
+    {"question": "Từ 'cat' có nghĩa là gì?", "answer": "Từ 'cat' có nghĩa là 'con mèo'."},
+    {"question": "Cách sử dụng thì tương lai đơn?", "answer": "Thì tương lai đơn được sử dụng để diễn tả hành động sẽ xảy ra trong tương lai."},
+    {"question": "Từ 'dog' có nghĩa là gì?", "answer": "Từ 'dog' có nghĩa là 'con chó'."},
+    {"question": "Làm thế nào để cải thiện kỹ năng viết tiếng Anh?", "answer": "Hãy viết nhật ký, bài luận hoặc email bằng tiếng Anh mỗi ngày."},
+    {"question": "Từ 'house' có nghĩa là gì?", "answer": "Từ 'house' có nghĩa là 'ngôi nhà'."},
+    {"question": "Cách sử dụng thì hiện tại tiếp diễn?", "answer": "Thì hiện tại tiếp diễn được sử dụng để diễn tả hành động đang xảy ra tại thời điểm nói."},
+    {"question": "Từ 'car' có nghĩa là gì?", "answer": "Từ 'car' có nghĩa là 'xe hơi'."},
+    {"question": "Làm thế nào để học tiếng Anh giao tiếp?", "answer": "Hãy thực hành nói chuyện với người bản xứ hoặc tham gia các lớp học giao tiếp."},
+    {"question": "Từ 'school' có nghĩa là gì?", "answer": "Từ 'school' có nghĩa là 'trường học'."},
+    {"question": "Cách sử dụng thì quá khứ tiếp diễn?", "answer": "Thì quá khứ tiếp diễn được sử dụng để diễn tả hành động đang xảy ra tại một thời điểm trong quá khứ."},
+    {"question": "Từ 'teacher' có nghĩa là gì?", "answer": "Từ 'teacher' có nghĩa là 'giáo viên'."},
+    {"question": "Làm thế nào để học tiếng Anh qua bài hát?", "answer": "Hãy nghe và hát theo lời bài hát tiếng Anh để cải thiện kỹ năng nghe và phát âm."},
+    {"question": "Từ 'student' có nghĩa là gì?", "answer": "Từ 'student' có nghĩa là 'học sinh'."},
+    {"question": "Cách sử dụng thì tương lai tiếp diễn?", "answer": "Thì tương lai tiếp diễn được sử dụng để diễn tả hành động sẽ đang xảy ra tại một thời điểm trong tương lai."},
+    {"question": "Từ 'water' có nghĩa là gì?", "answer": "Từ 'water' có nghĩa là 'nước'."},
+    {"question": "Làm thế nào để học tiếng Anh qua phim?", "answer": "Hãy xem phim tiếng Anh với phụ đề và ghi chú các từ mới."},
+    {"question": "Từ 'food' có nghĩa là gì?", "answer": "Từ 'food' có nghĩa là 'thức ăn'."},
+    {"question": "Cách sử dụng thì hiện tại hoàn thành?", "answer": "Thì hiện tại hoàn thành được sử dụng để diễn tả hành động đã xảy ra và có liên quan đến hiện tại."},
+    {"question": "Từ 'drink' có nghĩa là gì?", "answer": "Từ 'drink' có nghĩa là 'đồ uống'."},
+    {"question": "Làm thế nào để học tiếng Anh qua sách?", "answer": "Hãy đọc sách tiếng Anh và ghi chú các từ mới hoặc cấu trúc câu."},
+    {"question": "Từ 'computer' có nghĩa là gì?", "answer": "Từ 'computer' có nghĩa là 'máy tính'."},
+    {"question": "Cách sử dụng thì quá khứ hoàn thành?", "answer": "Thì quá khứ hoàn thành được sử dụng để diễn tả hành động đã xảy ra trước một hành động khác trong quá khứ."},
+    {"question": "Từ 'phone' có nghĩa là gì?", "answer": "Từ 'phone' có nghĩa là 'điện thoại'."},
+    {"question": "Làm thế nào để học tiếng Anh qua ứng dụng?", "answer": "Hãy sử dụng các ứng dụng học tiếng Anh như Duolingo, Memrise hoặc Quizlet."},
+    {"question": "Từ 'table' có nghĩa là gì?", "answer": "Từ 'table' có nghĩa là 'cái bàn'."},
+    {"question": "Cách sử dụng thì tương lai hoàn thành?", "answer": "Thì tương lai hoàn thành được sử dụng để diễn tả hành động sẽ hoàn thành trước một thời điểm trong tương lai."},
+    {"question": "Từ 'chair' có nghĩa là gì?", "answer": "Từ 'chair' có nghĩa là 'cái ghế'."},
+    {"question": "Làm thế nào để học tiếng Anh qua từ điển?", "answer": "Hãy tra từ điển để hiểu nghĩa và cách sử dụng từ mới."},
+    {"question": "Từ 'pen' có nghĩa là gì?", "answer": "Từ 'pen' có nghĩa là 'cây bút'."},
+    {"question": "Cách sử dụng thì hiện tại hoàn thành tiếp diễn?", "answer": "Thì hiện tại hoàn thành tiếp diễn được sử dụng để diễn tả hành động bắt đầu trong quá khứ và vẫn đang tiếp diễn."},
+    {"question": "Từ 'bookstore' có nghĩa là gì?", "answer": "Từ 'bookstore' có nghĩa là 'hiệu sách'."},
+    {"question": "Làm thế nào để học tiếng Anh qua flashcards?", "answer": "Hãy sử dụng flashcards để ghi nhớ từ vựng và ôn tập thường xuyên."},
+    {"question": "Từ 'library' có nghĩa là gì?", "answer": "Từ 'library' có nghĩa là 'thư viện'."},
+    {"question": "Cách sử dụng thì quá khứ hoàn thành tiếp diễn?", "answer": "Thì quá khứ hoàn thành tiếp diễn được sử dụng để diễn tả hành động đã xảy ra và kéo dài trước một hành động khác trong quá khứ."},
+    {"question": "Từ 'market' có nghĩa là gì?", "answer": "Từ 'market' có nghĩa là 'chợ'."},
+    {"question": "Làm thế nào để học tiếng Anh qua trò chơi?", "answer": "Hãy chơi các trò chơi học tiếng Anh để vừa học vừa giải trí."},
+    {"question": "Từ 'shop' có nghĩa là gì?", "answer": "Từ 'shop' có nghĩa là 'cửa hàng'."},
+    {
+        "question": "Làm thế nào để cải thiện kỹ năng viết tiếng Anh?",
+        "answer": "Bạn nên viết nhật ký hằng ngày và luyện viết các đoạn văn ngắn với từ vựng đơn giản."
+      },
+      {
+        "question": "Tôi nên bắt đầu học ngữ pháp tiếng Anh từ đâu?",
+        "answer": "Bắt đầu với các thì cơ bản như hiện tại đơn, quá khứ đơn và tương lai đơn là lựa chọn hợp lý."
+      },
+      {
+        "question": "Cách học từ vựng tiếng Anh hiệu quả là gì?",
+        "answer": "Học theo chủ đề, sử dụng flashcards và đặt câu với từ mới là cách học từ vựng hiệu quả."
+      },
+      {
+        "question": "Có mẹo nào học phát âm tiếng Anh tốt không?",
+        "answer": "Hãy luyện phát âm với từ điển có âm thanh và bắt chước theo người bản xứ trong video."
+      },
+      {
+        "question": "Tôi gặp khó khăn khi nghe tiếng Anh, nên làm gì?",
+        "answer": "Bắt đầu nghe podcast chậm, xem phim có phụ đề và luyện tập nghe theo từng câu."
+      },
+      {
+        "question": "Ví dụ một bài tập ngữ pháp tiếng Anh cơ bản?",
+        "answer": "Ví dụ: Chia động từ trong câu sau ở thì hiện tại đơn — She (go) to school every day."
+      },
+      {
+        "question": "App nào học tiếng Anh giao tiếp tốt nhất?",
+        "answer": "Một số ứng dụng tốt gồm Duolingo, ELSA Speak và HelloTalk."
+      },
+      {
+        "question": "Làm sao để nhớ từ vựng lâu hơn?",
+        "answer": "Hãy ôn lại nhiều lần, kết hợp hình ảnh, và đặt từ vào tình huống thực tế."
+      },
+      {
+        "question": "Phim nào phù hợp để học tiếng Anh giao tiếp?",
+        "answer": "Friends, How I Met Your Mother, và Modern Family là những phim có ngôn ngữ đời thường dễ hiểu."
+      },
+      {
+        "question": "Tôi nên luyện nói tiếng Anh thế nào khi không có ai để nói cùng?",
+        "answer": "Bạn có thể nói trước gương, ghi âm lại giọng nói, hoặc dùng chatbot tiếng Anh."
+      },
+      {
+        "question": "Từ 'environment' có nghĩa là gì?",
+        "answer": "Từ 'environment' có nghĩa là 'môi trường'."
+      },
+      {
+        "question": "Cách sử dụng câu điều kiện loại 1?",
+        "answer": "Câu điều kiện loại 1 dùng để nói về điều có thể xảy ra trong tương lai. Cấu trúc: If + S + V (hiện tại), S + will + V."
+      },
+      {
+        "question": "Từ 'kindness' có nghĩa là gì?",
+        "answer": "Từ 'kindness' có nghĩa là 'lòng tốt'."
+      },
+      {
+        "question": "Học tiếng Anh qua bài hát có hiệu quả không?",
+        "answer": "Rất hiệu quả nếu bạn hát theo, tra từ mới và hiểu nội dung bài hát."
+      },
+      {
+        "question": "Câu bị động trong tiếng Anh là gì?",
+        "answer": "Câu bị động là câu mà chủ ngữ nhận hành động, ví dụ: The cake was made by her."
+      },
+      {
+        "question": "Làm thế nào để phát hiện lỗi sai ngữ pháp trong câu?",
+        "answer": "Hãy đọc chậm, phân tích từng thành phần câu và luyện tập nhiều bài sửa lỗi."
+      },
+      {
+        "question": "Từ 'brilliant' có nghĩa là gì?",
+        "answer": "Từ 'brilliant' có nghĩa là 'xuất sắc' hoặc 'rực rỡ'."
+      },
+      {
+        "question": "Giới từ nào thường dùng sau động từ 'interested'?",
+        "answer": "Giới từ 'in' — 'interested in something'."
+      },
+      {
+        "question": "Từ 'achievement' có nghĩa là gì?",
+        "answer": "Từ 'achievement' có nghĩa là 'thành tựu'."
+      },
+      {
+        "question": "Làm thế nào để đọc hiểu bài tiếng Anh dài?",
+        "answer": "Chia nhỏ đoạn văn, đọc lướt để nắm ý chính, rồi đọc kỹ từng phần và ghi chú từ mới."
+      },
+      {
+        "question": "Từ 'challenge' có nghĩa là gì?",
+        "answer": "Từ 'challenge' có nghĩa là 'thách thức'."
+      },
+      {
+        "question": "Cách sử dụng từ 'however' trong câu?",
+        "answer": "'However' được dùng để nối hai mệnh đề trái ngược nhau, ví dụ: I like coffee; however, she prefers tea."
+      },
+      {
+        "question": "Từ 'opportunity' có nghĩa là gì?",
+        "answer": "Từ 'opportunity' có nghĩa là 'cơ hội'."
+      },
+      {
+        "question": "Làm thế nào để nhớ cách phát âm của từ mới?",
+        "answer": "Nghe đi nghe lại nhiều lần và luyện tập phát âm theo."
+      },
+      {
+        "question": "Từ 'responsibility' có nghĩa là gì?",
+        "answer": "Từ 'responsibility' có nghĩa là 'trách nhiệm'."
+      },
+      {
+        "question": "Cách sử dụng từ 'although' trong câu?",
+        "answer": "'Although' được dùng để diễn tả sự tương phản, ví dụ: Although it was raining, we went out."
+      },
+      {
+        "question": "Từ 'motivation' có nghĩa là gì?",
+        "answer": "Từ 'motivation' có nghĩa là 'động lực'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng theo chủ đề?",
+        "answer": "Chọn một chủ đề cụ thể và tìm hiểu các từ liên quan đến chủ đề đó."
+      },
+      {
+        "question": "Từ 'communication' có nghĩa là gì?",
+        "answer": "Từ 'communication' có nghĩa là 'giao tiếp'."
+      },
+      {
+        "question": "Cách sử dụng từ 'despite' trong câu?",
+        "answer": "'Despite' được dùng để diễn tả sự tương phản, ví dụ: Despite the rain, we had a great time."
+      },
+      {
+        "question": "Từ 'teamwork' có nghĩa là gì?",
+        "answer": "Từ 'teamwork' có nghĩa là 'làm việc nhóm'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua trò chơi?",
+        "answer": "Chơi các trò chơi từ vựng như Scrabble hoặc Quizlet để ghi nhớ từ mới."
+      },
+      {
+        "question": "Từ 'leadership' có nghĩa là gì?",
+        "answer": "Từ 'leadership' có nghĩa là 'khả năng lãnh đạo'."
+      },
+      {
+        "question": "Cách sử dụng từ 'in spite of' trong câu?",
+        "answer": "'In spite of' được dùng để diễn tả sự tương phản, ví dụ: In spite of the difficulties, we succeeded."
+      },
+      {
+        "question": "Từ 'creativity' có nghĩa là gì?",
+        "answer": "Từ 'creativity' có nghĩa là 'sự sáng tạo'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua sách báo?",
+        "answer": "Đọc sách báo tiếng Anh và ghi chú từ mới trong quá trình đọc."
+      },
+      {
+        "question": "Từ 'collaboration' có nghĩa là gì?",
+        "answer": "Từ 'collaboration' có nghĩa là 'sự hợp tác'."
+      },
+      {
+        "question": "Cách sử dụng từ 'unless' trong câu?",
+        "answer": "'Unless' được dùng để diễn tả điều kiện, ví dụ: I won't go unless you come."
+      },
+      {
+        "question": "Từ 'innovation' có nghĩa là gì?",
+        "answer": "Từ 'innovation' có nghĩa là 'đổi mới'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua hình ảnh?",
+        "answer": "Sử dụng flashcards có hình ảnh và từ vựng để ghi nhớ dễ hơn."
+      },
+      {
+        "question": "Từ 'collaboration' có nghĩa là gì?",
+        "answer": "Từ 'collaboration' có nghĩa là 'sự hợp tác'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua hình ảnh?",
+        "answer": "Sử dụng flashcards có hình ảnh và từ vựng để ghi nhớ dễ hơn."
+      },
+      {
+        "question": "Từ 'innovation' có nghĩa là gì?",
+        "answer": "Từ 'innovation' có nghĩa là 'đổi mới'."
+      },
+      {
+        "question": "Cách sử dụng từ 'unless' trong câu?",
+        "answer": "'Unless' được dùng để diễn tả điều kiện, ví dụ: I won't go unless you come."
+      },
+      {
+        "question": "Từ 'satisfaction' có nghĩa là gì?",
+        "answer": "Từ 'satisfaction' có nghĩa là 'sự hài lòng'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua video trên YouTube?",
+        "answer": "Xem video có phụ đề và ghi chú từ mới trong quá trình xem."
+      },
+      {
+        "question": "Từ 'sustainability' có nghĩa là gì?",
+        "answer": "Từ 'sustainability' có nghĩa là 'tính bền vững'."
+      },
+      {
+        "question": "Làm thế nào để học từ vựng qua video?",
+        "answer": "Xem video có phụ đề và ghi chú từ mới trong quá trình xem."
+      },
+      {
+        "question": "Từ 'diversity' có nghĩa là gì?",
+        "answer": "Từ 'diversity' có nghĩa là 'sự đa dạng'."
+      },
+      {
+        "question": "Cách sử dụng từ 'whereas' trong câu?",
+        "answer": "'Whereas' được dùng để diễn tả sự tương phản, ví dụ: She likes tea, whereas he prefers coffee."
+      }
+
+]

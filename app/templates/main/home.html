@@ -1,4 +1,4 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Home{% endblock %}
 
@@ -15,23 +15,23 @@
 
                     {% if current_user.is_authenticated %}
                     <div class="profile-section mb-4">
-                        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}" alt="Avatar"
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) if current_user.avatar else url_for('static', filename='default_avatar.png') }}" alt="Avatar"
                             class="avatar-large mb-3">
                         <div class="button-group">
-                            <a href="{{ url_for('update_profile') }}" class="btn btn-primary me-2">
+                            <a href="{{ url_for('main.update_profile') }}" class="btn btn-primary me-2">
                                 <i class="fas fa-user-edit me-2"></i>Update Profile
                             </a>
-                            <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
                             </a>
                         </div>
                     </div>
                     {% else %}
                     <div class="button-group">
-                        <a href="{{ url_for('login') }}" class="btn btn-success me-2">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-success me-2">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </a>
-                        <a href="{{ url_for('register') }}" class="btn btn-warning">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-warning">
                             <i class="fas fa-user-plus me-2"></i>Register
                         </a>
                     </div>
@@ -45,6 +45,7 @@
                                     <i class="fas fa-language fa-3x mb-3"></i>
                                     <h3>Translation</h3>
                                     <p>Translate text between multiple languages instantly</p>
+                                    <a href="{{ url_for('translate.translate_text') }}" class="btn btn-outline-primary mt-3">Try Now</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -52,6 +53,7 @@
                                     <i class="fas fa-microphone fa-3x mb-3"></i>
                                     <h3>Speech Test</h3>
                                     <p>Practice your pronunciation with our speech recognition</p>
+                                    <a href="{{ url_for('speech.speech_to_text') }}" class="btn btn-outline-primary mt-3">Try Now</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -59,6 +61,17 @@
                                     <i class="fas fa-comments fa-3x mb-3"></i>
                                     <h3>Chat Space</h3>
                                     <p>Connect with others in our interactive chat room</p>
+                                    <a href="{{ url_for('chat.index') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-4 mx-auto">
+                                <div class="feature-card">
+                                    <i class="fas fa-robot fa-3x mb-3"></i>
+                                    <h3>Chatbot</h3>
+                                    <p>Get instant help from our AI-powered chatbot</p>
+                                    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
                                 </div>
                             </div>
                         </div>

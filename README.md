@@ -1,6 +1,6 @@
 # Ứng Dụng Học Tiếng Anh
 
-Ứng dụng web học tiếng Anh đa chức năng với khả năng luyện phát âm, chat, dịch và các bài học theo cấp độ.
+Ứng dụng web học tiếng Anh đa chức năng với khả năng luyện phát âm, chat, dịch, chatbot AI và các bài học theo cấp độ.
 
 ## Cấu trúc dự án
 
@@ -13,6 +13,7 @@ PythonProject/
 │   ├── extensions.py         # Các tiện ích mở rộng (db, login, etc)
 │   ├── models/               # Models database
 │   ├── chat/                 # Module chat
+│   ├── chatbot/              # Module chatbot AI
 │   ├── speech/               # Module phát âm
 │   ├── translate/            # Module dịch thuật
 │   ├── tutorials/            # Module bài học
@@ -24,7 +25,8 @@ PythonProject/
 ├── .flaskenv                 # Biến môi trường Flask
 ├── app.py                    # Entry point đơn giản
 ├── wsgi.py                   # Entry point WSGI cho production
-└── recreate_db.py            # Script tạo lại database
+├── recreate_db.py            # Script tạo lại database
+└── train_chatbot.py          # Script huấn luyện chatbot
 ```
 
 ## Yêu cầu
@@ -33,70 +35,60 @@ PythonProject/
 - Pip
 - Các thư viện được liệt kê trong requirements.txt
 
-## Cài đặt
+## Hướng dẫn cài đặt
 
-1. Tạo môi trường ảo:
+### Yêu cầu
+- Python 3.8 hoặc mới hơn
+- pip (trình quản lý gói Python)
 
+### Bước 1: Clone dự án
 ```bash
-python -m venv venv
+git clone [url-của-repository]
+cd PythonProject
 ```
 
-2. Kích hoạt môi trường ảo:
-
-- Windows:
+### Bước 2: Tạo môi trường ảo
 ```bash
-venv\Scripts\activate
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# macOS/Linux
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-- Linux/MacOS:
-```bash
-source venv/bin/activate
-```
-
-3. Cài đặt các dependency:
-
+### Bước 3: Cài đặt các gói phụ thuộc
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Thiết lập biến môi trường Flask:
-
-```bash
-# Nội dung file .flaskenv
-FLASK_APP=wsgi.py
-FLASK_ENV=development
-FLASK_DEBUG=1
-```
-
-## Khởi tạo Database
-
-1. Tạo database và thực hiện migrations:
-
+### Bước 4: Thiết lập cơ sở dữ liệu
 ```bash
 flask db upgrade
+# Hoặc sử dụng script để tạo lại cơ sở dữ liệu
+python recreate_db.py
 ```
 
-2. Khởi tạo dữ liệu mẫu:
-
+### Bước 5: Huấn luyện chatbot (nếu cần)
 ```bash
-flask init-db
+python train_chatbot.py
 ```
 
-## Chạy ứng dụng
-
-1. Chạy ứng dụng trong môi trường phát triển:
-
+### Bước 6: Chạy ứng dụng
 ```bash
+# Windows
 flask run
+# hoặc
+python -m flask run
+
+# macOS/Linux
+flask run
+# hoặc
+python3 -m flask run
 ```
 
-2. Nếu muốn sử dụng Socket.IO (cho tính năng chat và phát âm theo thời gian thực):
-
-```bash
-python wsgi.py
-```
-
-Ứng dụng sẽ chạy tại `http://127.0.0.1:5000/`
+Ứng dụng sẽ khởi chạy tại địa chỉ http://127.0.0.1:5000/
 
 ## Tính năng chính
 
@@ -112,7 +104,11 @@ python wsgi.py
    - Tạo phòng chat
    - Chia sẻ kinh nghiệm học tập
 
-4. **Dịch thuật**
+4. **Chatbot AI**
+   - Trả lời câu hỏi liên quan đến học tiếng Anh
+   - Huấn luyện chatbot bằng cách gửi tin nhắn theo cú pháp `Training: câu hỏi => câu trả lời`
+
+5. **Dịch thuật**
    - Dịch văn bản
    - Dịch câu từ nhiều ngôn ngữ
 
@@ -159,6 +155,15 @@ flask init-db
 3. Nếu thiếu thư viện, hãy cài đặt thêm:
 ```bash
 pip install eventlet gunicorn
+```
+
+4. Nếu chatbot không hoạt động, hãy đảm bảo đã chạy:
+```bash
+flask init-chatbot
+```
+hoặc
+```bash
+python train_chatbot.py
 ```
 
 ## Tác giả
