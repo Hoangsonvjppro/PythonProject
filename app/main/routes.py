@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app.main import bp
 from app.extensions import db  # Sửa dòng này
 from app.models.user import User  # Sửa dòng này
+from app.models.learning import Level, Lesson, UserProgress
 from werkzeug.utils import secure_filename
 import os
 from flask import current_app
@@ -99,4 +100,35 @@ def contact():
         # Xử lý dữ liệu form - có thể gửi email hoặc lưu vào database
         flash('Tin nhắn của bạn đã được gửi thành công!', 'success')
         return redirect(url_for('main.contact'))
-    return render_template('main/contact.html', title='Liên hệ', form=form) 
+    return render_template('main/contact.html', title='Liên hệ', form=form)
+
+@bp.route('/lesson/<int:lesson_id>')
+def lesson(lesson_id):
+    """Xem bài học"""
+    lesson = Lesson.query.get_or_404(lesson_id)
+    
+    # Kiểm tra xem người dùng đã đăng nhập chưa
+    user_progress = None
+    completed = False
+    if current_user.is_authenticated:
+        # Lấy hoặc tạo tiến độ cho người dùng
+        user_progress = UserProgress.query.filter_by(
+            user_id=current_user.id, lesson_id=lesson_id
+        ).first()
+        
+        if not user_progress:
+            user_progress = UserProgress(
+                user_id=current_user.id,
+                lesson_id=lesson_id,
+                completion_status=False
+            )
+            db.session.add(user_progress)
+            db.session.commit()
+        
+        completed = user_progress.completion_status
+    
+    return render_template('tutorials/lesson.html', 
+                           title=lesson.title,
+                           lesson=lesson, 
+                           user_progress=user_progress,
+                           completed=completed) 

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">
+                <i class="fas fa-user me-2"></i> {{ title }}
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết người dùng</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin cá nhân</h6>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" 
+                         alt="{{ user.username }}" class="img-profile rounded-circle mb-3" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    <div class="d-flex justify-content-center mb-3">
+                        <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %} p-2">
+                            {{ user.role|upper }}
+                        </span>
+                    </div>
+                    
+                    {% if current_user.id != user.id %}
+                    <form action="{{ url_for('admin.toggle_user_role', user_id=user.id) }}" method="POST">
+                        <button type="submit" class="btn btn-outline-primary btn-sm w-100 mb-2" 
+                                onclick="return confirm('Bạn có chắc chắn muốn thay đổi quyền của người dùng này?');">
+                            <i class="fas fa-exchange-alt me-2"></i>
+                            Chuyển đổi thành {{ "Người dùng" if user.role == "admin" else "Admin" }}
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary btn-sm w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tiến độ học tập</h6>
+                </div>
+                <div class="card-body">
+                    {% if user_progress %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Bài học</th>
+                                    <th>Cấp độ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày hoàn thành</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for progress in user_progress %}
+                                <tr>
+                                    <td>{{ progress.lesson.title }}</td>
+                                    <td>{{ progress.lesson.level.level_name }}</td>
+                                    <td>
+                                        <span class="badge {% if progress.completion_status %}bg-success{% else %}bg-warning{% endif %}">
+                                            {% if progress.completion_status %}Hoàn thành{% else %}Đang học{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if progress.completion_date %}
+                                            {{ progress.completion_date.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book-reader fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Người dùng chưa bắt đầu học bất kỳ bài học nào.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Activity Stats -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hoạt động gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Đăng nhập cuối
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {{ user.last_seen.strftime('%d/%m/%Y %H:%M') if user.last_seen else 'Chưa có' }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Tiến độ hoàn thành
+                                            </div>
+                                            {% set completed = user_progress|selectattr('completion_status', 'eq', True)|list|length %}
+                                            {% set total = user_progress|length %}
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                                        {% if total > 0 %}
+                                                            {{ (completed / total * 100)|int }}%
+                                                        {% else %}
+                                                            0%
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="progress progress-sm mr-2">
+                                                        <div class="progress-bar bg-success" role="progressbar" 
+                                                             style="width: {% if total > 0 %}{{ (completed / total * 100)|int }}{% else %}0{% endif %}%">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

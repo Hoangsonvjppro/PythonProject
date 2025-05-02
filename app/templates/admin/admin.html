@@ -1,22 +1,51 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="admin-card card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="mb-0">
-                            <i class="fas fa-user-shield me-2"></i>Admin Dashboard
-                        </h2>
-                        <a href="{{ url_for('home') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Home
+<div class="container mt-4">
+    <div class="row">
+        <!-- Admin sidebar menu -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>Quản trị
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2"></i>Quản lý người dùng
+                        </a>
+                        <a href="{{ url_for('admin.content') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book me-2"></i>Quản lý nội dung
+                        </a>
+                        <a href="{{ url_for('admin.stats') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-line me-2"></i>Thống kê
                         </a>
                     </div>
-
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('main.home') }}" class="btn btn-secondary btn-sm w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="col-md-9">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Danh sách người dùng
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -47,12 +76,15 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-primary" title="Chi tiết">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                            </a>
+                                            {% if user.id != current_user.id %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" 
+                                                    onclick="if(confirm('Bạn có chắc chắn muốn xóa người dùng này?')) { window.location.href = '{{ url_for('admin.user_detail', user_id=user.id) }}?action=delete'; }">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -67,44 +99,6 @@
 </div>
 
 <style>
-    .admin-card {
-        background: rgba(255, 255, 255, 0.95);
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .admin-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .table {
-        margin-bottom: 0;
-    }
-
-    .table thead th {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 1rem;
-        font-weight: 600;
-    }
-
-    .table tbody tr {
-        transition: all 0.3s ease;
-    }
-
-    .table tbody tr:hover {
-        background: var(--secondary-color);
-        transform: scale(1.01);
-    }
-
-    .table td {
-        vertical-align: middle;
-        padding: 1rem;
-    }
-
     .avatar-small {
         width: 32px;
         height: 32px;
@@ -154,10 +148,6 @@
     }
 
     @media (max-width: 768px) {
-        .admin-card {
-            margin: 1rem;
-        }
-
         .table-responsive {
             margin: 0 -1rem;
         }

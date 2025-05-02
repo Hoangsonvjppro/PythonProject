@@ -1,4 +1,4 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Admin - Add {{ content_type | capitalize }}{% endblock %}
 
@@ -22,8 +22,8 @@
             </h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin_content') }}">Quản lý nội dung</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.content') }}">Quản lý nội dung</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Thêm {{ 'bài học' if content_type == 'lesson' else 'cấp độ' }}</li>
                 </ol>
             </nav>
@@ -37,7 +37,7 @@
             </h6>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ url_for('add_content', content_type=content_type) }}">
+            <form method="POST" action="{{ url_for('admin.add_content', content_type=content_type) }}">
                 {% if content_type == 'lesson' %}
                 <!-- Lesson Form -->
                 <div class="mb-3">
@@ -103,7 +103,7 @@
                 {% endif %}
                 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('admin_content') }}" class="btn btn-secondary">Hủy</a>
+                    <a href="{{ url_for('admin.content') }}" class="btn btn-secondary">Hủy</a>
                     <button type="submit" class="btn btn-primary">Lưu</button>
                 </div>
             </form>

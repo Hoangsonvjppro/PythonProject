@@ -4,24 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/chat/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/chat/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/extensions.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/extensions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/default_avatar.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/uploads/default_avatar.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/auth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/auth/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/auth/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/auth/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chat/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chat/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chat/room.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chat/room.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/main/settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/main/settings.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/translate/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/translate/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/translate/translate_text.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/translate/translate_text.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/translate/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/translate/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/translate/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/translate/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/instance/app.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/app.db" afterDir="false" />
-    </list>
+    <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -369,7 +352,7 @@
       <workItem from="1746021359440" duration="1610000" />
       <workItem from="1746025182822" duration="3313000" />
       <workItem from="1746034694570" duration="53000" />
-      <workItem from="1746034779765" duration="6584000" />
+      <workItem from="1746034779765" duration="6623000" />
     </task>
     <servers />
   </component>
