@@ -1,4 +1,4 @@
-2025-05-04 00:17:26,044 ERROR: Exception on /chat/room/58917a7d-95af-4158-ab1f-30f8bddffd5d [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
+2025-05-03 23:41:56,538 ERROR: Exception on /chat/ [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
 Traceback (most recent call last):
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
     response = self.full_dispatch_request()
@@ -15,11 +15,16 @@ Traceback (most recent call last):
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 147, in room_detail
+  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 30, in index
+    return chat_page()
+  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 66, in chat_page
     return render_template(
-        'chat/room.html',
-    ...<3 lines>...
-        is_owner=is_owner
+        'chat/index.html',
+    ...<5 lines>...
+        remaining_comments=remaining_comments
     )
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
     return _render(app, template, context)
@@ -30,18 +35,18 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 1, in top-level template code
+  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 1, in top-level template code
     {% extends "base.html" %}
   File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
     {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 51, in block 'content'
-    <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
+  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 65, in block 'content'
+    <img src="{{ url_for('static', filename='uploads/' + post.user.avatar) }}" class="avatar avatar-sm me-2" alt="{{ post.user.username }}">
     
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
     return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.Message object' has no attribute 'timestamp'
-2025-05-04 00:17:33,733 ERROR: Exception on /chat/room/58917a7d-95af-4158-ab1f-30f8bddffd5d [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
+jinja2.exceptions.UndefinedError: 'app.models.chat.StatusPost object' has no attribute 'user'
+2025-05-03 23:42:03,221 ERROR: Exception on /chat/ [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
 Traceback (most recent call last):
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
     response = self.full_dispatch_request()
@@ -58,54 +63,16 @@ Traceback (most recent call last):
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 147, in room_detail
-    return render_template(
-        'chat/room.html',
-    ...<3 lines>...
-        is_owner=is_owner
-    )
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
-    return _render(app, template, context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
-    rv = template.render(context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1301, in render
-    self.environment.handle_exception()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 51, in block 'content'
-    <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
-    
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.Message object' has no attribute 'timestamp'
-2025-05-04 00:17:52,710 ERROR: Exception on /chat/room/58917a7d-95af-4158-ab1f-30f8bddffd5d [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
-Traceback (most recent call last):
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 165, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 30, in index
+    return chat_page()
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 147, in room_detail
+  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 66, in chat_page
     return render_template(
-        'chat/room.html',
-    ...<3 lines>...
-        is_owner=is_owner
+        'chat/index.html',
+    ...<5 lines>...
+        remaining_comments=remaining_comments
     )
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
     return _render(app, template, context)
@@ -116,16 +83,14 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 1, in top-level template code
+  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 1, in top-level template code
     {% extends "base.html" %}
   File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
     {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 51, in block 'content'
-    <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
+  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 65, in block 'content'
+    <img src="{{ url_for('static', filename='uploads/' + post.user.avatar) }}" class="avatar avatar-sm me-2" alt="{{ post.user.username }}">
     
   File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
     return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.Message object' has no attribute 'timestamp'
-2025-05-04 00:22:36,350 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
-2025-05-04 00:23:51,449 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
+jinja2.exceptions.UndefinedError: 'app.models.chat.StatusPost object' has no attribute 'user'

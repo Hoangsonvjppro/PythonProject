@@ -8,8 +8,8 @@
         <div class="col-lg-8">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('chatting.chat_page') }}">Community Hub</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}">{{ room.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('chat.chat_page') }}">Community Hub</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('chat.room_detail', room_id=room.id) }}">{{ room.name }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Edit Room</li>
                 </ol>
             </nav>
@@ -21,7 +21,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('chatting.edit_room', room_id=room.room_id) }}" method="POST">
+                    <form action="{{ url_for('chat.edit_room', room_id=room.id) }}" method="POST">
                         <div class="mb-3">
                             <label for="room_name" class="form-label">Room Name</label>
                             <input type="text" class="form-control" id="room_name" name="room_name" value="{{ room.name }}" required>
@@ -43,7 +43,7 @@
                         </div>
                         
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('chatting.room_detail', room_id=room.room_id) }}" class="btn btn-outline-secondary">
+                            <a href="{{ url_for('chat.room_detail', room_id=room.id) }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                             <button type="submit" class="btn btn-primary">

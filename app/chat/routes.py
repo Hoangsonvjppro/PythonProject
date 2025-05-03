@@ -35,40 +35,42 @@ def index():
 def chat_page():
     # Get public rooms and rooms the user is participating in
     public_rooms = ChatRoom.query.filter_by(is_private=False).all()
-
+    
+    # Get rooms the user is participating in (including private rooms)
+    # Use a join to ensure we only get rooms that exist
     user_rooms = db.session.query(ChatRoom).join(
         RoomParticipant, ChatRoom.id == RoomParticipant.room_id
     ).filter(
         RoomParticipant.user_id == current_user.id
     ).all()
-
-    # Get rooms owned by current user
+    
+    # Get rooms owned by the user, excluding any that might be deleted
     owned_rooms = ChatRoom.query.filter_by(owner_id=current_user.id).all()
-
-    # Get recent status posts for the forum section
-    recent_posts = StatusPost.query.order_by(StatusPost.created_at.desc()).limit(20).all()
-
-    # Check if user has posted today
+    
+    # Get forum posts
+    posts = StatusPost.query.order_by(StatusPost.created_at.desc()).limit(10).all()
+    
+    # Check if user can post today
     today = datetime.utcnow().date()
     today_post = StatusPost.query.filter(
         StatusPost.user_id == current_user.id,
         StatusPost.created_at >= today
     ).first()
-    can_post_today = today_post is None
-
-    # Get user's comment count today
+    can_post_today = not today_post
+    
+    # Check remaining comments for today
     today_comments_count = Comment.query.filter(
         Comment.user_id == current_user.id,
         Comment.created_at >= today
     ).count()
     remaining_comments = max(0, 10 - today_comments_count)
-
+    
     return render_template(
         'chat/index.html',
         public_rooms=public_rooms,
         user_rooms=user_rooms,
         owned_rooms=owned_rooms,
-        recent_posts=recent_posts,
+        posts=posts,
         can_post_today=can_post_today,
         remaining_comments=remaining_comments
     )
@@ -83,6 +85,12 @@ def create_room():
 
     if not name:
         flash('Room name is required', 'danger')
+        return redirect(url_for('chat.chat_page'))
+        
+    # Check for duplicate room names
+    existing_room = ChatRoom.query.filter_by(name=name).first()
+    if existing_room:
+        flash('A room with this name already exists. Please choose a different name.', 'danger')
         return redirect(url_for('chat.chat_page'))
 
     # Tạo room_id trước khi tạo ChatRoom
@@ -112,7 +120,10 @@ def create_room():
 @bp.route('/room/<room_id>')
 @login_required
 def room_detail(room_id):
-    room = ChatRoom.query.get_or_404(room_id)
+    room = ChatRoom.query.get(room_id)
+    if not room:
+        flash('The room you are trying to access does not exist or has been deleted.', 'warning')
+        return redirect(url_for('chat.chat_page'))
 
     # Check if private room and user is participant
     if room.is_private:
@@ -353,43 +364,56 @@ def register_socketio_handlers():
     def handle_connect():
         if current_user.is_authenticated:
             print(f'Client connected: {current_user.username}')
+        else:
+            print('Anonymous client connected')
 
     @socketio.on('disconnect')
     def handle_disconnect():
         if current_user.is_authenticated:
             print(f'Client disconnected: {current_user.username}')
+        else:
+            print('Anonymous client disconnected')
 
     @socketio.on('join')
     def handle_join(data):
+        print(f"Join event received: {data}")
         if not current_user.is_authenticated:
+            print("Join rejected: User not authenticated")
+            emit('error', {'message': 'You need to be logged in'})
             return False
 
-        room_id = data.get('room')
+        room_id = data.get('room_id')
+        if not room_id:
+            print(f"Join rejected: Missing room_id in data: {data}")
+            emit('error', {'message': 'Room ID is required'})
+            return False
 
         # Verify room exists and user has access
         room = ChatRoom.query.get(room_id)
         if not room:
-            emit('error', {'message': 'Room not found'})
+            print(f"Join rejected: Room {room_id} not found or deleted")
+            emit('error', {'message': 'Room does not exist or has been deleted'})
             return False
 
         if room.is_private:
-            participant = RoomParticipant.query.filter_by(
+            # Check if user is a participant
+            is_participant = RoomParticipant.query.filter_by(
                 room_id=room_id, user_id=current_user.id
             ).first()
-
-            if not participant:
-                emit('error', {'message': 'Access denied'})
+            if not is_participant:
+                print(f"Join rejected: User {current_user.username} not a participant in private room {room_id}")
+                emit('error', {'message': 'You do not have access to this room'})
                 return False
 
-        # Tham gia phòng SocketIO
+        # Join socketio room
         join_room(room_id)
+        print(f"User {current_user.username} joined room {room_id}")
 
-        # Thông báo cho mọi người trong phòng
-        emit('status', {
-            'user': current_user.username,
-            'status': 'has joined the room',
-            'timestamp': datetime.utcnow().isoformat()
-        }, room=room_id)
+        # Notify other users
+        emit('user_joined', {
+            'username': current_user.username,
+            'avatar': current_user.avatar or 'default.jpg'
+        }, to=room_id, include_self=False)
 
         return True
 
@@ -398,61 +422,80 @@ def register_socketio_handlers():
         if not current_user.is_authenticated:
             return False
 
-        room_id = data.get('room')
-        leave_room(room_id)
+        room_id = data.get('room_id')
+        if not room_id:
+            print(f"Leave rejected: Missing room_id in data: {data}")
+            return False
 
-        emit('status', {
-            'user': current_user.username,
-            'status': 'has left the room',
-            'timestamp': datetime.utcnow().isoformat()
-        }, room=room_id)
+        # Verify room exists
+        room = ChatRoom.query.get(room_id)
+        if not room:
+            print(f"Leave rejected: Room {room_id} not found")
+            return False
+
+        # Leave socketio room
+        leave_room(room_id)
+        print(f"User {current_user.username} left room {room_id}")
+
+        # Notify other users
+        emit('user_left', {
+            'username': current_user.username
+        }, to=room_id)
+
+        return True
 
     @socketio.on('send_message')
     def handle_send_message(data):
+        print(f"Message event received: {data}")
         if not current_user.is_authenticated:
+            print(f"Message rejected: User not authenticated")
             emit('error', {'message': 'You need to be logged in'})
             return False
 
-        room_id = data.get('room')
-        message_content = data.get('message')
+        room_id = data.get('room_id')
+        message_text = data.get('message')
 
-        if not room_id or not message_content:
+        if not room_id or not message_text:
+            print(f"Message rejected: Invalid data: {data}")
             emit('error', {'message': 'Invalid data'})
             return False
 
         # Verify room exists and user has access
         room = ChatRoom.query.get(room_id)
         if not room:
-            emit('error', {'message': 'Room not found'})
+            print(f"Message rejected: Room {room_id} not found or deleted")
+            emit('error', {'message': 'Room does not exist or has been deleted'})
             return False
 
         if room.is_private:
-            participant = RoomParticipant.query.filter_by(
+            # Check if user is a participant
+            is_participant = RoomParticipant.query.filter_by(
                 room_id=room_id, user_id=current_user.id
             ).first()
-
-            if not participant:
-                emit('error', {'message': 'Access denied'})
+            if not is_participant:
+                print(f"Message rejected: User {current_user.username} not a participant in private room {room_id}")
+                emit('error', {'message': 'You do not have access to this room'})
                 return False
 
-        # Lưu tin nhắn vào cơ sở dữ liệu
+        # Save message to database
         new_message = Message(
             room_id=room_id,
             user_id=current_user.id,
-            content=message_content
+            content=message_text
         )
         db.session.add(new_message)
         db.session.commit()
 
-        # Gửi tin nhắn đến tất cả người dùng trong phòng
+        # Broadcast message to room
         emit('new_message', {
             'id': new_message.id,
-            'user': current_user.username,
-            'user_id': current_user.id,
-            'content': message_content,
+            'username': current_user.username,
+            'avatar': current_user.avatar or 'default.jpg',
+            'message': message_text,
             'timestamp': new_message.created_at.isoformat()
-        }, room=room_id)
+        }, to=room_id)
 
+        print(f"Message from {current_user.username} sent to room {room_id}")
         return True
 
     @socketio.on('update_username')
@@ -460,9 +503,11 @@ def register_socketio_handlers():
         if not current_user.is_authenticated:
             return False
 
-        room_id = data.get('room')
+        room_id = data.get('room_id')
+        if not room_id:
+            return False
 
-        # Thông báo cho mọi người trong phòng về sự thay đổi tên người dùng
+        # Notify room about username update
         emit('user_updated', {
             'user_id': current_user.id,
             'username': current_user.username,

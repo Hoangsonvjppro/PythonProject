@@ -31,8 +31,19 @@ def ensure_uploads_dir():
 
 # Thử import và khởi tạo SocketIO nếu có thể
 try:
+    import eventlet
     from flask_socketio import SocketIO
-    socketio = SocketIO()
+    
+    # Try to properly configure eventlet
+    eventlet.monkey_patch()
+    
+    # Initialize SocketIO with optimized settings
+    socketio = SocketIO(
+        async_mode='eventlet',
+        cors_allowed_origins="*",
+        logger=True,
+        engineio_logger=True
+    )
     socketio_available = True
     print("SocketIO available and initialized.")
 except (ImportError, ValueError) as e:

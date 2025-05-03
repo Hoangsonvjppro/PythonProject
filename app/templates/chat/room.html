@@ -48,7 +48,7 @@
                                         <div class="message-content">
                                             <div class="message-header">
                                                 <span class="message-username">{{ message.user.username }}</span>
-                                                <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
+                                                <span class="message-time">{{ message.created_at.strftime('%H:%M') }}</span>
                                             </div>
                                             <div class="message-text">{{ message.content }}</div>
                                         </div>
@@ -88,7 +88,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
-                                    <a href="{{ url_for('chat.edit_room', room_id=room.room_id) }}" class="btn btn-outline-primary">
+                                    <a href="{{ url_for('chat.edit_room', room_id=room.id) }}" class="btn btn-outline-primary">
                                         <i class="fas fa-edit me-2"></i>Edit Room
                                     </a>
                                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRoomModal">
@@ -99,7 +99,7 @@
                                 {% if room.is_private %}
                                 <hr>
                                 <h6 class="mb-3">Invite User</h6>
-                                <form action="{{ url_for('chat.invite_user', room_id=room.room_id) }}" method="POST">
+                                <form action="{{ url_for('chat.invite_user', room_id=room.id) }}" method="POST">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control" name="username" placeholder="Username" required>
                                         <button class="btn btn-outline-primary" type="submit">
@@ -206,7 +206,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="{{ url_for('chat.delete_room', room_id=room.room_id) }}" method="POST">
+                <form action="{{ url_for('chat.delete_room', room_id=room.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger">Delete Room</button>
                 </form>
             </div>
@@ -228,6 +229,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="remove-user-form" action="" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger">Remove User</button>
                 </form>
             </div>
@@ -251,7 +253,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="{{ url_for('chat.leave_room_route', room_id=room.room_id) }}" method="POST">
+                <form action="{{ url_for('chat.leave_room_route', room_id=room.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-danger">Leave Room</button>
                 </form>
             </div>
@@ -375,14 +378,54 @@
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Kết nối Socket.IO với cấu hình phù hợp
+        // Debug variables at the top
+        console.log("Room ID:", "{{ room.id }}");
+        
+        // Improved Socket.IO configuration
         const socket = io({
-            transports: ['websocket'],
-            upgrade: false
+            transports: ['websocket', 'polling'],
+            upgrade: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+
+        // Log connection events for debugging
+        socket.on('connect', function() {
+            console.log('Socket.IO connected successfully');
+            addSystemMessage('Connected to chat server');
+            
+            // Only join the room when connected
+            const roomId = "{{ room.id }}";
+            console.log('Joining room:', roomId);
+            socket.emit('join', { room_id: roomId });
+        });
+
+        socket.on('connect_error', function(error) {
+            console.error('Socket.IO connection error:', error);
+            addSystemMessage(`Connection error: ${error.message}`, true);
+        });
+
+        socket.on('disconnect', function(reason) {
+            console.log('Socket.IO disconnected:', reason);
+            addSystemMessage(`Disconnected: ${reason}`, true);
+        });
+        
+        socket.on('error', function(data) {
+            console.error('Socket error:', data.message);
+            addSystemMessage(`Error: ${data.message}`, true);
+            
+            // If room doesn't exist, redirect back to chat page after a short delay
+            if (data.message.includes('does not exist') || data.message.includes('deleted')) {
+                addSystemMessage('Redirecting back to chat rooms...', true);
+                setTimeout(function() {
+                    window.location.href = "{{ url_for('chat.chat_page') }}";
+                }, 3000);
+            }
         });
 
         // DOM elements
-        const roomId = "{{ room.room_id }}";
+        const roomId = "{{ room.id }}";
         const currentUserId = parseInt("{{ current_user.id }}");
         const chatMessages = document.getElementById('chat-messages');
         const messageForm = document.getElementById('message-form');
@@ -399,16 +442,10 @@
                     const username = this.getAttribute('data-username');
                     document.getElementById('remove-username').textContent = username;
                     document.getElementById('remove-user-form').action = 
-                        "{{ url_for('chat.remove_user', room_id=room.room_id, user_id=0) }}".replace('/0', '/' + userId);
+                        "{{ url_for('chat.remove_user', room_id=room.id, user_id=0) }}".replace('/0', '/' + userId);
                 });
             });
         }
-        
-        // Join the room on connection
-        socket.on('connect', function() {
-            socket.emit('join', { room_id: roomId });
-            console.log('Connected to room:', roomId);
-        });
         
         // Event listeners
         messageForm.addEventListener('submit', function(e) {
@@ -469,11 +506,6 @@
             addSystemMessage(`${data.username} left the room`);
         });
         
-        socket.on('error', function(data) {
-            console.error('Error:', data.message);
-            addSystemMessage(`Error: ${data.message}`, true);
-        });
-        
         // Helper functions
         function addMessage(data) {
             const messageDiv = document.createElement('div');
@@ -486,7 +518,7 @@
                 <div class="message-content">
                     <div class="message-header">
                         <span class="message-username">${data.username}</span>
-                        <span class="message-time">${data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span class="message-time">${formatTime(data.timestamp || data.created_at)}</span>
                     </div>
                     <div class="message-text">${data.message}</div>
                 </div>
@@ -494,6 +526,12 @@
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log("Added message:", data);
+        }
+        
+        function formatTime(timeString) {
+            if (!timeString) return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            return new Date(timeString).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
         
         function addSystemMessage(message, isError = false) {

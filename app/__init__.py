@@ -27,7 +27,7 @@ def create_app(config_class=Config):
     
     # Thiết lập SocketIO
     if socketio_available:
-        socketio.init_app(app, cors_allowed_origins="*")
+        socketio.init_app(app)
         print("SocketIO initialized successfully.")
     
     # Đảm bảo thư mục uploads tồn tại
@@ -79,8 +79,13 @@ def create_app(config_class=Config):
             from app.chatbot.routes import register_chatbot_events
             register_chatbot_events()
             print("Chatbot events registered successfully.")
+            
+            # Register chat room socket handlers
+            from app.chat.routes import register_socketio_handlers
+            register_socketio_handlers()
+            print("Chat room socket handlers registered successfully.")
         except Exception as e:
-            print(f"Failed to register chatbot events: {e}")
+            print(f"Failed to register SocketIO events: {e}")
 
     # Đăng ký các lệnh CLI
     from app.commands import register_commands
