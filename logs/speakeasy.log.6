@@ -1,4 +1,4 @@
-2025-05-04 21:07:11,441 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
+2025-05-04 20:58:50,150 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
 Traceback (most recent call last):
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -30,11 +30,8 @@ Traceback (most recent call last):
     raise rewrite_traceback_stack(source=source)
   File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "z:\pi\PythonProject\app\templates\base.html", line 162, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "z:\pi\PythonProject\app\templates\main\home.html", line 74, in block 'content'
-    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+  File "z:\pi\PythonProject\app\templates\base.html", line 70, in top-level template code
+    <a class="dropdown-item" href="{{ url_for('chatbot.chatbot') }}">
     ^^^^^^^^^^^^^^^^^^^^^^^^^
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
     return self.handle_url_build_error(error, endpoint, values)
@@ -45,7 +42,7 @@ Traceback (most recent call last):
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
     raise BuildError(endpoint, values, method, self)
 werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?
-2025-05-04 21:07:12,807 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
+2025-05-04 20:58:50,591 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
 Traceback (most recent call last):
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -77,11 +74,8 @@ Traceback (most recent call last):
     raise rewrite_traceback_stack(source=source)
   File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "z:\pi\PythonProject\app\templates\base.html", line 162, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "z:\pi\PythonProject\app\templates\main\home.html", line 74, in block 'content'
-    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+  File "z:\pi\PythonProject\app\templates\base.html", line 70, in top-level template code
+    <a class="dropdown-item" href="{{ url_for('chatbot.chatbot') }}">
     ^^^^^^^^^^^^^^^^^^^^^^^^^
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
     return self.handle_url_build_error(error, endpoint, values)
@@ -92,10 +86,47 @@ Traceback (most recent call last):
   File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
     raise BuildError(endpoint, values, method, self)
 werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?
-2025-05-04 21:08:03,935 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 21:17:22,034 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 21:19:33,325 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 21:23:32,392 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 21:42:01,587 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 21:50:19,003 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:90]
-2025-05-04 22:03:05,648 INFO: SpeakEasy startup [in z:\pi\PythonProject\app\__init__.py:93]
+2025-05-04 20:58:50,783 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
+Traceback (most recent call last):
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\main\routes.py", line 15, in home
+    return render_template('main/home.html', current_user=current_user)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "z:\pi\PythonProject\app\templates\base.html", line 70, in top-level template code
+    <a class="dropdown-item" href="{{ url_for('chatbot.chatbot') }}">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?

@@ -1,139 +1,141 @@
-2025-05-03 23:45:18,143 ERROR: Exception on /chat/ [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
+2025-05-04 21:07:10,691 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
 Traceback (most recent call last):
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
     rv = self.handle_user_exception(e)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 165, in wrapped_function
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+                                                ^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 30, in index
-    return chat_page()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 66, in chat_page
-    return render_template(
-        'chat/index.html',
-    ...<5 lines>...
-        remaining_comments=remaining_comments
-    )
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\main\routes.py", line 15, in home
+    return render_template('main/home.html', current_user=current_user)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 150, in render_template
     return _render(app, template, context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 131, in _render
     rv = template.render(context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1301, in render
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 1, in top-level template code
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
+  File "z:\pi\PythonProject\app\templates\base.html", line 162, in top-level template code
     {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/index.html", line 65, in block 'content'
-    <img src="{{ url_for('static', filename='uploads/' + post.author.avatar) }}" class="avatar avatar-sm me-2" alt="{{ post.author.username }}">
-    
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.StatusPost object' has no attribute 'user'
-2025-05-03 23:45:34,887 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:99]
-2025-05-03 23:54:14,013 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
-2025-05-04 00:03:29,323 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
-2025-05-04 00:11:58,324 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
-2025-05-04 00:16:02,119 ERROR: Exception on /chat/room/58917a7d-95af-4158-ab1f-30f8bddffd5d [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 74, in block 'content'
+    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?
+2025-05-04 21:07:11,007 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
 Traceback (most recent call last):
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
     rv = self.handle_user_exception(e)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 165, in wrapped_function
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+                                                ^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 147, in room_detail
-    return render_template(
-        'chat/room.html',
-    ...<3 lines>...
-        is_owner=is_owner
-    )
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\main\routes.py", line 15, in home
+    return render_template('main/home.html', current_user=current_user)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 150, in render_template
     return _render(app, template, context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 131, in _render
     rv = template.render(context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1301, in render
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 1, in top-level template code
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
+  File "z:\pi\PythonProject\app\templates\base.html", line 162, in top-level template code
     {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 51, in block 'content'
-    <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
-    
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.Message object' has no attribute 'timestamp'
-2025-05-04 00:16:42,698 INFO: SpeakEasy startup [in /home/Hoangson/PythonProject/app/__init__.py:104]
-2025-05-04 00:17:05,030 ERROR: Exception on /chat/room/58917a7d-95af-4158-ab1f-30f8bddffd5d [GET] [in /home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py:825]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 74, in block 'content'
+    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?
+2025-05-04 21:07:11,278 ERROR: Exception on / [GET] [in Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py:875]
 Traceback (most recent call last):
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 1455, in wsgi_app
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 869, in full_dispatch_request
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
     rv = self.handle_user_exception(e)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 165, in wrapped_function
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 867, in full_dispatch_request
+                                                ^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
     rv = self.dispatch_request()
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/app.py", line 852, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/chat/routes.py", line 147, in room_detail
-    return render_template(
-        'chat/room.html',
-    ...<3 lines>...
-        is_owner=is_owner
-    )
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 152, in render_template
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\main\routes.py", line 15, in home
+    return render_template('main/home.html', current_user=current_user)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 150, in render_template
     return _render(app, template, context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/flask/templating.py", line 133, in _render
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 131, in _render
     rv = template.render(context)
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 1301, in render
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 936, in handle_exception
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 1, in top-level template code
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "/home/Hoangson/PythonProject/app/templates/base.html", line 167, in top-level template code
+  File "z:\pi\PythonProject\app\templates\base.html", line 162, in top-level template code
     {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^
-  File "/home/Hoangson/PythonProject/app/templates/chat/room.html", line 51, in block 'content'
-    <span class="message-time">{{ message.timestamp.strftime('%H:%M') }}</span>
-    
-  File "/home/Hoangson/PythonProject/.venv/lib/python3.13/site-packages/jinja2/environment.py", line 485, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'app.models.chat.Message object' has no attribute 'timestamp'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "z:\pi\PythonProject\app\templates\main\home.html", line 74, in block 'content'
+    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "Z:\pi\PythonProject\.venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'chatbot.chatbot'. Did you mean 'chat.create_post' instead?
