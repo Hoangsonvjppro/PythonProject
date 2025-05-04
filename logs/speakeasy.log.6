@@ -1,4 +1,4 @@
-2025-05-04 20:32:17,193 ERROR: Exception on /lesson/1 [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
+2025-05-04 20:53:02,881 ERROR: Exception on /lesson/1 [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
 Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
     response = self.full_dispatch_request()
@@ -36,7 +36,8 @@ Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 99, in _get_source_fast
     raise TemplateNotFound(template)
 jinja2.exceptions.TemplateNotFound: ../base.html
-2025-05-04 20:35:13,257 ERROR: Exception on /lesson/1 [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
+2025-05-04 20:59:06,365 INFO: SpeakEasy startup [in E:\HK4\PythonProject\app\__init__.py:104]
+2025-05-04 20:59:53,173 ERROR: Exception on /admin/content [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
 Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
     response = self.full_dispatch_request()
@@ -50,12 +51,13 @@ Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\app\main\routes.py", line 130, in lesson
-    return render_template('tutorials/lesson.html',
-                           title=lesson.title,
-                           lesson=lesson,
-                           user_progress=user_progress,
-                           completed=completed)
+  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "E:\HK4\PythonProject\app\admin\routes.py", line 22, in decorated_function
+    return f(*args, **kwargs)
+  File "E:\HK4\PythonProject\app\admin\routes.py", line 51, in content
+    return render_template('admin/content.html', levels=levels, lessons=lessons, vocabulary=vocabulary, tests=tests)
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 152, in render_template
     return _render(app, template, context)
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 133, in _render
@@ -65,16 +67,18 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 936, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "E:\HK4\PythonProject\app\templates\tutorials\lesson.html", line 1, in top-level template code
-    {% extends "../base.html" %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: ../base.html
-2025-05-04 20:36:04,103 ERROR: Exception on /lesson/1 [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
+  File "E:\HK4\PythonProject\app\templates\admin\content.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "E:\HK4\PythonProject\app\templates\base.html", line 167, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "E:\HK4\PythonProject\app\templates\admin\content.html", line 45, in block 'content'
+    {{ form.csrf_token }}
+    
+  File "E:\HK4\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'form' is undefined
+2025-05-04 20:59:56,619 ERROR: Exception on /admin/content [GET] [in E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py:825]
 Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
     response = self.full_dispatch_request()
@@ -88,12 +92,13 @@ Traceback (most recent call last):
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\app\main\routes.py", line 130, in lesson
-    return render_template('tutorials/lesson.html',
-                           title=lesson.title,
-                           lesson=lesson,
-                           user_progress=user_progress,
-                           completed=completed)
+  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "E:\HK4\PythonProject\app\admin\routes.py", line 22, in decorated_function
+    return f(*args, **kwargs)
+  File "E:\HK4\PythonProject\app\admin\routes.py", line 51, in content
+    return render_template('admin/content.html', levels=levels, lessons=lessons, vocabulary=vocabulary, tests=tests)
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 152, in render_template
     return _render(app, template, context)
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 133, in _render
@@ -103,14 +108,14 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
   File "E:\HK4\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 936, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "E:\HK4\PythonProject\app\templates\tutorials\lesson.html", line 1, in top-level template code
-    {% extends "../base.html" %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\HK4\PythonProject\.venv\Lib\site-packages\flask\templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: ../base.html
-2025-05-04 20:39:38,368 INFO: SpeakEasy startup [in E:\HK4\PythonProject\app\__init__.py:104]
-2025-05-04 20:52:52,540 INFO: SpeakEasy startup [in E:\HK4\PythonProject\app\__init__.py:104]
+  File "E:\HK4\PythonProject\app\templates\admin\content.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "E:\HK4\PythonProject\app\templates\base.html", line 167, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "E:\HK4\PythonProject\app\templates\admin\content.html", line 45, in block 'content'
+    {{ form.csrf_token }}
+    
+  File "E:\HK4\PythonProject\.venv\Lib\site-packages\jinja2\environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'form' is undefined

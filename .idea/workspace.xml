@@ -5,29 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fc1f2190-e142-40cb-9f77-dea859ea7ea4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/PythonProject.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PythonProject.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/admin/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/admin/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/admin/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/admin/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/add_content.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/add_content.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/content.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/content.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/chatbot/chatbot.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/chatbot/chatbot.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/speech/speech_to_text.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/speech/speech_to_text.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/lesson.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/lesson.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/lesson_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/lesson_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/level_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/level_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/tutorials/tutorials.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/tutorials/tutorials.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tutorials/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/tutorials/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/instance/app.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/app.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.1" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.10" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.10" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.2" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.2" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.3" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.4" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.4" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.5" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.6" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.6" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.7" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.7" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.8" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.8" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/speakeasy.log.9" beforeDir="false" afterPath="$PROJECT_DIR$/logs/speakeasy.log.9" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +82,7 @@
     "Python.PythonProject.executor": "Run",
     "Python.app.executor": "Run",
     "Python.chat.executor": "Run",
+    "Python.routes.executor": "Run",
     "Python.run.executor": "Run",
     "Python.tutorials.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
