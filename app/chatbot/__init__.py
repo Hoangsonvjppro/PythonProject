@@ -1,5 +1,6 @@
 from flask import Blueprint
 
-bp = Blueprint('chatbot', __name__)
+chatbot_bp = Blueprint('chatbot', __name__)
 
-from app.chatbot import routes 
+from app.chatbot import routes
+

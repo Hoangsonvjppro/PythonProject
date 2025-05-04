@@ -66,11 +66,6 @@
                                     <i class="fas fa-language me-2"></i>Translation
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('chatbot.chatbot') }}">
-                                    <i class="fas fa-robot me-2"></i>Chatbot
-                                </a>
-                            </li>
                         </ul>
                     </li>
                     
@@ -218,6 +213,7 @@
                         <li><a href="mailto:support@speakeasy.com">support@speakeasy.com</a></li>
                         <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
                     </ul>
+                    <a href="{{ url_for('chatbot.chatbot') }}" class="btn btn-outline-primary mt-3">Try Now</a>
                 </div>
             </div>
             
@@ -270,6 +266,268 @@
     <!-- Additional scripts -->
     {% block extra_js %}{% endblock %}
 </body>
+
+
+ <!-- Mini chatbot button -->
+ <div id="chat-button">
+    <i class="fas fa-comments"></i>
+</div>
+
+<!-- Chat Box -->
+<div id="chat-box">
+    <div id="chat-header">
+        Chat
+        <span id="close-chat">×</span>
+    </div>
+    <div id="chat-body"></div>
+    <div id="chat-footer">
+        <input type="text" placeholder="Nhập tin nhắn...">
+        <button id="send-button">Gửi</button>
+    </div>
+</div>
+
+<!-- Socket.IO và Mini Chat Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+const currentUser = "{{ current_user.username if current_user.is_authenticated else 'Guest' }}";
+
+document.addEventListener('DOMContentLoaded', function () {
+    const socket = io.connect('http://' + document.domain + ':' + location.port, {
+        transports: ['websocket'],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000
+    });
+
+    const chatButton = document.getElementById('chat-button');
+    const chatBox = document.getElementById('chat-box');
+    const closeChat = document.getElementById('close-chat');
+    const chatBody = document.getElementById('chat-body');
+    const messageInput = document.querySelector('#chat-footer input');
+    const sendButton = document.querySelector('#chat-footer button');
+
+    if (!chatButton || !chatBox || !closeChat || !chatBody || !messageInput || !sendButton) {
+        console.error('Missing chat elements.');
+        return;
+    }
+
+    // Open/Close chat
+    chatButton.addEventListener('click', () => {
+        chatBox.classList.add('open');
+        chatButton.style.display = 'none';
+        messageInput.focus();
+        loadChatHistory();
+    });
+
+    closeChat.addEventListener('click', () => {
+        chatBox.classList.remove('open');
+        chatButton.style.display = 'flex';
+    });
+
+    function sanitizeInput(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function loadChatHistory() {
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        chatBody.innerHTML = '';
+        history.forEach(msg => addMessage(msg.username, msg.message, msg.type));
+    }
+
+    function saveMessage(username, message, type) {
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        history.push({ username, message, type });
+        if (history.length > 100) history.shift();
+        localStorage.setItem('chatHistory', JSON.stringify(history));
+    }
+
+    function addMessage(username, message, type) {
+        const displayUsername = username === 'You' ? currentUser : username;
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${type}`;
+        messageElement.innerHTML = `
+            <div class="message-content">
+                <div class="message-username">${displayUsername}</div>
+                <div>${sanitizeInput(message)}</div>
+            </div>`;
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        if (username !== 'System' && !message.includes('Đang xử lý...')) {
+            saveMessage(displayUsername, message, type);
+        }
+    }
+
+    function handleSendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) {
+            return;
+        }
+        addMessage('You', message, 'sent');
+        if (message === '==remove') {
+            localStorage.removeItem('chatHistory');
+            chatBody.innerHTML = '';
+            addMessage('System', 'Lịch sử chat đã được xóa.', 'received');
+            messageInput.value = '';
+            messageInput.focus();
+            return;
+        }
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'message received loading';
+        loadingElement.innerHTML = `
+            <div class="message-content">
+                <div class="message-username">Chat Bot</div>
+                <div><i class="fas fa-spinner fa-spin"></i> Đang xử lý...</div>
+            </div>`;
+        chatBody.appendChild(loadingElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        socket.emit('send_message_chatbot', { message });
+        messageInput.value = '';
+        messageInput.focus();
+    }
+
+    sendButton.addEventListener('click', handleSendMessage);
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    });
+
+    // Socket Events
+    socket.on('connect', () => {
+        addMessage('System', 'Kết nối thành công. Bạn có thể bắt đầu trò chuyện.', 'received');
+    });
+
+    socket.on('disconnect', () => {
+        localStorage.removeItem('chatHistory');
+    });
+
+    socket.on('new_message_chatbot', (data) => {
+        const loading = chatBody.querySelector('.loading');
+        if (loading) loading.remove();
+        addMessage('Chat Bot', data.message, 'received');
+    });
+
+    socket.on('connect_error', (error) => {
+        addMessage('System', 'Lỗi kết nối tới server.', 'received');
+    });
+});
+</script>
+
+<!-- Chat Styles -->
+<style>
+#chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #0084ff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10000;
+    transition: all 0.3s ease;
+}
+#chat-box {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+#chat-box.open {
+    opacity: 1;
+    transform: scale(1);
+}
+#chat-header {
+    background-color: #0084ff;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#chat-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background: #f9f9f9;
+    scroll-behavior: smooth;
+}
+#chat-footer {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 5px;
+}
+#chat-footer input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+}
+#chat-footer button {
+    background-color: #0084ff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+#close-chat {
+    cursor: pointer;
+    font-size: 20px;
+}
+.message {
+    display: flex;
+    flex-direction: column;
+    margin: 6px 0;
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease forwards;
+}
+.received {
+    background: #e9ecef;
+    align-self: flex-start;
+}
+.sent {
+    background: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+.message-username {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 
 <style>
     :root {
