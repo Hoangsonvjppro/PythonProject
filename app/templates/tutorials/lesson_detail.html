@@ -1,6 +1,6 @@
 {% extends "../base.html" %}
 
-{% block title %}Bài {{ lesson.lesson_id }}: {{ lesson.title }} - English Learning{% endblock %}
+{% block title %}Bài {{ lesson.id }}: {{ lesson.title }} - English Learning{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -9,13 +9,13 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url_for('tutorials.tutorials') }}">Lộ trình học</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('tutorials.level_detail', level_id=level.level_id) }}">Cấp độ {{ level.level_name }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Bài {{ lesson.lesson_id }}</li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('tutorials.level_detail', level_id=level.id) }}">Cấp độ {{ level.level_name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Bài {{ lesson.id }}</li>
                 </ol>
             </nav>
 
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">Bài {{ lesson.lesson_id }}: {{ lesson.title }}</h1>
+                <h1 class="mb-0">Bài {{ lesson.id }}: {{ lesson.title }}</h1>
                 {% if progress.completion_status %}
                 <span class="badge bg-success">
                     <i class="fas fa-check me-1"></i> Đã hoàn thành
@@ -72,7 +72,7 @@
             {% endif %}
 
             <div class="d-flex justify-content-between">
-                <a href="{{ url_for('tutorials.level_detail', level_id=level.level_id) }}" class="btn btn-outline-secondary">
+                <a href="{{ url_for('tutorials.level_detail', level_id=level.id) }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                 </a>
 
@@ -115,7 +115,7 @@
         }
 
         // Gửi yêu cầu hoàn thành bài học
-        fetch("{{ url_for('tutorials.complete_lesson', level_id=level.level_id, lesson_id=lesson.lesson_id) }}", {
+        fetch("{{ url_for('tutorials.complete_lesson', level_id=level.id, lesson_id=lesson.id) }}", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -47,11 +47,11 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for lp in lesson_progress %}
-                        <a href="{{ url_for('tutorials.lesson_detail', level_id=level.level_id, lesson_id=lp.lesson.lesson_id) }}"
+                        <a href="{{ url_for('tutorials.lesson_detail', level_id=level.id, lesson_id=lp.lesson.id if lp.lesson and lp.lesson.id is defined else 0) }}"
                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">Bài {{ loop.index }}: {{ lp.lesson.title }}</h6>
-                                <small class="text-muted">{{ lp.lesson.description }}</small>
+                                <h6 class="mb-1">Bài {{ loop.index }}: {{ lp.lesson.title if lp.lesson and lp.lesson.title is defined else 'Không có tiêu đề' }}</h6>
+                                <small class="text-muted">{{ lp.lesson.description if lp.lesson and lp.lesson.description is defined else '' }}</small>
                             </div>
                             <div>
                                 {% if lp.is_completed %}

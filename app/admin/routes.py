@@ -8,6 +8,8 @@ from app.models.user import User
 from app.models.learning import Level, Lesson, UserProgress, Vocabulary, Test
 from app.models.chat import ChatRoom, Message, StatusPost
 from app.extensions import db
+from app.admin.forms import LevelForm, LessonForm
+from flask_wtf import FlaskForm
 
 
 def admin_required(f):
@@ -47,7 +49,13 @@ def content():
     lessons = Lesson.query.all()
     vocabulary = Vocabulary.query.all()
     tests = Test.query.all()
-    return render_template('admin/content.html', levels=levels, lessons=lessons, vocabulary=vocabulary, tests=tests)
+    form = FlaskForm()  # Tạo form rỗng chỉ để lấy CSRF token
+    return render_template('admin/content.html', 
+                         levels=levels, 
+                         lessons=lessons, 
+                         vocabulary=vocabulary, 
+                         tests=tests,
+                         form=form)
 
 
 @bp.route('/stats')
@@ -171,63 +179,70 @@ def add_content(content_type):
     if content_type not in ['level', 'lesson']:
         flash('Loại nội dung không hợp lệ.', 'danger')
         return redirect(url_for('admin.content'))
-        
-    if request.method == 'POST':
-        if content_type == 'level':
-            # Xử lý thêm cấp độ mới
-            level_name = request.form.get('level_name')
-            description = request.form.get('description')
-            icon = request.form.get('icon', 'graduation-cap')
-            order = request.form.get('order', 0)
-            
-            level = Level(
-                level_name=level_name,
-                description=description,
-                icon=icon,
-                order=int(order),
-                created_by=current_user.id
-            )
-            
-            try:
-                db.session.add(level)
-                db.session.commit()
-                flash(f'Đã thêm cấp độ {level_name} thành công!', 'success')
-                return redirect(url_for('admin.content'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f'Không thể thêm cấp độ: {str(e)}', 'danger')
-                
-        elif content_type == 'lesson':
-            # Xử lý thêm bài học mới
-            title = request.form.get('title')
-            description = request.form.get('description')
-            level_id = request.form.get('level_id')
-            order = request.form.get('order', 0)
-            content = request.form.get('content')
-            
-            lesson = Lesson(
-                title=title,
-                description=description,
-                level_id=int(level_id),
-                order=int(order),
-                content=content,
-                created_by=current_user.id
-            )
-            
-            try:
-                db.session.add(lesson)
-                db.session.commit()
-                flash(f'Đã thêm bài học {title} thành công!', 'success')
-                return redirect(url_for('admin.content'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f'Không thể thêm bài học: {str(e)}', 'danger')
     
-    # GET request - hiển thị form
-    levels = Level.query.all()
-    return render_template('admin/add_content.html', 
-                        content_type=content_type,
-                        levels=levels)
+    try:
+        # Tạo form object tương ứng
+        form = LevelForm() if content_type == 'level' else LessonForm()
+        print(f"Form type: {type(form)}")
+        
+        if content_type == 'lesson':
+            levels = Level.query.all()
+            print(f"Levels found: {len(levels)}")
+            for level in levels:
+                print(f"Level: id={level.id}, name={level.level_name}")
+            form.level_id.choices = [(l.id, l.level_name) for l in levels]
+            print(f"Form choices: {form.level_id.choices}")
+        
+        if request.method == 'POST' and form.validate_on_submit():
+            if content_type == 'level':
+                # Xử lý thêm cấp độ mới
+                level = Level(
+                    level_name=form.level_name.data,
+                    description=form.description.data,
+                    icon=form.icon.data,
+                    order=form.order.data,
+                    created_by=current_user.id
+                )
+                
+                try:
+                    db.session.add(level)
+                    db.session.commit()
+                    flash(f'Đã thêm cấp độ {level.level_name} thành công!', 'success')
+                    return redirect(url_for('admin.content'))
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f'Không thể thêm cấp độ: {str(e)}', 'danger')
+                    
+            elif content_type == 'lesson':
+                # Xử lý thêm bài học mới
+                lesson = Lesson(
+                    title=form.title.data,
+                    description=form.description.data,
+                    level_id=form.level_id.data,
+                    order=form.order.data,
+                    content=form.content.data,
+                    created_by=current_user.id
+                )
+                
+                try:
+                    db.session.add(lesson)
+                    db.session.commit()
+                    flash(f'Đã thêm bài học {lesson.title} thành công!', 'success')
+                    return redirect(url_for('admin.content'))
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f'Không thể thêm bài học: {str(e)}', 'danger')
+        
+        # GET request - hiển thị form
+        levels = Level.query.all()
+        return render_template('admin/add_content.html', 
+                            content_type=content_type,
+                            levels=levels,
+                            form=form)
+    except Exception as e:
+        print(f"Error in add_content: {str(e)}")
+        flash(f'Có lỗi xảy ra: {str(e)}', 'danger')
+        return redirect(url_for('admin.content'))
 
 
 @bp.route('/edit-content/<string:content_type>/<int:content_id>', methods=['GET', 'POST'])

@@ -42,6 +42,7 @@
                                 </a>
                                 <form method="POST" action="{{ url_for('admin.delete_content', content_type='level', content_id=level.id) }}" 
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa cấp độ này? Hành động này không thể hoàn tác.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" {% if level.lessons %}disabled title="Không thể xóa cấp độ có bài học"{% endif %}>
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -146,7 +147,7 @@
                     <tbody>
                         {% for lesson in level.lessons|sort(attribute='order') %}
                         <tr>
-                            <td>{{ lesson.lesson_id }}</td>
+                            <td>{{ lesson.id }}</td>
                             <td>{{ lesson.order }}</td>
                             <td>{{ lesson.title }}</td>
                             <td>{{ lesson.description }}</td>
@@ -160,6 +161,7 @@
                                     </a>
                                     <form method="POST" action="{{ url_for('admin.delete_content', content_type='lesson', content_id=lesson.id) }}" 
                                           onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài học này? Hành động này không thể hoàn tác và sẽ xóa cả tiến độ học tập liên quan.');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                             <i class="fas fa-trash"></i> Xóa
                                         </button>

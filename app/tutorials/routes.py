@@ -24,7 +24,7 @@ def index():
                 completion_status=True
             ).join(Lesson).filter(Lesson.level_id == level.id).count()
             
-            completion_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+            completion_percentage = (completed_lessons / total_lessons * 100)
             
             # Kiểm tra xem cấp độ có bị khóa không
             is_locked = False
@@ -42,7 +42,7 @@ def index():
             
             level_data[level.id] = {
                 "id": level.id,
-                "name": level.name,
+                "level_name": level.level_name,
                 "description": level.description,
                 "icon": level.icon or "graduation-cap",
                 "total_lessons": total_lessons,
@@ -71,7 +71,7 @@ def level_detail(level_id):
             ).join(Lesson).filter(Lesson.level_id == prev_level.id).count()
             
             if len(prev_lessons) > 0 and (prev_completed / len(prev_lessons) < 0.8):
-                flash(f'Bạn cần hoàn thành ít nhất 80% cấp độ {prev_level.name} để mở khóa cấp độ này!', 'warning')
+                flash(f'Bạn cần hoàn thành ít nhất 80% cấp độ {prev_level.level_name} để mở khóa cấp độ này!', 'warning')
                 return redirect(url_for('tutorials.index'))
     
     # Lấy thông tin tiến độ cho mỗi bài học
@@ -94,7 +94,7 @@ def level_detail(level_id):
     
     return render_template(
         'tutorials/level_detail.html',
-        title=f'Cấp độ {level.name}',
+        title=f'Cấp độ {level.level_name}',
         level=level,
         lesson_progress=lesson_progress,
         completed_count=completed_count,

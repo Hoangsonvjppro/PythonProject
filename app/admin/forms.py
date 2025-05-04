@@ -5,8 +5,8 @@ from flask_wtf.file import FileField, FileAllowed
 
 class LevelForm(FlaskForm):
     """Form để thêm/sửa cấp độ"""
-    name = StringField('Tên cấp độ', validators=[DataRequired(), Length(max=50)])
-    description = TextAreaField('Mô tả')
+    level_name = StringField('Tên cấp độ', validators=[DataRequired(), Length(max=50)])
+    description = TextAreaField('Mô tả', validators=[DataRequired()])
     icon = StringField('Icon', default='graduation-cap')
     order = IntegerField('Thứ tự hiển thị', default=0)
     active = BooleanField('Kích hoạt', default=True)
@@ -15,8 +15,8 @@ class LevelForm(FlaskForm):
 class LessonForm(FlaskForm):
     """Form để thêm/sửa bài học"""
     title = StringField('Tiêu đề', validators=[DataRequired(), Length(max=200)])
-    description = TextAreaField('Mô tả ngắn')
-    content = TextAreaField('Nội dung bài học')
+    description = TextAreaField('Mô tả ngắn', validators=[DataRequired()])
+    content = TextAreaField('Nội dung bài học', validators=[DataRequired()])
     level_id = SelectField('Cấp độ', coerce=int, validators=[DataRequired()])
     order = IntegerField('Thứ tự hiển thị', default=0)
     active = BooleanField('Kích hoạt', default=True)

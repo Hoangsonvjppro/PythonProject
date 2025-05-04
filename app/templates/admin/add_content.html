@@ -6,107 +6,118 @@
 {{ super() }}
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
-    .ql-editor {
+    .form-label {
+        font-weight: 500;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+    #editor {
         min-height: 300px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+    #editor.is-invalid {
+        border-color: #dc3545;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2 class="mb-3">
-                <i class="fas fa-{% if content_type == 'lesson' %}book{% else %}layer-group{% endif %} me-2"></i> 
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-{% if content_type == 'lesson' %}book{% else %}layer-group{% endif %} me-2"></i>
                 Thêm {{ 'bài học' if content_type == 'lesson' else 'cấp độ' }} mới
             </h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin.content') }}">Quản lý nội dung</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Thêm {{ 'bài học' if content_type == 'lesson' else 'cấp độ' }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                {{ 'Thông tin bài học' if content_type == 'lesson' else 'Thông tin cấp độ' }}
-            </h6>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('admin.add_content', content_type=content_type) }}">
-                {% if content_type == 'lesson' %}
-                <!-- Lesson Form -->
-                <div class="mb-3">
-                    <label for="title" class="form-label">Tiêu đề bài học <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="title" name="title" required>
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.add_content', content_type=content_type) }}" id="contentForm">
+                        {{ form.csrf_token }}
+
+                        {% if content_type == 'lesson' %}
+                        <!-- Lesson Form -->
+                        <div class="mb-3">
+                            <label class="form-label">Tiêu đề bài học <span class="text-danger">*</span></label>
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Nhập tiêu đề bài học") }}
+                            {% if form.title.errors %}
+                                <div class="error-message">{{ form.title.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả ngắn <span class="text-danger">*</span></label>
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="3", placeholder="Nhập mô tả ngắn về bài học") }}
+                            {% if form.description.errors %}
+                                <div class="error-message">{{ form.description.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cấp độ <span class="text-danger">*</span></label>
+                            {{ form.level_id(class="form-select" + (" is-invalid" if form.level_id.errors else "")) }}
+                            {% if form.level_id.errors %}
+                                <div class="error-message">{{ form.level_id.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Thứ tự hiển thị</label>
+                            {{ form.order(class="form-control", type="number", min="0", value="0") }}
+                            <small class="text-muted">Thứ tự để sắp xếp bài học (0, 1, 2, ...)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nội dung bài học <span class="text-danger">*</span></label>
+                            <div id="editor"></div>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="error-message">{{ form.content.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% else %}
+                        <!-- Level Form -->
+                        <div class="mb-3">
+                            <label class="form-label">Tên cấp độ <span class="text-danger">*</span></label>
+                            {{ form.level_name(class="form-control" + (" is-invalid" if form.level_name.errors else ""), placeholder="Ví dụ: A1, A2, B1, B2, C1, C2") }}
+                            {% if form.level_name.errors %}
+                                <div class="error-message">{{ form.level_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả <span class="text-danger">*</span></label>
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="3", placeholder="Mô tả ngắn gọn về cấp độ này") }}
+                            {% if form.description.errors %}
+                                <div class="error-message">{{ form.description.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Biểu tượng</label>
+                            {{ form.icon(class="form-control", placeholder="graduation-cap", value="graduation-cap") }}
+                            <small class="text-muted">Tên biểu tượng Font Awesome</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Thứ tự hiển thị</label>
+                            {{ form.order(class="form-control", type="number", min="0", value="0") }}
+                            <small class="text-muted">Thứ tự để sắp xếp cấp độ (0, 1, 2, ...)</small>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <a href="{{ url_for('admin.content') }}" class="btn btn-secondary">Quay lại</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả ngắn <span class="text-danger">*</span></label>
-                    <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="level_id" class="form-label">Cấp độ <span class="text-danger">*</span></label>
-                    <select class="form-select" id="level_id" name="level_id" required>
-                        <option value="">-- Chọn cấp độ --</option>
-                        {% for level in levels %}
-                        <option value="{{ level.level_id }}">{{ level.level_name }} - {{ level.description }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="order" class="form-label">Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="order" name="order" value="0" min="0">
-                    <div class="form-text">Thứ tự để sắp xếp bài học trong cùng một cấp độ (0, 1, 2, ...)</div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="content" class="form-label">Nội dung bài học <span class="text-danger">*</span></label>
-                    <div id="editor-container"></div>
-                    <input type="hidden" id="content" name="content">
-                    <div class="form-text">Sử dụng trình soạn thảo để định dạng nội dung bài học.</div>
-                </div>
-                
-                {% else %}
-                <!-- Level Form -->
-                <div class="mb-3">
-                    <label for="level_name" class="form-label">Tên cấp độ <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="level_name" name="level_name" required>
-                    <div class="form-text">Ví dụ: A1, A2, B1, B2, C1, C2</div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
-                    <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
-                    <div class="form-text">Mô tả ngắn gọn về cấp độ này</div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="icon" class="form-label">Biểu tượng</label>
-                    <input type="text" class="form-control" id="icon" name="icon" value="graduation-cap">
-                    <div class="form-text">
-                        Tên biểu tượng Font Awesome (xem tại <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com/icons</a>)
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="order" class="form-label">Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="order" name="order" value="0" min="0">
-                    <div class="form-text">Thứ tự để sắp xếp cấp độ (0, 1, 2, ...)</div>
-                </div>
-                {% endif %}
-                
-                <div class="d-flex justify-content-between">
-                    <a href="{{ url_for('admin.content') }}" class="btn btn-secondary">Hủy</a>
-                    <button type="submit" class="btn btn-primary">Lưu</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -114,32 +125,41 @@
 {% if content_type == 'lesson' %}
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Quill editor
-        var quill = new Quill('#editor-container', {
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'align': [] }],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ]
-            },
-            placeholder: 'Nhập nội dung bài học...',
-            theme: 'snow'
-        });
-        
-        // When form is submitted, copy HTML content to hidden input
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(event) {
-            document.getElementById('content').value = quill.root.innerHTML;
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean']
+            ]
+        },
+        placeholder: 'Nhập nội dung bài học...'
     });
+
+    var form = document.getElementById('contentForm');
+    var contentInput = document.getElementById('content');
+
+    if (contentInput.value) {
+        quill.root.innerHTML = contentInput.value;
+    }
+
+    form.onsubmit = function(e) {
+        var content = quill.root.innerHTML;
+        if (content === '<p><br></p>' || content.trim() === '') {
+            e.preventDefault();
+            document.getElementById('editor').classList.add('is-invalid');
+            return false;
+        }
+        contentInput.value = content;
+        return true;
+    };
+
+    quill.on('text-change', function() {
+        document.getElementById('editor').classList.remove('is-invalid');
+    });
+});
 </script>
 {% endif %}
 {% endblock %}
