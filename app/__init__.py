@@ -5,6 +5,7 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from app.config import Config
 from app.extensions import db, login_manager, migrate, socketio, csrf, socketio_available, ensure_uploads_dir
+from app.chatbot import chatbot_bp
 
 
 def create_app(config_class=Config):
@@ -69,23 +70,11 @@ def create_app(config_class=Config):
     from app.translate import bp as translate_bp
     app.register_blueprint(translate_bp)
 
-    # Đăng ký chatbot blueprint
-    from app.chatbot import bp as chatbot_bp
-    app.register_blueprint(chatbot_bp)
-    
-    # Đăng ký chatbot events nếu SocketIO có sẵn
-    if socketio_available:
-        try:
-            from app.chatbot.routes import register_chatbot_events
-            register_chatbot_events()
-            print("Chatbot events registered successfully.")
-            
-            # Register chat room socket handlers
-            from app.chat.routes import register_socketio_handlers
-            register_socketio_handlers()
-            print("Chat room socket handlers registered successfully.")
-        except Exception as e:
-            print(f"Failed to register SocketIO events: {e}")
+    from app.chatbot import chatbot_bp
+    app.register_blueprint(chatbot_bp, url_prefix='/chatbot')
+
+    from app.chatbot.routes import register_socketio_events
+    register_socketio_events(socketio)
 
     # Đăng ký các lệnh CLI
     from app.commands import register_commands
